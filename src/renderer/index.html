@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progress Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Custom Titlebar -->
+  <header id="titlebar">
+    <div class="titlebar-drag">
+      <div class="titlebar-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <span class="titlebar-title">Progress Tracker</span>
+    </div>
+    <div class="titlebar-controls">
+      <button id="btn-minimize" class="titlebar-btn" title="Minimize">
+        <svg width="12" height="12" viewBox="0 0 12 12"><rect y="5" width="12" height="2" rx="1" fill="currentColor"/></svg>
+      </button>
+      <button id="btn-maximize" class="titlebar-btn" title="Maximize">
+        <svg width="12" height="12" viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+      </button>
+      <button id="btn-close" class="titlebar-btn btn-close" title="Close">
+        <svg width="12" height="12" viewBox="0 0 12 12"><line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div id="app-container">
+    <!-- Sidebar -->
+    <nav id="sidebar">
+      <div class="sidebar-nav">
+        <button class="nav-btn active" data-view="dashboard" id="nav-dashboard">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-btn" data-view="schedule" id="nav-schedule">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          <span>Schedule</span>
+        </button>
+        <button class="nav-btn" data-view="timer" id="nav-timer">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span>Timer</span>
+        </button>
+        <button class="nav-btn" data-view="analytics" id="nav-analytics">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          <span>Analytics</span>
+        </button>
+      </div>
+      <div class="sidebar-footer">
+        <div class="streak-badge" id="streak-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+          <span id="streak-count">0</span> day streak
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main id="main-content">
+      <!-- Dashboard View -->
+      <section id="view-dashboard" class="view active">
+        <div class="view-header">
+          <div><h1>Dashboard</h1>
+          <p class="view-subtitle" id="dashboard-date"></p></div>
+          <button class="btn btn-ghost btn-sm btn-reset" id="btn-reset-dashboard" title="Reset all data">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Reset
+          </button>
+        </div>
+        <div class="dashboard-grid">
+          <div class="stat-card glass" id="stat-tasks">
+            <div class="stat-icon" style="--accent: #7c6ef0;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-total-tasks">0</span>
+              <span class="stat-label">Tasks Today</span>
+            </div>
+          </div>
+          <div class="stat-card glass" id="stat-time">
+            <div class="stat-icon" style="--accent: #4ecdc4;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-total-time">0h</span>
+              <span class="stat-label">Tracked Today</span>
+            </div>
+          </div>
+          <div class="stat-card glass" id="stat-completed">
+            <div class="stat-icon" style="--accent: #ff6b8a;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-completed-count">0</span>
+              <span class="stat-label">Completed</span>
+            </div>
+          </div>
+          <div class="stat-card glass" id="stat-estimate">
+            <div class="stat-icon" style="--accent: #f9a826;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+            </div>
+            <div class="stat-info">
+              <span class="stat-value" id="stat-estimated-time">0h</span>
+              <span class="stat-label">Estimated Total</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Timer Card -->
+        <div class="active-timer-card glass" id="dashboard-active-timer" style="display: none;">
+          <div class="active-timer-info">
+            <span class="active-timer-label">Currently Tracking</span>
+            <span class="active-timer-task" id="dashboard-timer-task"></span>
+          </div>
+          <div class="active-timer-display" id="dashboard-timer-display">00:00:00</div>
+          <button class="btn btn-accent btn-sm" id="dashboard-goto-timer">View Timer →</button>
+        </div>
+
+        <!-- Today's Tasks -->
+        <div class="section-header">
+          <h2>Today's Schedule</h2>
+          <button class="btn btn-ghost btn-sm" id="btn-refresh-calendar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+            Refresh
+          </button>
+        </div>
+        <div class="task-list" id="dashboard-task-list">
+          <div class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.4">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            <p>No tasks scheduled for today</p>
+            <span>Events from GNOME Calendar will appear here</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Schedule View -->
+      <section id="view-schedule" class="view">
+        <div class="view-header">
+          <h1>Schedule</h1>
+          <div class="view-actions">
+            <button class="btn btn-ghost btn-sm btn-reset" id="btn-reset-schedule" title="Reset all data">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Reset
+            </button>
+            <button class="btn btn-accent btn-sm" id="btn-add-task">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Add Task
+            </button>
+          </div>
+        </div>
+        <div class="schedule-filters">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="today">Today</button>
+          <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+          <button class="filter-btn" data-filter="past">Past</button>
+        </div>
+        <div class="task-list" id="schedule-task-list">
+          <div class="empty-state">
+            <p>Loading calendar events...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Timer View -->
+      <section id="view-timer" class="view">
+        <div class="view-header">
+          <h1>Timer</h1>
+          <button class="btn btn-ghost btn-sm btn-reset" id="btn-reset-timer" title="Reset all data">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            Reset
+          </button>
+        </div>
+        <div class="timer-container">
+          <div class="timer-ring-wrapper">
+            <svg class="timer-ring" viewBox="0 0 200 200">
+              <circle class="timer-ring-bg" cx="100" cy="100" r="90" fill="none" stroke-width="6"/>
+              <circle class="timer-ring-progress" cx="100" cy="100" r="90" fill="none" stroke-width="6" stroke-dasharray="565.48" stroke-dashoffset="565.48" transform="rotate(-90 100 100)"/>
+            </svg>
+            <div class="timer-display">
+              <span class="timer-time" id="timer-display">00:00:00</span>
+              <span class="timer-task-name" id="timer-task-name">No task selected</span>
+            </div>
+          </div>
+
+          <div class="timer-estimate-bar" id="timer-estimate-bar" style="display: none;">
+            <div class="estimate-bar-labels">
+              <span>Elapsed</span>
+              <span id="timer-estimate-label">Est: 0min</span>
+            </div>
+            <div class="estimate-bar-track">
+              <div class="estimate-bar-fill" id="timer-estimate-fill"></div>
+            </div>
+          </div>
+
+          <div class="timer-controls">
+            <button class="timer-btn timer-btn-secondary" id="btn-timer-stop" disabled>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="6" width="12" height="12" rx="2"/>
+              </svg>
+            </button>
+            <button class="timer-btn timer-btn-primary" id="btn-timer-start">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" id="timer-play-icon">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" id="timer-pause-icon" style="display:none;">
+                <rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="timer-task-selector" id="timer-task-selector">
+            <h3>Select a task to track</h3>
+            <div class="timer-task-list" id="timer-task-list"></div>
+          </div>
+
+          <!-- Today's Sessions -->
+          <div class="timer-sessions">
+            <h3>Today's Sessions</h3>
+            <div class="session-list" id="timer-session-list">
+              <div class="empty-state small">
+                <p>No sessions recorded today</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Analytics View -->
+      <section id="view-analytics" class="view">
+        <div class="view-header">
+          <h1>Analytics</h1>
+          <div class="view-actions">
+            <button class="btn btn-ghost btn-sm btn-reset" id="btn-reset-analytics" title="Reset all data">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Reset
+            </button>
+            <select class="select-input" id="analytics-range">
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+        </div>
+        <div class="analytics-grid">
+          <div class="analytics-card glass" id="analytics-chart-card">
+            <h3>Daily Progress</h3>
+            <div class="chart-container">
+              <canvas id="analytics-chart"></canvas>
+            </div>
+          </div>
+          <div class="analytics-card glass analytics-stats-card">
+            <h3>Summary</h3>
+            <div class="analytics-stats">
+              <div class="analytics-stat">
+                <span class="analytics-stat-value" id="analytics-total-hours">0h</span>
+                <span class="analytics-stat-label">Total Tracked</span>
+              </div>
+              <div class="analytics-stat">
+                <span class="analytics-stat-value" id="analytics-total-sessions">0</span>
+                <span class="analytics-stat-label">Sessions</span>
+              </div>
+              <div class="analytics-stat">
+                <span class="analytics-stat-value" id="analytics-completion-rate">0%</span>
+                <span class="analytics-stat-label">Completion</span>
+              </div>
+              <div class="analytics-stat">
+                <span class="analytics-stat-value" id="analytics-avg-daily">0h</span>
+                <span class="analytics-stat-label">Avg / Day</span>
+              </div>
+            </div>
+          </div>
+          <div class="analytics-card glass" id="analytics-top-tasks">
+            <h3>Top Tasks</h3>
+            <div class="top-tasks-list" id="top-tasks-list">
+              <div class="empty-state small">
+                <p>No data yet</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Add Task Modal -->
+  <div class="modal-overlay" id="modal-overlay" style="display: none;">
+    <div class="modal glass" id="modal-add-task">
+      <div class="modal-header">
+        <h2 id="modal-title">Add Task</h2>
+        <button class="btn btn-ghost btn-sm" id="btn-modal-close">✕</button>
+      </div>
+      <form id="form-add-task">
+        <div class="form-group">
+          <label for="task-name">Task Name</label>
+          <input type="text" id="task-name" placeholder="e.g. Chapter 8 — Arrays" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="task-date">Date</label>
+            <input type="date" id="task-date" required>
+          </div>
+          <div class="form-group">
+            <label for="task-time">Time</label>
+            <input type="time" id="task-time" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="task-estimate">Estimated Duration (minutes)</label>
+          <input type="number" id="task-estimate" placeholder="60" min="1" max="480">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="btn-cancel-task">Cancel</button>
+          <button type="submit" class="btn btn-accent">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Estimate Modal -->
+  <div class="modal-overlay" id="estimate-modal-overlay" style="display: none;">
+    <div class="modal glass modal-sm" id="modal-estimate">
+      <div class="modal-header">
+        <h2>Set Estimate</h2>
+        <button class="btn btn-ghost btn-sm" id="btn-estimate-close">✕</button>
+      </div>
+      <form id="form-estimate">
+        <input type="hidden" id="estimate-task-id">
+        <div class="form-group">
+          <label for="estimate-minutes">Estimated time (minutes)</label>
+          <input type="number" id="estimate-minutes" placeholder="60" min="1" max="480" required>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-ghost" id="btn-estimate-cancel">Cancel</button>
+          <button type="submit" class="btn btn-accent">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

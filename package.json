@@ -1,0 +1,23 @@
+{
+  "name": "progress-tracker",
+  "version": "1.0.0",
+  "description": "Time & Task Progress Tracker — integrates with GNOME Calendar",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "install-desktop": "node scripts/install-desktop.js"
+  },
+  "author": "Abdullah",
+  "license": "MIT",
+  "dependencies": {
+    "electron-store": "^10.0.0",
+    "node-ical": "^0.20.1"
+  },
+  "devDependencies": {
+    "electron": "^35.0.0"
+  },
+  "allowScripts": {
+    "electron@35.7.5": true
+  }
+}

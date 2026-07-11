@@ -7,7 +7,7 @@ import {
   calendarEvents, trackedTasks, customProjects,
   expandedProjects, projectOrder,
   setTrackedTasks, setCustomProjects,
-  setProjectOrder,
+  setProjectOrder, setExpandedProjects,
 } from '../state.js';
 import { createTaskItem } from '../components/task-item.js';
 import { initProjectModal, openEditProjectModal } from '../components/modals.js';
@@ -21,7 +21,20 @@ export function initProjects() {
 
   const resetProjBtn = document.getElementById('btn-reset-projects');
   if (resetProjBtn) {
-    resetProjBtn.addEventListener('click', () => showConfirmDialog());
+    resetProjBtn.addEventListener('click', () => {
+      showConfirmDialog({
+        title: 'Reset Projects?',
+        message: 'This will permanently delete all custom projects and project ordering. Tasks inside these projects will be kept but returned to Unassigned.',
+        confirmText: 'Reset Projects',
+        onConfirm: async () => {
+          await window.tracker.resetProjects();
+          setCustomProjects({});
+          setProjectOrder([]);
+          setExpandedProjects({});
+          setTrackedTasks(await window.tracker.getTasks());
+        }
+      });
+    });
   }
 }
 

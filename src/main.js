@@ -187,6 +187,14 @@ function registerIpcHandlers() {
     return trackingService.resetAll();
   });
 
+  ipcMain.handle('reset-tracking-data', () => {
+    return trackingService.resetTrackingData();
+  });
+
+  ipcMain.handle('reset-projects', () => {
+    return trackingService.resetProjects();
+  });
+
   // Task order
   ipcMain.handle('save-task-order', (event, orderedIds) => {
     return trackingService.saveTaskOrder(orderedIds);

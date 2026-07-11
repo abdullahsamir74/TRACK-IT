@@ -230,6 +230,39 @@ class TrackingService {
   }
 
   /**
+   * Reset only tracking-related data (tasks, sessions, taskOrder)
+   */
+  resetTrackingData() {
+    this.store.set('tasks', {});
+    this.store.set('sessions', []);
+    this.store.set('taskOrder', []);
+    return true;
+  }
+
+  /**
+   * Reset only projects and projectOrder, unassigning tasks from projects
+   */
+  resetProjects() {
+    this.store.set('projects', {});
+    this.store.set('projectOrder', []);
+
+    // Unassign tasks belonging to any project
+    const tasks = this.store.get('tasks', {});
+    let updated = false;
+    for (const taskId in tasks) {
+      if (tasks[taskId].projectId) {
+        tasks[taskId].projectId = null;
+        tasks[taskId].updatedAt = new Date().toISOString();
+        updated = true;
+      }
+    }
+    if (updated) {
+      this.store.set('tasks', tasks);
+    }
+    return true;
+  }
+
+  /**
    * Save custom task order
    */
   saveTaskOrder(orderedIds) {

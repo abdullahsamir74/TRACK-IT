@@ -30,13 +30,17 @@ Progress Tracker is a production-grade, context-isolated desktop time-tracking a
 *   **Interface**: Semantic HTML5, CSS Custom Properties, Dark Glassmorphic Design System (`backdrop-filter`)
 *   **Charts Engine**: Chart.js
 *   **Data Serialization**: `node-ical`
-*   **Offline Database**: Localized user settings store
+*   **Offline Database**: Localized user settings store (`electron-store`)
 
 ### Security IPC Protocol
-To guarantee application security, the main process exposes a restricted set of APIs to the renderer process through a preload context bridge:
-*   `tracker.getCalendarEvents()`: Fetches synced items.
-*   `tracker.getTasks()` / `tracker.saveTask()`: Retrieves and updates user estimations.
-*   `tracker.startTimer()` / `tracker.pauseTimer()` / `tracker.stopTimer()`: Controls backend interval timers.
+To guarantee application security, the main process exposes a restricted set of APIs to the renderer process through a preload context bridge (`window.tracker`):
+*   **Window Management**: `minimize()`, `maximize()`, `close()`
+*   **Calendar Sync**: `getCalendarEvents()`, `getCalendars()`, `onCalendarUpdated(callback)`
+*   **Task Management**: `getTasks()`, `saveTask(task)`, `deleteTask(taskId)`, `setEstimate(taskId, minutes)`, `markTaskComplete(taskId)`, `markTaskIncomplete(taskId)`
+*   **Session Tracking & Analytics**: `getSessions(taskId)`, `getAllSessions()`, `getAnalytics(range)`
+*   **Precision Timer**: `startTimer(taskId, taskName, estimateMinutes)`, `pauseTimer()`, `resumeTimer()`, `stopTimer()`, `getTimerState()`, `onTimerTick(callback)`
+*   **Project Workspace**: `getProjects()`, `saveProject(project)`, `deleteProject(projectId)`, `assignTaskToProject(taskId, projectId)`, `saveProjectOrder(orderedIds)`, `getProjectOrder()`
+*   **Reset & Ordering Controls**: `resetAll()`, `resetTrackingData()`, `resetProjects()`, `saveTaskOrder(orderedIds)`, `getTaskOrder()`
 
 ---
 
@@ -51,18 +55,13 @@ To guarantee application security, the main process exposes a restricted set of 
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/your-username/learning-tracker.git
-    cd learning-tracker
+    git clone https://github.com/abdullahsamir74/progress-tracker.git
+    cd progress-tracker
     ```
 
-2. **Install dependencies**:
+2. **Install dependencies with script execution allowed** (required to run Electron's post-installation setup script):
     ```bash
-    npm install
-    ```
-
-3. **Approve post-install scripts** (required for compiling native Electron binaries):
-    ```bash
-    npm run approve-scripts  # or npm install --allow-scripts
+    npm install --allow-scripts
     ```
 
 ---
@@ -115,8 +114,30 @@ tracker/
     │   └── timer-service.js     # High-precision timer interval manager
     └── renderer/
         ├── index.html    # Single Page Application structure
-        ├── styles.css    # Responsive styling rules
-        └── app.js        # Controller layer binding events & UI renderers
+        ├── styles.css    # Main stylesheet importing modular styles
+        ├── app.js        # Core controller layer binding events & UI view renderers
+        ├── state.js      # Global state and active task/timer trackers
+        ├── utils.js      # Helper utilities (date formatting, durations, IPC wrappers)
+        ├── icon.png      # Application shortcut icon
+        ├── components/   # Modular, interactive UI components
+        │   ├── confirm-dialog.js
+        │   ├── drag-drop.js
+        │   ├── modals.js
+        │   └── task-item.js
+        ├── views/        # View-specific rendering modules
+        │   ├── analytics.js
+        │   ├── dashboard.js
+        │   ├── projects.js
+        │   ├── schedule.js
+        │   └── timer.js
+        └── styles/       # Modular styling definitions (base, layout, themes, etc.)
+            ├── base.css
+            ├── layout.css
+            ├── glass.css
+            ├── buttons.css
+            ├── modals.css
+            ├── task-item.css
+            └── ... (view-specific CSS files)
 ```
 
 ---

@@ -1,0 +1,207 @@
+/* ========================================
+   TASK ITEM — Shared task card component
+   ======================================== */
+
+/* --- Task List Container --- */
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+/* --- Task Item --- */
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+  cursor: grab;
+}
+.task-item:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+}
+.task-item.completed {
+  opacity: 0.5;
+}
+.task-item.completed .task-name {
+  text-decoration: line-through;
+}
+
+/* --- Color Dot --- */
+.task-color-dot {
+  width: 4px;
+  height: 32px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* --- Checkbox --- */
+.task-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid var(--text-muted);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+.task-checkbox:hover {
+  border-color: var(--accent-primary);
+}
+.task-checkbox.checked {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+.task-checkbox.checked::after {
+  content: '✓';
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* --- Task Info --- */
+.task-info {
+  flex: 1;
+  min-width: 0;
+}
+.task-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.task-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.task-meta svg {
+  opacity: 0.6;
+}
+
+/* --- Task Actions --- */
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+.task-item:hover .task-actions {
+  opacity: 1;
+}
+
+.task-action-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  color: var(--text-secondary);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+.task-action-btn:hover {
+  background: rgba(124, 110, 240, 0.15);
+  color: var(--accent-primary);
+}
+.task-action-btn:disabled,
+.task-action-btn.disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-muted);
+}
+.task-action-btn:disabled:hover,
+.task-action-btn.disabled:hover {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-muted);
+}
+
+/* --- Badges --- */
+.task-badge {
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+.task-badge.estimate {
+  background: rgba(78, 205, 196, 0.12);
+  color: var(--accent-secondary);
+}
+.task-badge.tracked {
+  background: rgba(124, 110, 240, 0.12);
+  color: var(--accent-primary);
+}
+
+.task-project-badge {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: auto;
+  border: 1px solid currentColor;
+  opacity: 0.8;
+}
+
+/* --- Drag & Drop --- */
+.drag-handle {
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
+  cursor: grab;
+  flex-shrink: 0;
+  opacity: 0.4;
+  transition: opacity var(--transition-fast);
+}
+.task-item:hover .drag-handle {
+  opacity: 1;
+}
+.drag-handle:active,
+.task-item.dragging {
+  cursor: grabbing !important;
+}
+.task-item.dragging {
+  opacity: 0.4;
+  transform: scale(0.98);
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-glow);
+  transition: none !important;
+}
+.task-item.drag-over {
+  border-top: 2px solid var(--accent-primary);
+  margin-top: -1px;
+}
+.task-item.drag-placeholder {
+  background: rgba(124, 110, 240, 0.03);
+  border: 2px dashed rgba(124, 110, 240, 0.25);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+  box-shadow: none;
+  pointer-events: none;
+}

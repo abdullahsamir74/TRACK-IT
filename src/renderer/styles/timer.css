@@ -1,0 +1,208 @@
+/* ========================================
+   TIMER — Ring, controls, task selector, sessions
+   ======================================== */
+
+/* --- Timer Container --- */
+.timer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* --- Timer Ring --- */
+.timer-ring-wrapper {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  margin-bottom: var(--space-xl);
+}
+.timer-ring {
+  width: 100%;
+  height: 100%;
+}
+.timer-ring-bg {
+  stroke: rgba(255, 255, 255, 0.06);
+}
+.timer-ring-progress {
+  stroke: url(#timerGradient);
+  stroke: var(--accent-primary);
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear;
+}
+.timer-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.timer-time {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  display: block;
+}
+.timer-task-name {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  display: block;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Estimate Bar --- */
+.timer-estimate-bar {
+  width: 100%;
+  margin-bottom: var(--space-xl);
+}
+.estimate-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xs);
+}
+.estimate-bar-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.estimate-bar-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--gradient-accent);
+  border-radius: 3px;
+  transition: width 1s linear;
+}
+
+/* --- Timer Controls --- */
+.timer-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+}
+.timer-btn {
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+}
+.timer-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.timer-btn-primary {
+  width: 72px;
+  height: 72px;
+  background: var(--accent-primary);
+  color: white;
+  box-shadow: 0 4px 20px rgba(124, 110, 240, 0.3);
+}
+.timer-btn-primary:hover:not(:disabled) {
+  transform: scale(1.08);
+  box-shadow: 0 6px 28px rgba(124, 110, 240, 0.45);
+}
+.timer-btn-secondary {
+  width: 52px;
+  height: 52px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+}
+.timer-btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 107, 138, 0.15);
+  color: var(--accent-pink);
+}
+
+/* --- Timer Task Selector --- */
+.timer-task-selector {
+  width: 100%;
+  margin-bottom: var(--space-xl);
+}
+.timer-task-selector h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+}
+.timer-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  max-height: 200px;
+  overflow-y: auto;
+}
+.timer-task-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 13px;
+}
+.timer-task-option:hover {
+  background: rgba(124, 110, 240, 0.1);
+  border-color: rgba(124, 110, 240, 0.3);
+}
+.timer-task-option.selected {
+  background: rgba(124, 110, 240, 0.12);
+  border-color: var(--accent-primary);
+}
+
+/* --- Timer Sessions --- */
+.timer-sessions {
+  width: 100%;
+}
+.timer-sessions h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+}
+.session-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.session-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-card);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-sm);
+}
+.session-task-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.session-duration {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-secondary);
+  font-variant-numeric: tabular-nums;
+}
+.session-time {
+  font-size: 11px;
+  color: var(--text-muted);
+}

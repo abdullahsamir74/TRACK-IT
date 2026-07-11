@@ -1,0 +1,45 @@
+/* ========================================
+   SCHEDULE — Filters, date headers
+   ======================================== */
+
+.schedule-filters {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+.filter-btn {
+  padding: 6px 16px;
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.filter-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+.filter-btn.active {
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
+  color: white;
+}
+
+/* --- Schedule date headers --- */
+.schedule-date-header {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: var(--space-sm) 0;
+  margin-top: var(--space-md);
+  border-bottom: 1px solid var(--bg-glass-border);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.schedule-date-header:first-child {
+  margin-top: 0;
+}

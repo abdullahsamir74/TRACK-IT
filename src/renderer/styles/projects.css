@@ -1,0 +1,244 @@
+/* ========================================
+   PROJECTS — Container, cards, drag-drop, pool
+   ======================================== */
+
+/* --- Projects Layout --- */
+.projects-container {
+  display: flex;
+  gap: var(--space-lg);
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
+  margin-top: var(--space-md);
+}
+
+.projects-list-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  overflow-y: auto;
+  padding-right: var(--space-xs);
+}
+
+/* --- Project Card (Collapsible) --- */
+.project-card {
+  background: var(--bg-card);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-md);
+  transition: background var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.project-card.drag-over {
+  background: rgba(124, 110, 240, 0.1) !important;
+  border-color: var(--accent-primary) !important;
+  box-shadow: var(--shadow-glow);
+}
+
+.project-card.dragging {
+  opacity: 0.8;
+  box-shadow: var(--shadow-lg);
+  border-color: var(--accent-primary);
+  transition: none !important;
+}
+
+.project-drag-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: grab;
+  padding: 4px;
+  opacity: 0.4;
+  transition: opacity var(--transition-fast);
+}
+.project-card-header:hover .project-drag-handle {
+  opacity: 1;
+}
+.project-drag-handle:active {
+  cursor: grabbing;
+}
+
+.project-card-header {
+  display: flex;
+  align-items: center;
+  padding: var(--space-md);
+  cursor: pointer;
+  user-select: none;
+  gap: var(--space-md);
+}
+.project-card-header:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.project-card-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex: 1;
+}
+.project-title {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 320px;
+}
+.project-color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.project-task-count {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* --- Chevron --- */
+.project-chevron {
+  transition: transform var(--transition-fast);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.project-card.expanded .project-chevron {
+  transform: rotate(90deg);
+}
+
+/* --- Delete & Edit Buttons --- */
+.btn-delete-project,
+.btn-edit-project {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+  color: var(--text-muted);
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.5;
+}
+.project-card-header:hover .btn-delete-project,
+.project-card-header:hover .btn-edit-project {
+  opacity: 1;
+}
+.btn-delete-project:hover {
+  color: var(--accent-pink) !important;
+  background: rgba(255, 107, 138, 0.1);
+}
+.btn-edit-project:hover {
+  color: var(--accent-primary) !important;
+  background: rgba(124, 110, 240, 0.1);
+}
+
+/* --- Card Body (Expandable) --- */
+.project-card-body {
+  max-height: 0;
+  overflow: hidden;
+  padding: 0 var(--space-md);
+  border-top: 1px solid transparent;
+  transition: max-height var(--transition-slow) ease,
+              padding var(--transition-fast) ease,
+              border-color var(--transition-fast) ease;
+}
+.project-card.expanded .project-card-body {
+  max-height: 2000px;
+  padding: 0 var(--space-md) var(--space-md) var(--space-md);
+  border-top-color: rgba(255, 255, 255, 0.03);
+}
+
+.project-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+}
+
+/* --- Scrollbar customizations --- */
+.projects-list-stack::-webkit-scrollbar,
+.project-task-list::-webkit-scrollbar,
+.pool-dropzone::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.projects-list-stack::-webkit-scrollbar-thumb,
+.project-task-list::-webkit-scrollbar-thumb,
+.pool-dropzone::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+.projects-list-stack::-webkit-scrollbar-thumb:hover,
+.project-task-list::-webkit-scrollbar-thumb:hover,
+.pool-dropzone::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* --- Unassigned Tasks Pool --- */
+.projects-unassigned-pool {
+  width: 330px;
+  min-width: 330px;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-md);
+  gap: var(--space-md);
+  border-radius: var(--radius-md);
+  height: 100%;
+}
+.pool-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: var(--space-sm);
+}
+.pool-header h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.pool-dropzone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  overflow-y: auto;
+  min-height: 150px;
+  padding: 2px;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  border-radius: var(--radius-sm);
+  border: 1px dashed transparent;
+}
+.pool-dropzone.drag-over {
+  background: rgba(255, 255, 255, 0.02);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* --- Tasks inside project cards --- */
+.project-card .task-item,
+.projects-unassigned-pool .task-item {
+  cursor: grab;
+}
+.project-card .task-item.dragging,
+.projects-unassigned-pool .task-item.dragging {
+  cursor: grabbing !important;
+  opacity: 0.3 !important;
+}
+.project-card .task-item .task-actions,
+.projects-unassigned-pool .task-item .task-actions {
+  display: none !important;
+}
+.project-card .task-item .drag-handle,
+.projects-unassigned-pool .task-item .drag-handle {
+  display: none !important;
+}

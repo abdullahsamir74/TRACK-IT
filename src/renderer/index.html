@@ -369,7 +369,7 @@
       <form id="form-add-task">
         <div class="form-group">
           <label for="task-name">Task Name</label>
-          <input type="text" id="task-name" placeholder="e.g. Chapter 8 — Arrays" required>
+          <input type="text" id="task-name" required>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -383,7 +383,7 @@
         </div>
         <div class="form-group">
           <label for="task-estimate">Estimated Duration (minutes)</label>
-          <input type="number" id="task-estimate" placeholder="60" min="1" max="480">
+          <input type="number" id="task-estimate" min="1" max="480">
         </div>
         <div class="form-actions">
           <button type="button" class="btn btn-ghost" id="btn-cancel-task">Cancel</button>
@@ -405,7 +405,7 @@
         <input type="hidden" id="edit-task-is-manual">
         <div class="form-group">
           <label for="edit-task-name">Task Name</label>
-          <input type="text" id="edit-task-name" placeholder="e.g. Chapter 8 — Arrays" required>
+          <input type="text" id="edit-task-name" required>
           <small id="edit-task-calendar-notice" style="display: none; color: var(--text-muted); font-size: 11px; margin-top: 4px;">Calendar task: Name, date, and time are sync'd from GNOME Calendar.</small>
         </div>
         <div class="form-row" id="edit-task-time-row">
@@ -420,7 +420,7 @@
         </div>
         <div class="form-group">
           <label for="edit-task-estimate">Estimated Duration (minutes)</label>
-          <input type="number" id="edit-task-estimate" placeholder="60" min="1" max="480">
+          <input type="number" id="edit-task-estimate" min="1" max="480">
         </div>
         <div class="form-actions">
           <button type="button" class="btn btn-ghost" id="btn-edit-task-cancel">Cancel</button>
@@ -441,7 +441,7 @@
         <input type="hidden" id="estimate-task-id">
         <div class="form-group">
           <label for="estimate-minutes">Estimated time (minutes)</label>
-          <input type="number" id="estimate-minutes" placeholder="60" min="1" max="480" required>
+          <input type="number" id="estimate-minutes" min="1" max="480" required>
         </div>
         <div class="form-actions">
           <button type="button" class="btn btn-ghost" id="btn-estimate-cancel">Cancel</button>
@@ -462,7 +462,7 @@
         <input type="hidden" id="project-id">
         <div class="form-group">
           <label for="project-name">Project Name</label>
-          <input type="text" id="project-name" placeholder="e.g. System Design" required>
+          <input type="text" id="project-name" required>
         </div>
         <div class="form-group">
           <label>Accent Color</label>

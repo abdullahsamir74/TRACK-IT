@@ -17,6 +17,7 @@ TRACK IT is a production-grade, context-isolated desktop time-tracking and produ
 *   **Exit Protection (Auto-Save)**: Intercepts application window close events to automatically stop running timers and save active sessions to the local database, ensuring zero progress loss.
 *   **Localized Storage & Security**: Leverages a secure preload context bridge to isolate main process I/O. Custom metadata, time estimates, and session histories are stored in a localized config database (`electron-store`).
 *   **Data Visualization**: Weekly and monthly analytical breakdowns utilizing responsive Chart.js components.
+*   **Monthly Habit Tracker**: Dedicated tracking dashboard featuring calendar-based navigation chevrons, interactive state-cycling day circles (`Unset → Success/Green → Failed/Red → Unset`), dynamic completion percentages, and consecutive active success streaks.
 *   **Dynamic Desktop Shortcut Installer**: Programmatically registers launcher integrations (`.desktop` shortcuts) mapping node runtime binaries and icons to the active user's environment.
 
 ---
@@ -40,6 +41,7 @@ To guarantee application security, the main process exposes a restricted set of 
 *   **Session Tracking & Analytics**: `getSessions(taskId)`, `getAllSessions()`, `getAnalytics(range)`
 *   **Precision Timer**: `startTimer(taskId, taskName, estimateMinutes)`, `pauseTimer()`, `resumeTimer()`, `stopTimer()`, `getTimerState()`, `onTimerTick(callback)`
 *   **Project Workspace**: `getProjects()`, `saveProject(project)`, `deleteProject(projectId)`, `assignTaskToProject(taskId, projectId)`, `saveProjectOrder(orderedIds)`, `getProjectOrder()`
+*   **Habit Tracker**: `getHabits()`, `saveHabit(habit)`, `deleteHabit(habitId)`
 *   **Reset & Ordering Controls**: `resetAll()`, `resetTrackingData()`, `resetProjects()`, `saveTaskOrder(orderedIds)`, `getTaskOrder()`
 
 ---
@@ -127,6 +129,7 @@ tracker/
         ├── views/        # View-specific rendering modules
         │   ├── analytics.js
         │   ├── dashboard.js
+        │   ├── habits.js
         │   ├── projects.js
         │   ├── schedule.js
         │   └── timer.js
@@ -137,6 +140,7 @@ tracker/
             ├── buttons.css
             ├── modals.css
             ├── task-item.css
+            ├── habits.css
             └── ... (view-specific CSS files)
 ```
 

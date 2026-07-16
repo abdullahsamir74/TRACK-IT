@@ -157,6 +157,7 @@
   color: var(--text-primary);
   font-family: var(--font-family);
   font-size: 13px;
+  user-select: none;
 }
 .timer-task-option:hover {
   background: rgba(124, 110, 240, 0.1);
@@ -205,4 +206,112 @@
 .session-time {
   font-size: 11px;
   color: var(--text-muted);
+}
+
+/* --- Fullscreen Timer Overlay --- */
+.fullscreen-timer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(10, 10, 15, 0.96);
+  backdrop-filter: blur(20px);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.fullscreen-timer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  animation: fadeInScale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: var(--space-2xl);
+  max-width: 90%;
+}
+
+.fullscreen-task-name {
+  font-size: 2.2rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-xl);
+  max-width: 80vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.fullscreen-timer-display {
+  font-size: 10rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-shadow: 0 0 50px rgba(124, 110, 240, 0.35);
+  animation: pulseTimerShadow 4s infinite alternate ease-in-out;
+}
+
+.fullscreen-timer-hint {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  opacity: 0.5;
+  margin-top: var(--space-3xl);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.fullscreen-close-btn {
+  position: absolute;
+  top: var(--space-xl);
+  right: var(--space-xl);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 50%;
+  color: var(--text-secondary);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  z-index: 10000;
+}
+
+.fullscreen-close-btn:hover {
+  background: rgba(255, 107, 138, 0.15);
+  border-color: rgba(255, 107, 138, 0.25);
+  color: var(--accent-pink);
+  transform: scale(1.08);
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseTimerShadow {
+  0% {
+    text-shadow: 0 0 40px rgba(124, 110, 240, 0.25);
+    transform: scale(1);
+  }
+  100% {
+    text-shadow: 0 0 65px rgba(124, 110, 240, 0.45);
+    transform: scale(1.01);
+  }
 }

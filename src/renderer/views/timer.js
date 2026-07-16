@@ -5,8 +5,9 @@
 import { formatDuration, escapeHtml, getLocalDateString, getCombinedEvents } from '../utils.js';
 import {
   calendarEvents, trackedTasks, setTrackedTasks,
-  selectedTimerTask, setSelectedTimerTask,
+  selectedTimerTask, setSelectedTimerTask, taskOrder,
 } from '../state.js';
+import { initDragAndDrop } from '../components/drag-drop.js';
 
 /**
  * Initialize timer control buttons (play/pause, stop).
@@ -36,6 +37,7 @@ export function initTimerControls() {
       await window.tracker.resumeTimer();
       document.getElementById('timer-play-icon').style.display = 'none';
       document.getElementById('timer-pause-icon').style.display = '';
+      enterFullscreenTimer();
     } else {
       // Start new
       startTimerForTask();
@@ -53,7 +55,8 @@ export function initTimerControls() {
       stopBtn.disabled = true;
 
       // Reset ring
-      document.querySelector('.timer-ring-progress').style.strokeDashoffset = '565.48';
+      const ring = document.querySelector('.timer-ring-progress');
+      if (ring) ring.style.strokeDashoffset = '565.48';
 
       // Reset estimate bar
       document.getElementById('timer-estimate-bar').style.display = 'none';
@@ -64,6 +67,29 @@ export function initTimerControls() {
       renderTimerView();
     }
   });
+
+  // Global Escape key listener to exit fullscreen
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      exitFullscreenTimer();
+    }
+  });
+
+  // Handle system fullscreen change (e.g. F11 or OS menu exit)
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+      const overlay = document.getElementById('fullscreen-timer-overlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+  });
+
+  // Click handler for fullscreen close button
+  const closeBtn = document.getElementById('btn-fullscreen-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      exitFullscreenTimer();
+    });
+  }
 }
 
 /**
@@ -88,6 +114,9 @@ export async function startTimerForTask() {
     document.getElementById('timer-estimate-bar').style.display = 'block';
     document.getElementById('timer-estimate-label').textContent = `Est: ${formatDuration(selectedTimerTask.estimate)}`;
   }
+
+  // Automatically trigger fullscreen mode when timer starts
+  enterFullscreenTimer();
 }
 
 /**
@@ -101,11 +130,15 @@ export function updateTimerDisplay(state) {
   const circumference = 565.48;
   const progress = state.progress || 0;
   const offset = circumference * (1 - Math.min(progress, 1));
-  document.querySelector('.timer-ring-progress').style.strokeDashoffset = offset;
+  const ring = document.querySelector('.timer-ring-progress');
+  if (ring) {
+    ring.style.strokeDashoffset = offset;
+  }
 
   // Update estimate bar
   if (state.estimateMinutes) {
-    document.getElementById('timer-estimate-fill').style.width = `${Math.min(progress * 100, 100)}%`;
+    const fill = document.getElementById('timer-estimate-fill');
+    if (fill) fill.style.width = `${Math.min(progress * 100, 100)}%`;
   }
 
   // Update dashboard timer
@@ -117,11 +150,58 @@ export function updateTimerDisplay(state) {
   }
 
   // Change ring color if over estimate
-  const ring = document.querySelector('.timer-ring-progress');
-  if (progress > 1) {
-    ring.style.stroke = '#ff6b8a';
-  } else {
-    ring.style.stroke = '#7c6ef0';
+  if (ring) {
+    if (progress > 1) {
+      ring.style.stroke = '#ff6b8a';
+    } else {
+      ring.style.stroke = '#7c6ef0';
+    }
+  }
+
+  // Update fullscreen display if it is visible
+  const fsOverlay = document.getElementById('fullscreen-timer-overlay');
+  if (fsOverlay && fsOverlay.style.display !== 'none') {
+    const fsDisplay = document.getElementById('fullscreen-timer-display');
+    const fsTask = document.getElementById('fullscreen-task-name');
+    if (fsDisplay) fsDisplay.textContent = state.elapsedFormatted;
+    if (fsTask) fsTask.textContent = state.taskName;
+  }
+}
+
+/**
+ * Enter fullscreen timer mode.
+ */
+export function enterFullscreenTimer() {
+  const overlay = document.getElementById('fullscreen-timer-overlay');
+  if (!overlay) return;
+
+  window.tracker.getTimerState().then(state => {
+    if (state && state.running) {
+      document.getElementById('fullscreen-task-name').textContent = state.taskName;
+      document.getElementById('fullscreen-timer-display').textContent = state.elapsedFormatted;
+      overlay.style.display = 'flex';
+
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.warn('Could not enter fullscreen mode:', err);
+        });
+      }
+    }
+  });
+}
+
+/**
+ * Exit fullscreen timer mode.
+ */
+export function exitFullscreenTimer() {
+  const overlay = document.getElementById('fullscreen-timer-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+  }
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(err => {
+      console.warn('Could not exit fullscreen mode:', err);
+    });
   }
 }
 
@@ -211,10 +291,24 @@ function renderTimerTaskList() {
     return;
   }
 
+  // Sort unique tasks using taskOrder
+  if (taskOrder && taskOrder.length > 0) {
+    const orderMap = {};
+    taskOrder.forEach((id, i) => orderMap[id] = i);
+    unique.sort((a, b) => {
+      const oa = orderMap[a.id] !== undefined ? orderMap[a.id] : 99999;
+      const ob = orderMap[b.id] !== undefined ? orderMap[b.id] : 99999;
+      return oa - ob;
+    });
+  }
+
   listEl.innerHTML = '';
   unique.slice(0, 8).forEach(task => {
-    const opt = document.createElement('button');
+    const opt = document.createElement('div');
     opt.className = `timer-task-option${selectedTimerTask?.id === task.id ? ' selected' : ''}`;
+    opt.dataset.taskId = task.id;
+    opt.setAttribute('role', 'button');
+    opt.setAttribute('tabindex', '0');
     opt.innerHTML = `
       <div class="task-color-dot" style="background: ${task.calendarColor || '#7c6ef0'}; height: 24px;"></div>
       <span style="flex:1; text-align:left;">${escapeHtml(task.name)}</span>
@@ -227,6 +321,9 @@ function renderTimerTaskList() {
     });
     listEl.appendChild(opt);
   });
+
+  // Initialize drag-and-drop on the task list
+  initDragAndDrop(listEl);
 }
 
 /**

@@ -40,6 +40,7 @@ contextBridge.exposeInMainWorld('tracker', {
   // Reset & ordering
   resetAll: () => ipcRenderer.invoke('reset-all'),
   resetTrackingData: () => ipcRenderer.invoke('reset-tracking-data'),
+  resetSessions: () => ipcRenderer.invoke('reset-sessions'),
   resetProjects: () => ipcRenderer.invoke('reset-projects'),
   saveTaskOrder: (orderedIds) => ipcRenderer.invoke('save-task-order', orderedIds),
   getTaskOrder: () => ipcRenderer.invoke('get-task-order'),

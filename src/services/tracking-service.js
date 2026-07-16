@@ -262,6 +262,21 @@ class TrackingService {
   }
 
   /**
+   * Reset only tracked sessions/history and time processed, keeping tasks intact.
+   */
+  resetSessions() {
+    this.store.set('sessions', []);
+    const tasks = this.store.get('tasks', {});
+    for (const taskId in tasks) {
+      if (tasks[taskId].totalTrackedMinutes) {
+        tasks[taskId].totalTrackedMinutes = 0;
+      }
+    }
+    this.store.set('tasks', tasks);
+    return true;
+  }
+
+  /**
    * Reset only projects and projectOrder, unassigning tasks from projects
    */
   resetProjects() {

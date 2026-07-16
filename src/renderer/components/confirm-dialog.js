@@ -46,23 +46,41 @@ export function showConfirmDialog({ title, message, confirmText, onConfirm } = {
   });
 }
 
-/**
- * Wire up all tracking reset buttons across views (excluding projects).
- */
 export function initResetButtons() {
-  const resetIds = ['btn-reset-dashboard', 'btn-reset-schedule', 'btn-reset-timer', 'btn-reset-analytics'];
-  resetIds.forEach(id => {
+  // Reset for Dashboard / Schedule (Removes tasks, estimates, completions, sessions, custom ordering)
+  const taskResetIds = ['btn-reset-dashboard', 'btn-reset-schedule'];
+  taskResetIds.forEach(id => {
     const btn = document.getElementById(id);
     if (btn) {
       btn.addEventListener('click', () => {
         showConfirmDialog({
-          title: 'Reset Tracking Data?',
-          message: 'This will permanently delete all tracked sessions, estimates, task completions, and custom ordering. Your custom projects and GNOME Calendar events will remain untouched.',
-          confirmText: 'Reset Tracking Data',
+          title: 'Reset Tasks & Tracking?',
+          message: 'This will permanently delete all tasks, manual tasks, estimates, completions, tracked sessions, and custom ordering. Calendar events from GNOME will remain untouched.',
+          confirmText: 'Reset Tasks & Tracking',
           onConfirm: async () => {
             await window.tracker.resetTrackingData();
             setTrackedTasks({});
             setTaskOrder([]);
+          }
+        });
+      });
+    }
+  });
+
+  // Reset for Timer / Analytics (Removes sessions, resets time processed/analytics, keeps tasks intact)
+  const sessionResetIds = ['btn-reset-timer', 'btn-reset-analytics'];
+  sessionResetIds.forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.addEventListener('click', () => {
+        showConfirmDialog({
+          title: 'Reset Tracked Sessions?',
+          message: 'This will permanently delete all tracked session history and reset tracked time/analytics, but will keep your tasks, manual tasks, estimates, completions, and custom ordering.',
+          confirmText: 'Reset Sessions Only',
+          onConfirm: async () => {
+            await window.tracker.resetSessions();
+            const tasks = await window.tracker.getTasks();
+            setTrackedTasks(tasks || {});
           }
         });
       });

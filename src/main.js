@@ -191,6 +191,10 @@ function registerIpcHandlers() {
     return trackingService.resetTrackingData();
   });
 
+  ipcMain.handle('reset-sessions', () => {
+    return trackingService.resetSessions();
+  });
+
   ipcMain.handle('reset-projects', () => {
     return trackingService.resetProjects();
   });

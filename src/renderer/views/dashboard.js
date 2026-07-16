@@ -5,10 +5,11 @@
 import { formatDuration, getLocalDateString, getCombinedEvents } from '../utils.js';
 import {
   calendarEvents, trackedTasks, setTrackedTasks,
-  setCalendarEvents,
+  setCalendarEvents, taskOrder,
 } from '../state.js';
 import { switchView } from '../state.js';
 import { createTaskItem } from '../components/task-item.js';
+import { initDragAndDrop } from '../components/drag-drop.js';
 
 /**
  * Update the date display on the dashboard header.
@@ -101,9 +102,23 @@ export async function renderDashboard() {
     }
   } else {
     taskListEl.innerHTML = '';
-    todayEvents.sort((a, b) => new Date(a.start) - new Date(b.start)).forEach(event => {
-      taskListEl.appendChild(createTaskItem(event, false, timerState));
+    // Sort todayEvents using taskOrder
+    if (taskOrder && taskOrder.length > 0) {
+      const orderMap = {};
+      taskOrder.forEach((id, i) => orderMap[id] = i);
+      todayEvents.sort((a, b) => {
+        const oa = orderMap[a.id] !== undefined ? orderMap[a.id] : 99999;
+        const ob = orderMap[b.id] !== undefined ? orderMap[b.id] : 99999;
+        if (oa !== ob) return oa - ob;
+        return new Date(a.start) - new Date(b.start);
+      });
+    } else {
+      todayEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+    }
+    todayEvents.forEach(event => {
+      taskListEl.appendChild(createTaskItem(event, true, timerState));
     });
+    initDragAndDrop(taskListEl);
   }
 
   // Refresh button

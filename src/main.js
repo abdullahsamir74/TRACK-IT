@@ -175,6 +175,35 @@ function registerIpcHandlers() {
 
   // Task status
   ipcMain.handle('mark-task-complete', (event, taskId) => {
+    // If a timer is running for this task, stop it and save the session
+    const timerState = timerService.getState();
+    if (timerService.isRunning() && timerState.taskId === taskId) {
+      const session = timerService.stop();
+      if (session) {
+        trackingService.saveSession(session);
+      }
+    } else {
+      // No timer was running — create a completion session so the task
+      // still gets time & session info recorded.
+      // Use the task's scheduled date and estimate as the tracked duration,
+      // so analytics attribute the time to the correct day.
+      const tasks = trackingService.getTasks();
+      const task = tasks[taskId] || {};
+      const estimateMin = task.estimateMinutes || 0;
+      const durationMs = estimateMin * 60000;
+      const taskDate = task.start ? new Date(task.start) : new Date();
+      const endTime = new Date(taskDate.getTime() + durationMs);
+      trackingService.saveSession({
+        taskId,
+        taskName: task.name || taskId,
+        startTime: taskDate.toISOString(),
+        endTime: endTime.toISOString(),
+        durationMs,
+        durationMinutes: estimateMin,
+        estimateMinutes: estimateMin || null,
+        completionSession: true,
+      });
+    }
     return trackingService.markComplete(taskId);
   });
 

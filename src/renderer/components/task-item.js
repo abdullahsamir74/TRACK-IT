@@ -78,9 +78,10 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     if (isCompleted) {
       await window.tracker.markTaskIncomplete(taskId);
     } else {
+      // Save the task name and start date first so the completion session
+      // can reference the correct day (not today)
+      await window.tracker.saveTask({ id: taskId, name: taskName, start: event.start });
       await window.tracker.markTaskComplete(taskId);
-      // Also save the task name for reference
-      await window.tracker.saveTask({ id: taskId, name: taskName });
     }
 
     // Reload data and re-render

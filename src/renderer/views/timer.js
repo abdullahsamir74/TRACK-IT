@@ -362,7 +362,7 @@ async function renderTodaySessions() {
         <div class="session-task-name">${escapeHtml(session.taskName || 'Unknown')}</div>
         <div class="session-time">${startTime}</div>
       </div>
-      <span class="session-duration">${formatDuration(session.durationMinutes)}</span>
+      <span class="session-duration">${formatDuration(session.durationMinutes)}${session.completionSession ? ' ✓' : ''}</span>
     `;
     listEl.appendChild(item);
   });

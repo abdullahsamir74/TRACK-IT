@@ -27,7 +27,14 @@ class TrackingService {
    * Get all tasks with their metadata (estimates, status, etc.)
    */
   getTasks() {
-    return this.store.get('tasks', {});
+    const tasks = this.store.get('tasks', {});
+    const activeTasks = {};
+    for (const id in tasks) {
+      if (!tasks[id].deleted) {
+        activeTasks[id] = tasks[id];
+      }
+    }
+    return activeTasks;
   }
 
   /**
@@ -49,13 +56,18 @@ class TrackingService {
    */
   deleteTask(taskId) {
     const tasks = this.store.get('tasks', {});
-    delete tasks[taskId];
+    if (tasks[taskId]) {
+      tasks[taskId].deleted = true;
+      tasks[taskId].updatedAt = new Date().toISOString();
+    } else {
+      tasks[taskId] = {
+        id: taskId,
+        deleted: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+    }
     this.store.set('tasks', tasks);
-
-    // Also delete any sessions associated with this task
-    const sessions = this.store.get('sessions', []);
-    const updatedSessions = sessions.filter(s => s.taskId !== taskId);
-    this.store.set('sessions', updatedSessions);
 
     // Also clean up taskOrder
     const taskOrder = this.store.get('taskOrder', []);
@@ -103,8 +115,20 @@ class TrackingService {
       tasks[taskId].completed = false;
       tasks[taskId].completedAt = null;
       tasks[taskId].updatedAt = new Date().toISOString();
-      this.store.set('tasks', tasks);
     }
+
+    // Remove any automatically generated completion sessions for this task
+    const sessions = this.store.get('sessions', []);
+    const updatedSessions = sessions.filter(s => !(s.taskId === taskId && s.completionSession));
+    this.store.set('sessions', updatedSessions);
+
+    // Recalculate totalTrackedMinutes from remaining sessions
+    if (tasks[taskId]) {
+      const taskSessions = updatedSessions.filter(s => s.taskId === taskId);
+      tasks[taskId].totalTrackedMinutes = taskSessions.reduce((sum, s) => sum + (s.durationMinutes || 0), 0);
+    }
+    this.store.set('tasks', tasks);
+
     return tasks[taskId];
   }
 
@@ -189,37 +213,64 @@ class TrackingService {
       }
     }
 
-    // Task stats
+    // Task stats (grouped by taskName to consolidate sessions of tasks with identical names)
     const taskStats = {};
     for (const session of filteredSessions) {
-      if (!taskStats[session.taskId]) {
-        taskStats[session.taskId] = {
+      const name = session.taskName || 'Unknown';
+      if (!taskStats[name]) {
+        taskStats[name] = {
           taskId: session.taskId,
-          taskName: session.taskName,
+          taskName: name,
           totalMinutes: 0,
           sessionsCount: 0,
         };
       }
-      taskStats[session.taskId].totalMinutes += session.durationMinutes || 0;
-      taskStats[session.taskId].sessionsCount += 1;
+      taskStats[name].totalMinutes += session.durationMinutes || 0;
+      taskStats[name].sessionsCount += 1;
     }
 
     // Completion stats
     const taskList = Object.values(tasks);
-    const completedCount = taskList.filter(t => t.completed).length;
-    const totalTaskCount = taskList.length;
+    const relevantTasks = taskList.filter(t => !t.deleted || t.completed);
+    const completedCount = relevantTasks.filter(t => t.completed).length;
+    const totalTaskCount = relevantTasks.length;
 
-    // Streak calculation
+    // Streak calculation (calculated from all sessions to avoid range limits)
     let streak = 0;
-    const today = getLocalDateString();
-    const sortedDays = Object.keys(dailyData).sort().reverse();
-    for (const day of sortedDays) {
-      if (dailyData[day].sessionsCount > 0) {
-        streak++;
-      } else if (day !== today) {
-        break; // Today might not have sessions yet
-      } else {
-        break;
+    const todayKey = getLocalDateString();
+    
+    // Group all sessions by date string
+    const allSessions = this.store.get('sessions', []);
+    const sessionsByDate = {};
+    for (const s of allSessions) {
+      const dateKey = getLocalDateString(s.startTime);
+      if (dateKey) {
+        sessionsByDate[dateKey] = (sessionsByDate[dateKey] || 0) + 1;
+      }
+    }
+    
+    let checkDate = new Date();
+    if (sessionsByDate[todayKey] > 0) {
+      // Today has sessions, start counting from today
+    } else {
+      // Check if yesterday has sessions
+      checkDate.setDate(checkDate.getDate() - 1);
+      const yesterdayKey = getLocalDateString(checkDate);
+      if (!(sessionsByDate[yesterdayKey] > 0)) {
+        // Yesterday also had no sessions, so streak is broken
+        checkDate = null;
+      }
+    }
+    
+    if (checkDate) {
+      while (true) {
+        const key = getLocalDateString(checkDate);
+        if (sessionsByDate[key] > 0) {
+          streak++;
+          checkDate.setDate(checkDate.getDate() - 1);
+        } else {
+          break;
+        }
       }
     }
 

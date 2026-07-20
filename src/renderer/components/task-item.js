@@ -108,7 +108,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
         const taskName = btn.dataset.taskName || 'this task';
         showConfirmDialog({
           title: 'Delete Task?',
-          message: `Are you sure you want to delete "<strong>${taskName}</strong>"? This will remove its tracked data, estimates, and completion status. This cannot be undone.`,
+          message: `Are you sure you want to delete "<strong>${taskName}</strong>"? This will hide it from your schedule and lists, but its tracked progress and history will be preserved in Analytics.`,
           confirmText: 'Delete Task',
           onConfirm: async () => {
             await window.tracker.deleteTask(btn.dataset.taskId);

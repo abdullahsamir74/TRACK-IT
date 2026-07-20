@@ -49,10 +49,16 @@ export function getLocalDateString(date) {
  * @returns {Array} normalized events
  */
 export function getCombinedEvents(calendarEvents, trackedTasks) {
-  const allEvents = [...(calendarEvents || [])];
+  // Filter out any calendar events that have been deleted in trackedTasks
+  const filteredCalendarEvents = (calendarEvents || []).filter(item => {
+    const task = trackedTasks[item.id];
+    return !task || !task.deleted;
+  });
+
+  const allEvents = [...filteredCalendarEvents];
   
   Object.values(trackedTasks || {}).forEach(task => {
-    if (task.isManual) {
+    if (task.isManual && !task.deleted) {
       const exists = allEvents.some(item => item.id === task.id);
       if (!exists) {
         allEvents.push({

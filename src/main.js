@@ -3,11 +3,14 @@ const path = require('path');
 const CalendarService = require('./services/calendar-service');
 const TrackingService = require('./services/tracking-service');
 const TimerService = require('./services/timer-service');
+const TrackerFacade = require('./services/tracker-facade');
+const ServiceManager = require('./services/service-manager');
 
 let mainWindow;
 let calendarService;
 let trackingService;
 let timerService;
+let serviceManager;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -38,22 +41,35 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  // Initialize services
+  // Initialize core services
   calendarService = new CalendarService();
   trackingService = new TrackingService();
   timerService = new TimerService();
+
+  // Initialize facade & manager
+  const trackerFacade = new TrackerFacade(trackingService, timerService, calendarService);
+  serviceManager = new ServiceManager();
+  
+  // Register services
+  serviceManager.register('tracker', trackerFacade);
+  serviceManager.register('timer', timerService);
+
+  // Hook up dynamic event forwarding
+  serviceManager.onEvent((serviceName, eventName, data) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send(`${serviceName}-${eventName}`, data);
+    }
+  });
+
+  // Watch calendar for changes
+  calendarService.watchForChanges((events) => {
+    serviceManager.notify('calendar', 'updated', events);
+  });
 
   // Register IPC handlers
   registerIpcHandlers();
 
   createWindow();
-
-  // Watch calendar for changes
-  calendarService.watchForChanges((events) => {
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('calendar-updated', events);
-    }
-  });
 });
 
 app.on('window-all-closed', () => {
@@ -68,7 +84,7 @@ app.on('window-all-closed', () => {
 });
 
 function registerIpcHandlers() {
-  // Window controls
+  // Window controls (shell/OS tasks)
   ipcMain.on('window-minimize', () => mainWindow.minimize());
   ipcMain.on('window-maximize', () => {
     if (mainWindow.isMaximized()) {
@@ -79,199 +95,13 @@ function registerIpcHandlers() {
   });
   ipcMain.on('window-close', () => mainWindow.close());
 
-  // Calendar
-  ipcMain.handle('get-calendar-events', async () => {
+  // Unified dynamic service call router
+  ipcMain.handle('service-invoke', async (event, serviceName, methodName, ...args) => {
     try {
-      return await calendarService.getEvents();
+      return await serviceManager.invoke(serviceName, methodName, ...args);
     } catch (err) {
-      console.error('Error fetching calendar events:', err);
-      return [];
+      console.error(`Error in IPC service call: ${serviceName}.${methodName}:`, err);
+      throw err;
     }
-  });
-
-  ipcMain.handle('get-calendars', async () => {
-    try {
-      return calendarService.getCalendars();
-    } catch (err) {
-      console.error('Error fetching calendars:', err);
-      return [];
-    }
-  });
-
-  // Task tracking
-  ipcMain.handle('get-tasks', () => {
-    return trackingService.getTasks();
-  });
-
-  ipcMain.handle('save-task', (event, task) => {
-    return trackingService.saveTask(task);
-  });
-
-  ipcMain.handle('delete-task', (event, taskId) => {
-    return trackingService.deleteTask(taskId);
-  });
-
-  ipcMain.handle('set-estimate', (event, taskId, estimateMinutes) => {
-    return trackingService.setEstimate(taskId, estimateMinutes);
-  });
-
-  ipcMain.handle('get-sessions', (event, taskId) => {
-    return trackingService.getSessions(taskId);
-  });
-
-  ipcMain.handle('get-all-sessions', () => {
-    return trackingService.getAllSessions();
-  });
-
-  ipcMain.handle('get-analytics', (event, range) => {
-    return trackingService.getAnalytics(range);
-  });
-
-  // Timer
-  ipcMain.handle('start-timer', (event, taskId, taskName, estimateMinutes) => {
-    // If a different task is running, stop it and save the session first
-    if (timerService.isRunning()) {
-      const state = timerService.getState();
-      if (state.taskId !== taskId) {
-        const session = timerService.stop();
-        if (session) {
-          trackingService.saveSession(session);
-        }
-      }
-    }
-
-    const onTick = (data) => {
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send('timer-tick', data);
-      }
-    };
-    return timerService.start(taskId, taskName, estimateMinutes, onTick);
-  });
-
-  ipcMain.handle('pause-timer', () => {
-    return timerService.pause();
-  });
-
-  ipcMain.handle('resume-timer', () => {
-    const onTick = (data) => {
-      if (mainWindow && !mainWindow.isDestroyed()) {
-        mainWindow.webContents.send('timer-tick', data);
-      }
-    };
-    return timerService.resume(onTick);
-  });
-
-  ipcMain.handle('stop-timer', () => {
-    const session = timerService.stop();
-    if (session) {
-      trackingService.saveSession(session);
-    }
-    return session;
-  });
-
-  ipcMain.handle('get-timer-state', () => {
-    return timerService.getState();
-  });
-
-  // Task status
-  ipcMain.handle('mark-task-complete', (event, taskId) => {
-    // If a timer is running for this task, stop it and save the session
-    const timerState = timerService.getState();
-    if (timerService.isRunning() && timerState.taskId === taskId) {
-      const session = timerService.stop();
-      if (session) {
-        trackingService.saveSession(session);
-      }
-    } else {
-      // No timer was running — create a completion session so the task
-      // still gets time & session info recorded.
-      // Use the task's scheduled date and estimate as the tracked duration,
-      // so analytics attribute the time to the correct day.
-      const tasks = trackingService.getTasks();
-      const task = tasks[taskId] || {};
-      const estimateMin = task.estimateMinutes || 0;
-      const durationMs = estimateMin * 60000;
-      const taskDate = task.start ? new Date(task.start) : new Date();
-      const endTime = new Date(taskDate.getTime() + durationMs);
-      trackingService.saveSession({
-        taskId,
-        taskName: task.name || taskId,
-        startTime: taskDate.toISOString(),
-        endTime: endTime.toISOString(),
-        durationMs,
-        durationMinutes: estimateMin,
-        estimateMinutes: estimateMin || null,
-        completionSession: true,
-      });
-    }
-    return trackingService.markComplete(taskId);
-  });
-
-  ipcMain.handle('mark-task-incomplete', (event, taskId) => {
-    return trackingService.markIncomplete(taskId);
-  });
-
-  // Reset
-  ipcMain.handle('reset-all', () => {
-    return trackingService.resetAll();
-  });
-
-  ipcMain.handle('reset-tracking-data', () => {
-    return trackingService.resetTrackingData();
-  });
-
-  ipcMain.handle('reset-sessions', () => {
-    return trackingService.resetSessions();
-  });
-
-  ipcMain.handle('reset-projects', () => {
-    return trackingService.resetProjects();
-  });
-
-  // Task order
-  ipcMain.handle('save-task-order', (event, orderedIds) => {
-    return trackingService.saveTaskOrder(orderedIds);
-  });
-
-  ipcMain.handle('get-task-order', () => {
-    return trackingService.getTaskOrder();
-  });
-
-  // Projects
-  ipcMain.handle('get-projects', () => {
-    return trackingService.getProjects();
-  });
-
-  ipcMain.handle('save-project', (event, project) => {
-    return trackingService.saveProject(project);
-  });
-
-  ipcMain.handle('delete-project', (event, projectId) => {
-    return trackingService.deleteProject(projectId);
-  });
-
-  ipcMain.handle('assign-task-to-project', (event, taskId, projectId) => {
-    return trackingService.assignTaskToProject(taskId, projectId);
-  });
-
-  ipcMain.handle('save-project-order', (event, orderedIds) => {
-    return trackingService.saveProjectOrder(orderedIds);
-  });
-
-  ipcMain.handle('get-project-order', () => {
-    return trackingService.getProjectOrder();
-  });
-
-  // Habits
-  ipcMain.handle('get-habits', () => {
-    return trackingService.getHabits();
-  });
-
-  ipcMain.handle('save-habit', (event, habit) => {
-    return trackingService.saveHabit(habit);
-  });
-
-  ipcMain.handle('delete-habit', (event, habitId) => {
-    return trackingService.deleteHabit(habitId);
   });
 }

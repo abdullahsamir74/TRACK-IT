@@ -40,8 +40,10 @@ class ServiceManager {
 
     // Handle special timer tick callbacks dynamically
     if (
-      serviceName === "timer" &&
-      (methodName === "start" || methodName === "resume")
+      (serviceName === "timer" &&
+        (methodName === "start" || methodName === "resume")) ||
+      (serviceName === "tracker" &&
+        (methodName === "startTimer" || methodName === "resumeTimer"))
     ) {
       const onTick = (data) => {
         this.notify("timer", "tick", data);

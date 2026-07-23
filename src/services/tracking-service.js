@@ -216,40 +216,56 @@ class TrackingService {
     const tasks = this.store.get("tasks", {});
     const now = new Date();
 
-    let startDate;
+    let startDate = new Date(now);
+    let endDate = new Date(now);
+
     if (range === "week") {
-      startDate = new Date(now);
-      startDate.setDate(now.getDate() - 6);
+      // Fixed Calendar Week: Sunday to Saturday
+      const dayOfWeek = now.getDay();
+      startDate.setDate(now.getDate() - dayOfWeek);
       startDate.setHours(0, 0, 0, 0);
+
+      endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+      endDate.setHours(23, 59, 59, 999);
     } else if (range === "month") {
-      startDate = new Date(now);
-      startDate.setDate(now.getDate() - 29);
+      // Fixed Calendar Month: 1st of current month to end of month
+      startDate.setDate(1);
       startDate.setHours(0, 0, 0, 0);
+
+      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
     } else {
-      startDate = new Date(0); // all time
+      // Fixed Calendar Year: Jan 1 to Dec 31
+      startDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
+      endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
     }
 
-    const filteredSessions = sessions.filter(
-      (s) => new Date(s.startTime) >= startDate,
-    );
+    const filteredSessions = sessions.filter((s) => {
+      const sessionDate = new Date(s.startTime);
+      return sessionDate >= startDate && sessionDate <= endDate;
+    });
 
-    // Daily breakdown
-    const dailyData = {};
-    for (let d = new Date(startDate); d <= now; d.setDate(d.getDate() + 1)) {
+    // Daily breakdown for the fixed calendar period
+    const dailyData = [];
+    const dailyMap = {};
+
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
       const key = getLocalDateString(d);
-      dailyData[key] = {
+      const item = {
         date: key,
         trackedMinutes: 0,
         estimatedMinutes: 0,
         sessionsCount: 0,
       };
+      dailyData.push(item);
+      dailyMap[key] = item;
     }
 
     for (const session of filteredSessions) {
       const key = getLocalDateString(session.startTime);
-      if (dailyData[key]) {
-        dailyData[key].trackedMinutes += session.durationMinutes || 0;
-        dailyData[key].sessionsCount += 1;
+      if (dailyMap[key]) {
+        dailyMap[key].trackedMinutes += session.durationMinutes || 0;
+        dailyMap[key].sessionsCount += 1;
       }
     }
 
@@ -363,7 +379,7 @@ class TrackingService {
     );
 
     return {
-      daily: Object.values(dailyData),
+      daily: dailyData,
       taskStats: Object.values(taskStats).sort(
         (a, b) => b.totalMinutes - a.totalMinutes,
       ),

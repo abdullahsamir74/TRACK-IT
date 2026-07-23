@@ -302,8 +302,6 @@ export function initProjectModal() {
         "Create Project";
       document.getElementById("project-id").value = "";
       document.getElementById("project-name").value = "";
-      const targetInput = document.getElementById("project-target-hours");
-      if (targetInput) targetInput.value = "";
 
       const radios = document.getElementsByName("project-color");
       if (radios.length > 0) radios[0].checked = true;
@@ -340,18 +338,11 @@ export function initProjectModal() {
       const color = document.querySelector(
         'input[name="project-color"]:checked',
       ).value;
-      const targetHours = document.getElementById(
-        "project-target-hours",
-      )?.value;
 
       const project = { name, color };
       if (id) project.id = id;
 
-      const saved = await window.tracker.saveProject(project);
-
-      if (saved && saved.id) {
-        await window.tracker.saveWeeklyTarget(saved.id, targetHours);
-      }
+      await window.tracker.saveProject(project);
 
       setCustomProjects(await window.tracker.getProjects());
       closeProjModal();
@@ -370,12 +361,6 @@ export async function openEditProjectModal(project) {
   document.getElementById("project-modal-title").textContent = "Edit Project";
   document.getElementById("project-id").value = project.id;
   document.getElementById("project-name").value = project.name;
-
-  const targets = (await window.tracker.getWeeklyTargets()) || {};
-  const targetInput = document.getElementById("project-target-hours");
-  if (targetInput) {
-    targetInput.value = targets[project.id] || "";
-  }
 
   const radio = document.querySelector(
     `input[name="project-color"][value="${project.color}"]`,

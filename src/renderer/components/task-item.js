@@ -56,7 +56,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     </div>`
         : ""
     }
-    <div class="task-color-dot" style="background: ${event.calendarColor || "#7c6ef0"};"></div>
+    <div class="task-color-dot" style="background: ${event.calendarColor || "#38bdf8"};"></div>
     <button class="task-checkbox ${isCompleted ? "checked" : ""}" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}"></button>
     <div class="task-info">
       <div class="task-name">${escapeHtml(event.summary)}</div>

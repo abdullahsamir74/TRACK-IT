@@ -11,7 +11,7 @@
   padding: 6px 16px;
   border: 1px solid var(--bg-glass-border);
   border-radius: var(--radius-full);
-  background: transparent;
+  background: var(--bg-card);
   color: var(--text-secondary);
   font-family: var(--font-family);
   font-size: 12px;
@@ -20,18 +20,19 @@
   transition: all var(--transition-fast);
 }
 .filter-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-hover);
   color: var(--text-primary);
 }
 .filter-btn.active {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
-  color: white;
+  background: var(--btn-accent-bg);
+  border-color: var(--btn-accent-bg);
+  color: var(--btn-accent-text);
+  font-weight: 600;
 }
 
 /* --- Schedule date headers --- */
 .schedule-date-header {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-secondary);
   padding: var(--space-sm) 0;

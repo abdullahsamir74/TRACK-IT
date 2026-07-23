@@ -8,8 +8,11 @@
   justify-content: center;
   gap: var(--space-lg);
   padding: var(--space-md) var(--space-xl);
+  background: var(--bg-card);
+  border: 1px solid var(--bg-glass-border);
   border-radius: var(--radius-md);
   margin-bottom: var(--space-xl);
+  box-shadow: var(--shadow-sm);
   text-align: center;
 }
 
@@ -32,6 +35,7 @@
   background: var(--bg-card);
   border: 1px solid var(--bg-glass-border);
   padding: var(--space-lg);
+  box-shadow: var(--shadow-sm);
   transition:
     transform var(--transition-base),
     border-color var(--transition-base),
@@ -41,8 +45,8 @@
 }
 
 .habit-card:hover {
-  border-color: rgba(124, 110, 240, 0.2);
-  box-shadow: var(--shadow-md), var(--shadow-glow);
+  border-color: var(--bg-hover);
+  box-shadow: var(--shadow-md);
 }
 
 .habit-card-header {
@@ -84,20 +88,20 @@
 }
 
 .habit-stat-badge.success {
-  background: rgba(86, 214, 123, 0.1);
-  border: 1px solid rgba(86, 214, 123, 0.2);
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.3);
   color: var(--accent-green);
 }
 
 .habit-stat-badge.failure {
-  background: rgba(255, 107, 138, 0.1);
-  border: 1px solid rgba(255, 107, 138, 0.2);
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.3);
   color: var(--accent-pink);
 }
 
 .habit-stat-badge.streak {
-  background: rgba(249, 168, 38, 0.1);
-  border: 1px solid rgba(249, 168, 38, 0.2);
+  background: rgba(251, 146, 60, 0.15);
+  border: 1px solid rgba(251, 146, 60, 0.3);
   color: var(--accent-orange);
 }
 
@@ -121,12 +125,12 @@
 }
 
 .habit-action-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-hover);
   color: var(--text-primary);
 }
 
 .habit-action-btn.delete:hover {
-  background: rgba(255, 107, 138, 0.1);
+  background: rgba(244, 63, 94, 0.1);
   color: var(--accent-pink);
 }
 
@@ -149,44 +153,39 @@
   user-select: none;
   transition: all var(--transition-fast);
   border: 1.5px solid var(--bg-glass-border);
-  background: transparent;
+  background: var(--bg-hover);
   color: var(--text-secondary);
   position: relative;
 }
 
 .habit-day-circle:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--text-primary);
   color: var(--text-primary);
   transform: scale(1.08);
 }
 
 /* Day State: Success (Went Well) */
 .habit-day-circle.state-success {
-  background: rgba(86, 214, 123, 0.15);
+  background: rgba(52, 211, 153, 0.2);
   border-color: var(--accent-green);
-  color: var(--text-primary);
-  box-shadow: 0 0 10px rgba(86, 214, 123, 0.15);
+  color: var(--accent-green);
   font-weight: 600;
 }
 
 .habit-day-circle.state-success:hover {
-  background: rgba(86, 214, 123, 0.25);
-  box-shadow: 0 0 14px rgba(86, 214, 123, 0.3);
+  background: rgba(52, 211, 153, 0.3);
 }
 
 /* Day State: Failure (Did Not Go Well) */
 .habit-day-circle.state-fail {
-  background: rgba(255, 107, 138, 0.15);
+  background: rgba(244, 63, 94, 0.2);
   border-color: var(--accent-pink);
-  color: var(--text-primary);
-  box-shadow: 0 0 10px rgba(255, 107, 138, 0.15);
+  color: var(--accent-pink);
   font-weight: 600;
 }
 
 .habit-day-circle.state-fail:hover {
-  background: rgba(255, 107, 138, 0.25);
-  box-shadow: 0 0 14px rgba(255, 107, 138, 0.3);
+  background: rgba(244, 63, 94, 0.3);
 }
 
 /* Legend section for guidelines */
@@ -217,23 +216,23 @@
 }
 
 .legend-dot.success {
-  background: rgba(86, 214, 123, 0.2);
+  background: rgba(52, 211, 153, 0.2);
   border-color: var(--accent-green);
 }
 
 .legend-dot.fail {
-  background: rgba(255, 107, 138, 0.2);
+  background: rgba(244, 63, 94, 0.2);
   border-color: var(--accent-pink);
 }
 
-/* Custom tooltip styling logic */
+/* Tooltip */
 .habit-day-circle[title]::after {
   content: attr(title);
   position: absolute;
   bottom: 125%;
   left: 50%;
   transform: translateX(-50%) scale(0.9);
-  background: var(--bg-tertiary);
+  background: var(--bg-secondary);
   border: 1px solid var(--bg-glass-border);
   color: var(--text-primary);
   padding: 4px 8px;

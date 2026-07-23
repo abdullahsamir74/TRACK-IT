@@ -179,9 +179,9 @@ export function updateTimerDisplay(state) {
   // Change ring color if over estimate
   if (ring) {
     if (progress > 1) {
-      ring.style.stroke = "#ff6b8a";
+      ring.style.stroke = "var(--accent-pink)";
     } else {
-      ring.style.stroke = "#7c6ef0";
+      ring.style.stroke = "var(--text-primary)";
     }
   }
 
@@ -284,7 +284,7 @@ export async function renderTimerView() {
     const ring = document.querySelector(".timer-ring-progress");
     if (ring) {
       ring.style.strokeDashoffset = "565.48";
-      ring.style.stroke = "#7c6ef0";
+      ring.style.stroke = "var(--text-primary)";
     }
   }
 
@@ -309,7 +309,7 @@ function renderTimerTaskList() {
         id: e.id,
         name: e.summary,
         estimate: task.estimateMinutes || e.durationMinutes || null,
-        calendarColor: e.calendarColor || "#7c6ef0",
+        calendarColor: e.calendarColor || "#38bdf8",
         completed: task.completed || false,
       };
     })
@@ -348,7 +348,7 @@ function renderTimerTaskList() {
     opt.setAttribute("role", "button");
     opt.setAttribute("tabindex", "0");
     opt.innerHTML = `
-      <div class="task-color-dot" style="background: ${task.calendarColor || "#7c6ef0"}; height: 24px;"></div>
+      <div class="task-color-dot" style="background: ${task.calendarColor || "#38bdf8"}; height: 24px;"></div>
       <span style="flex:1; text-align:left;">${escapeHtml(task.name)}</span>
       ${task.estimate ? `<span class="task-badge estimate">${formatDuration(task.estimate)}</span>` : ""}
     `;

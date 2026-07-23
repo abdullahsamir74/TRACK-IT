@@ -18,7 +18,7 @@
   display: flex;
   flex-direction: column;
   border-radius: var(--radius-md);
-  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border: 1px dashed var(--border-input);
   background: var(--bg-card);
   flex-shrink: 0;
   transition:
@@ -37,7 +37,7 @@
 }
 
 .projects-unassigned-pool.expanded .pool-header {
-  border-bottom-color: rgba(255, 255, 255, 0.04);
+  border-bottom-color: var(--bg-glass-border);
 }
 
 .pool-title-group {
@@ -90,25 +90,24 @@
 }
 
 .pool-dropzone.drag-over {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: var(--accent-primary);
+  background: var(--bg-hover);
+  border-color: var(--text-primary);
 }
 
-/* Pool Task Chips (Horizontal row inside top banner) */
+/* Pool Task Chips */
 .pool-dropzone .task-item {
-  min-width: 240px;
-  max-width: 280px;
+  min-width: 280px;
+  max-width: 360px;
   flex-shrink: 0;
   margin: 0;
+  padding: var(--space-sm) var(--space-md);
 }
 
-/* --- Compact Project Cards Grid --- */
+/* --- Modern Project Cards List --- */
 .projects-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: var(--space-md);
-  align-items: start;
-  align-content: start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
   overflow-y: auto;
   flex: 1;
   min-height: 0;
@@ -120,9 +119,13 @@
 .project-card {
   background: var(--bg-card);
   border: 1px solid var(--bg-glass-border);
+  border-left-width: 4px;
+  border-left-style: solid;
+  border-left-color: #38bdf8;
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
+  box-shadow: var(--shadow-sm);
   transition:
     transform var(--transition-fast),
     background var(--transition-fast),
@@ -132,20 +135,20 @@
 
 .project-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: var(--bg-hover);
   box-shadow: var(--shadow-md);
 }
 
 .project-card.drag-over {
-  background: rgba(124, 110, 240, 0.1) !important;
-  border-color: var(--accent-primary) !important;
+  background: var(--bg-hover) !important;
+  border-color: var(--text-primary) !important;
   box-shadow: var(--shadow-glow);
 }
 
 .project-card.dragging {
   opacity: 0.8;
   box-shadow: var(--shadow-lg);
-  border-color: var(--accent-primary);
+  border-color: var(--text-primary);
   transition: none !important;
 }
 
@@ -163,7 +166,7 @@
 
 .project-card.expanded .project-card-header {
   padding: 14px 16px 12px 16px;
-  border-bottom-color: rgba(255, 255, 255, 0.04);
+  border-bottom-color: var(--bg-glass-border);
 }
 
 .project-card-top-row {
@@ -214,45 +217,35 @@
 .project-task-count {
   font-size: 11px;
   color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-hover);
+  border: 1px solid var(--bg-glass-border);
   padding: 2px 8px;
   border-radius: 12px;
   font-weight: 500;
   flex-shrink: 0;
 }
-.project-target-badge {
-  font-size: 11px;
-  color: var(--accent-secondary);
-  background: rgba(78, 205, 196, 0.1);
-  border: 1px solid rgba(78, 205, 196, 0.25);
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  align-self: flex-start;
-}
-.project-target-progress-wrapper {
-  margin-top: 4px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
 
-.project-card:not(.expanded) .project-target-badge,
-.project-card:not(.expanded) .project-target-progress-wrapper {
-  display: none !important;
+
+/* --- Empty Project Drop Target --- */
+.project-drop-target {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px;
+  border: 1.5px dashed var(--bg-glass-border);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  user-select: none;
 }
-.project-target-progress-bar {
-  height: 4px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 2px;
-  overflow: hidden;
-}
-.project-target-progress-fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.3s ease;
+.project-card:hover .project-drop-target,
+.project-task-list.drag-over .project-drop-target {
+  border-color: rgba(56, 189, 248, 0.5);
+  color: var(--text-secondary);
+  background: rgba(56, 189, 248, 0.04);
 }
 
 /* --- Action Buttons --- */
@@ -285,11 +278,11 @@
 }
 .btn-delete-project:hover {
   color: var(--accent-pink) !important;
-  background: rgba(255, 107, 138, 0.1);
+  background: rgba(244, 63, 94, 0.1);
 }
 .btn-edit-project:hover {
-  color: var(--accent-primary) !important;
-  background: rgba(124, 110, 240, 0.1);
+  color: var(--text-primary) !important;
+  background: var(--bg-hover);
 }
 
 /* --- Chevron Indicator --- */
@@ -322,7 +315,7 @@
   max-height: 1000px;
   opacity: 1;
   padding: var(--space-sm) var(--space-md) var(--space-md) var(--space-md);
-  border-top-color: rgba(255, 255, 255, 0.03);
+  border-top-color: var(--bg-glass-border);
 }
 
 .project-task-list {
@@ -330,22 +323,6 @@
   flex-direction: column;
   gap: var(--space-sm);
   min-height: 30px;
-}
-
-/* --- Scrollbar Customization --- */
-.projects-grid::-webkit-scrollbar,
-.pool-dropzone::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-.projects-grid::-webkit-scrollbar-thumb,
-.pool-dropzone::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
-}
-.projects-grid::-webkit-scrollbar-thumb:hover,
-.pool-dropzone::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
 }
 
 /* --- Dragging Tasks --- */
@@ -364,5 +341,9 @@
 }
 .project-card .task-item .drag-handle,
 .projects-unassigned-pool .task-item .drag-handle {
+  display: none !important;
+}
+.project-card .task-item .task-project-badge,
+.pool-dropzone .task-item .task-project-badge {
   display: none !important;
 }

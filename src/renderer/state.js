@@ -44,9 +44,6 @@ class Store {
     projectOrder = this.state.projectOrder;
     weeklyTargets = this.state.weeklyTargets;
 
-    // Reset data-theme attribute to restore default theme
-    document.documentElement.removeAttribute("data-theme");
-
     this.notify();
   }
 
@@ -166,6 +163,16 @@ export async function loadData() {
       (await window.tracker.getTaskOrder().catch(() => [])) || [];
     const projectOrderVal =
       (await window.tracker.getProjectOrder().catch(() => [])) || [];
+
+    // Sanitize legacy purple project colors
+    if (projects) {
+      Object.values(projects).forEach((proj) => {
+        if (proj.color === "#7c6ef0" || proj.color === "#6b5ce0") {
+          proj.color = "#38bdf8";
+          window.tracker.saveProject(proj).catch(() => {});
+        }
+      });
+    }
 
     storeInstance.updateState({
       calendarEvents: events || [],

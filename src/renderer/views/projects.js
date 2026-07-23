@@ -159,24 +159,7 @@ export async function renderProjects() {
       const isExpanded = expandedProjects[project.id] === true;
       card.className = `project-card ${isExpanded ? "expanded" : ""}`;
       card.dataset.projectId = project.id;
-
-      const targetHours = targets[project.id] || 0;
-      const projMins = analytics?.weeklyProjectMinutes?.[project.id] || 0;
-      const projHours = Math.round((projMins / 60) * 10) / 10;
-      const percent =
-        targetHours > 0
-          ? Math.min(100, Math.round((projHours / targetHours) * 100))
-          : 0;
-
-      const targetBadge =
-        targetHours > 0
-          ? `<span class="project-target-badge" title="Weekly goal progress">Goal: ${projHours}h / ${targetHours}h (${percent}%)</span>`
-          : "";
-
-      const progressBar =
-        targetHours > 0
-          ? `<div class="project-target-progress-wrapper"><div class="project-target-progress-bar"><div class="project-target-progress-fill" style="width: ${percent}%; background: ${project.color};"></div></div></div>`
-          : "";
+      card.style.borderLeftColor = project.color || "#38bdf8";
 
       card.innerHTML = `
         <div class="project-card-header" style="cursor: pointer;">
@@ -213,8 +196,6 @@ export async function renderProjects() {
               </button>
             </div>
           </div>
-          ${targetBadge}
-          ${progressBar}
         </div>
         <div class="project-card-body">
           <div class="project-task-list" data-project-id="${project.id}">
@@ -227,9 +208,14 @@ export async function renderProjects() {
       const events = projectTasks[project.id];
       if (events.length === 0) {
         const emptyCol = document.createElement("div");
-        emptyCol.className = "empty-state small";
-        emptyCol.style.marginTop = "var(--space-sm)";
-        emptyCol.innerHTML = "<p>No tasks assigned yet</p>";
+        emptyCol.className = "project-drop-target";
+        emptyCol.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.5">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          <span>Drag tasks here</span>
+        `;
         listContainer.appendChild(emptyCol);
       } else {
         events.forEach((event) => {

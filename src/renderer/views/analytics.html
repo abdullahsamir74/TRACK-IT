@@ -41,25 +41,25 @@
     <div class="analytics-card glass analytics-stats-card">
       <h3>Summary</h3>
       <div class="analytics-stats">
-        <div class="analytics-stat">
+        <div class="analytics-stat stat-total">
           <span class="analytics-stat-value" id="analytics-total-hours"
             >0h</span
           >
           <span class="analytics-stat-label">Total Tracked</span>
         </div>
-        <div class="analytics-stat">
+        <div class="analytics-stat stat-sessions">
           <span class="analytics-stat-value" id="analytics-total-sessions"
             >0</span
           >
           <span class="analytics-stat-label">Sessions</span>
         </div>
-        <div class="analytics-stat">
+        <div class="analytics-stat stat-completion">
           <span class="analytics-stat-value" id="analytics-completion-rate"
             >0%</span
           >
           <span class="analytics-stat-label">Completion</span>
         </div>
-        <div class="analytics-stat">
+        <div class="analytics-stat stat-avg">
           <span class="analytics-stat-value" id="analytics-avg-daily">0h</span>
           <span class="analytics-stat-label">Avg / Day</span>
         </div>
@@ -75,76 +75,82 @@
     </div>
   </div>
 
-  <!-- Yearly Activity Heatmap -->
-  <div class="analytics-full-card glass" id="analytics-heatmap-card">
-    <div class="heatmap-header">
-      <div>
-        <h3>Yearly Activity Heatmap</h3>
-        <p class="heatmap-subtitle">365-day time tracking contribution map</p>
-      </div>
-      <div class="heatmap-legend">
-        <span>Less</span>
-        <div class="heatmap-legend-cells">
-          <div class="heatmap-cell level-0" title="0h"></div>
-          <div class="heatmap-cell level-1" title="< 1h"></div>
-          <div class="heatmap-cell level-2" title="1h - 3h"></div>
-          <div class="heatmap-cell level-3" title="3h - 5h"></div>
-          <div class="heatmap-cell level-4" title="> 5h"></div>
+  <!-- Bottom Grid: Heatmap (Left) & Overall Weekly Target (Right) Side-by-Side -->
+  <div class="analytics-bottom-grid">
+    <!-- Yearly Activity Heatmap -->
+    <div class="analytics-card glass" id="analytics-heatmap-card">
+      <div class="heatmap-header">
+        <div>
+          <h3>Yearly Activity Heatmap</h3>
+          <p class="heatmap-subtitle">365-day time tracking contribution map</p>
         </div>
-        <span>More</span>
+        <div class="heatmap-legend">
+          <span>No Activity</span>
+          <div class="heatmap-legend-cells">
+            <div class="heatmap-cell level-0" title="No work"></div>
+            <div class="heatmap-cell level-1" title="Worked today"></div>
+          </div>
+          <span>Active</span>
+        </div>
+      </div>
+      <div class="heatmap-scroll-container">
+        <div class="heatmap-months-header" id="heatmap-months-header"></div>
+        <div class="heatmap-body-wrapper">
+          <div class="heatmap-days-column">
+            <span>Mon</span>
+            <span>Wed</span>
+            <span>Fri</span>
+          </div>
+          <div class="heatmap-grid" id="heatmap-grid"></div>
+        </div>
+      </div>
+      <div class="heatmap-stats">
+        <div class="heatmap-stat-item">
+          <span class="heatmap-stat-num" id="heatmap-active-days">0</span>
+          <span class="heatmap-stat-lbl">Active Days</span>
+        </div>
+        <div class="heatmap-stat-item">
+          <span class="heatmap-stat-num" id="heatmap-active-rate">0%</span>
+          <span class="heatmap-stat-lbl">Active Rate</span>
+        </div>
+        <div class="heatmap-stat-item">
+          <span class="heatmap-stat-num" id="heatmap-longest-streak">0</span>
+          <span class="heatmap-stat-lbl">Longest Streak</span>
+        </div>
+        <div class="heatmap-stat-item">
+          <span class="heatmap-stat-num" id="heatmap-current-streak">0</span>
+          <span class="heatmap-stat-lbl">Current Streak</span>
+        </div>
       </div>
     </div>
-    <div class="heatmap-scroll-container">
-      <div class="heatmap-grid" id="heatmap-grid"></div>
-    </div>
-    <div class="heatmap-stats">
-      <div class="heatmap-stat-item">
-        <span class="heatmap-stat-num" id="heatmap-active-days">0</span>
-        <span class="heatmap-stat-lbl">Active Days</span>
-      </div>
-      <div class="heatmap-stat-item">
-        <span class="heatmap-stat-num" id="heatmap-active-rate">0%</span>
-        <span class="heatmap-stat-lbl">Active Rate</span>
-      </div>
-      <div class="heatmap-stat-item">
-        <span class="heatmap-stat-num" id="heatmap-longest-streak">0</span>
-        <span class="heatmap-stat-lbl">Longest Streak</span>
-      </div>
-      <div class="heatmap-stat-item">
-        <span class="heatmap-stat-num" id="heatmap-current-streak">0</span>
-        <span class="heatmap-stat-lbl">Current Streak</span>
-      </div>
-    </div>
-  </div>
 
-  <!-- Weekly Time Targets Card -->
-  <div class="analytics-full-card glass" id="analytics-targets-card">
-    <div class="targets-header">
-      <div>
-        <h3>Weekly Time Targets</h3>
-        <p class="heatmap-subtitle">
-          Track your weekly hours against your productivity goals
-        </p>
+    <!-- Overall Weekly Time Target Card (Placed next to Heatmap) -->
+    <div class="analytics-card glass" id="analytics-targets-card">
+      <div class="targets-header">
+        <div>
+          <h3>Weekly Time Target</h3>
+          <p class="heatmap-subtitle">Overall weekly target goal</p>
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btn-edit-global-target">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+            />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+          Set Target
+        </button>
       </div>
-      <button class="btn btn-ghost btn-sm" id="btn-edit-global-target">
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-          />
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-        </svg>
-        Set Overall Target
-      </button>
-    </div>
-    <div class="targets-grid" id="targets-grid">
-      <!-- Dynamically populated weekly target progress bars -->
+      <div class="targets-single-wrapper" id="targets-grid">
+        <!-- Dynamically populated overall weekly target progress bar -->
+      </div>
     </div>
   </div>
 </section>

@@ -127,18 +127,68 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Update date on dashboard
   updateDashboardDate();
+
+  // Listen for window resize to handle dynamic chart scaling
+  window.addEventListener("resize", () => {
+    import("./state.js").then(({ analyticsChart }) => {
+      if (analyticsChart && typeof analyticsChart.resize === "function") {
+        analyticsChart.resize();
+      }
+    });
+  });
 });
 
-// ---- Titlebar ----
+// ---- Titlebar & Theme ----
+export function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("tracker-theme", theme);
+
+  const btnToggle = document.getElementById("btn-theme-toggle");
+  const moonIcon = btnToggle?.querySelector(".icon-moon");
+  const sunIcon = btnToggle?.querySelector(".icon-sun");
+
+  if (moonIcon && sunIcon) {
+    if (theme === "light") {
+      // In light mode, show moon icon to switch to night mode
+      moonIcon.style.display = "block";
+      sunIcon.style.display = "none";
+      btnToggle.title = "Switch to Night Mode (Dark)";
+    } else {
+      // In dark mode, show sun icon to switch to day mode
+      moonIcon.style.display = "none";
+      sunIcon.style.display = "block";
+      btnToggle.title = "Switch to Day Mode (Light)";
+    }
+  }
+
+  renderCurrentView();
+}
+
+function initTheme() {
+  const savedTheme = localStorage.getItem("tracker-theme") || "dark";
+  applyTheme(savedTheme);
+}
+
 function initTitlebar() {
+  const btnThemeToggle = document.getElementById("btn-theme-toggle");
   const btnMin = document.getElementById("btn-minimize");
   const btnMax = document.getElementById("btn-maximize");
   const btnClose = document.getElementById("btn-close");
+
+  if (btnThemeToggle) {
+    btnThemeToggle.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme") || "dark";
+      const nextTheme = current === "dark" ? "light" : "dark";
+      applyTheme(nextTheme);
+    });
+  }
 
   if (btnMin) btnMin.addEventListener("click", () => window.tracker.minimize());
   if (btnMax) btnMax.addEventListener("click", () => window.tracker.maximize());
   if (btnClose)
     btnClose.addEventListener("click", () => window.tracker.close());
+
+  initTheme();
 }
 
 // ---- Navigation ----

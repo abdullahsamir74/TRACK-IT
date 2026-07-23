@@ -72,7 +72,7 @@ export function getCombinedEvents(calendarEvents, trackedTasks) {
           start: task.start || new Date().toISOString(),
           end: task.end || null,
           durationMinutes: task.estimateMinutes || 60,
-          calendarColor: "#7c6ef0",
+          calendarColor: "#38bdf8",
           calendarName: "Manual",
           isManual: true,
         });

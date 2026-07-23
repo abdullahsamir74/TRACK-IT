@@ -9,7 +9,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -23,7 +23,11 @@
 .modal {
   width: 440px;
   padding: var(--space-xl);
-  animation: slideUp 0.3s ease;
+  background: var(--bg-card);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  animation: slideUp 0.25s ease;
   -webkit-app-region: no-drag !important;
 }
 .modal.modal-sm {
@@ -32,7 +36,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -48,6 +52,7 @@
 .modal-header h2 {
   font-size: 18px;
   font-weight: 600;
+  color: var(--text-primary);
 }
 
 /* --- Forms --- */
@@ -56,7 +61,7 @@
 }
 .form-group label {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--text-secondary);
   margin-bottom: var(--space-xs);
@@ -67,18 +72,18 @@
 .select-input {
   width: 100%;
   padding: var(--space-sm) var(--space-md);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--bg-glass-border);
+  background: var(--bg-input);
+  border: 1px solid var(--border-input);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
   font-family: var(--font-family);
-  font-size: 14px;
+  font-size: 13.5px;
   transition: border-color var(--transition-fast);
   outline: none;
 }
 .form-group input:focus,
 .select-input:focus {
-  border-color: var(--accent-primary);
+  border-color: var(--text-primary);
 }
 .form-group input::placeholder {
   color: var(--text-muted);
@@ -99,7 +104,7 @@
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='%238b95b0'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='%23a1a1aa'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 12px center;
   padding-right: 32px;
@@ -155,7 +160,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -165,9 +170,9 @@
 }
 .confirm-dialog {
   background: var(--bg-card);
-  backdrop-filter: blur(12px);
   border: 1px solid var(--bg-glass-border);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
   padding: var(--space-xl);
   width: 380px;
   animation: slideUp 0.2s ease;

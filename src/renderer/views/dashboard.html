@@ -1,0 +1,178 @@
+<section id="view-dashboard" class="view active">
+  <div class="view-header">
+    <div>
+      <h1>Dashboard</h1>
+      <p class="view-subtitle" id="dashboard-date"></p>
+    </div>
+    <button
+      class="btn btn-ghost btn-sm btn-reset"
+      id="btn-reset-dashboard"
+      title="Reset all data"
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="3 6 5 6 21 6" />
+        <path
+          d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+        />
+      </svg>
+      Reset
+    </button>
+  </div>
+  <div class="dashboard-grid">
+    <div class="stat-card glass" id="stat-tasks">
+      <div class="stat-icon" style="--accent: #7c6ef0">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M9 11l3 3L22 4" />
+          <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+        </svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value" id="stat-total-tasks">0</span>
+        <span class="stat-label">Tasks Today</span>
+      </div>
+    </div>
+    <div class="stat-card glass" id="stat-time">
+      <div class="stat-icon" style="--accent: #4ecdc4">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <polyline points="12 6 12 12 16 14" />
+        </svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value" id="stat-total-time">0h</span>
+        <span class="stat-label">Tracked Today</span>
+      </div>
+    </div>
+    <div class="stat-card glass" id="stat-completed">
+      <div class="stat-icon" style="--accent: #ff6b8a">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+        </svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value" id="stat-completed-count">0</span>
+        <span class="stat-label">Completed</span>
+      </div>
+    </div>
+    <div class="stat-card glass" id="stat-estimate">
+      <div class="stat-icon" style="--accent: #f9a826">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
+          />
+        </svg>
+      </div>
+      <div class="stat-info">
+        <span class="stat-value" id="stat-estimated-time">0h</span>
+        <span class="stat-label">Estimated Total</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Timer Card -->
+  <div
+    class="active-timer-card glass"
+    id="dashboard-active-timer"
+    style="display: none"
+  >
+    <div class="active-timer-info">
+      <span class="active-timer-label">Currently Tracking</span>
+      <span class="active-timer-task" id="dashboard-timer-task"></span>
+    </div>
+    <div class="active-timer-display" id="dashboard-timer-display">
+      00:00:00
+    </div>
+    <button class="btn btn-accent btn-sm" id="dashboard-goto-timer">
+      View Timer →
+    </button>
+  </div>
+
+  <!-- Today's Tasks -->
+  <div class="section-header">
+    <h2>Today's Schedule</h2>
+    <button class="btn btn-ghost btn-sm" id="btn-refresh-calendar">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path
+          d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"
+        />
+      </svg>
+      Refresh
+    </button>
+  </div>
+  <div class="task-list" id="dashboard-task-list">
+    <div class="empty-state">
+      <svg
+        width="48"
+        height="48"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        opacity="0.4"
+      >
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="3" y1="10" x2="21" y2="10" />
+      </svg>
+      <p>No tasks scheduled for today</p>
+      <span>Events from GNOME Calendar will appear here</span>
+    </div>
+  </div>
+</section>

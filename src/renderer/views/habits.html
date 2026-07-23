@@ -1,0 +1,90 @@
+<section id="view-habits" class="view">
+  <div class="view-header">
+    <div class="header-left">
+      <h1>Habit Tracker</h1>
+      <p class="view-subtitle">
+        Track your daily habits and see your monthly progress
+      </p>
+    </div>
+    <div class="view-actions">
+      <button
+        class="btn btn-ghost btn-sm btn-reset"
+        id="btn-reset-habits"
+        title="Reset all habit data"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="3 6 5 6 21 6" />
+          <path
+            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+          />
+        </svg>
+        Reset
+      </button>
+      <button class="btn btn-accent" id="btn-new-habit">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Create Habit
+      </button>
+    </div>
+  </div>
+
+  <div class="habits-month-nav glass">
+    <button
+      class="btn btn-ghost btn-sm"
+      id="btn-prev-month"
+      title="Previous Month"
+    >
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="15 18 9 12 15 6" />
+      </svg>
+    </button>
+    <span id="habits-current-month"></span>
+    <button class="btn btn-ghost btn-sm" id="btn-next-month" title="Next Month">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="9 18 15 12 9 6" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="habits-container" id="habits-container">
+    <!-- Dynamically rendered habit trackers -->
+  </div>
+</section>

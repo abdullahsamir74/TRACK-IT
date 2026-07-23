@@ -44,7 +44,46 @@ export function resetEstimateAlert() {
 }
 
 // ---- Initialization ----
+async function loadViewTemplates() {
+  const [titlebarHtml, sidebarHtml, modalsHtml] = await Promise.all([
+    fetch("components/titlebar.html").then((r) => r.text()),
+    fetch("components/sidebar.html").then((r) => r.text()),
+    fetch("components/modals.html").then((r) => r.text()),
+  ]);
+
+  const titlebarSlot = document.getElementById("titlebar-slot");
+  const sidebarSlot = document.getElementById("sidebar-slot");
+  const modalsSlot = document.getElementById("modals-slot");
+  const mainContent = document.getElementById("main-content");
+
+  if (titlebarSlot) titlebarSlot.innerHTML = titlebarHtml;
+  if (sidebarSlot) sidebarSlot.innerHTML = sidebarHtml;
+  if (modalsSlot) modalsSlot.innerHTML = modalsHtml;
+
+  const views = [
+    "dashboard",
+    "schedule",
+    "timer",
+    "analytics",
+    "projects",
+    "habits",
+  ];
+
+  if (mainContent) {
+    const viewHtmls = await Promise.all(
+      views.map(async (v) => {
+        const res = await fetch(`views/${v}.html`);
+        return res.text();
+      }),
+    );
+    mainContent.innerHTML = viewHtmls.join("\n");
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
+  // Load HTML templates dynamically
+  await loadViewTemplates();
+
   // Register view renderers (avoids circular imports in state.js)
   registerViewRenderers({
     dashboard: renderDashboard,
@@ -92,15 +131,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // ---- Titlebar ----
 function initTitlebar() {
-  document
-    .getElementById("btn-minimize")
-    .addEventListener("click", () => window.tracker.minimize());
-  document
-    .getElementById("btn-maximize")
-    .addEventListener("click", () => window.tracker.maximize());
-  document
-    .getElementById("btn-close")
-    .addEventListener("click", () => window.tracker.close());
+  const btnMin = document.getElementById("btn-minimize");
+  const btnMax = document.getElementById("btn-maximize");
+  const btnClose = document.getElementById("btn-close");
+
+  if (btnMin) btnMin.addEventListener("click", () => window.tracker.minimize());
+  if (btnMax) btnMax.addEventListener("click", () => window.tracker.maximize());
+  if (btnClose)
+    btnClose.addEventListener("click", () => window.tracker.close());
 }
 
 // ---- Navigation ----

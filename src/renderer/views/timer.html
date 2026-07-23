@@ -1,0 +1,121 @@
+<section id="view-timer" class="view">
+  <div class="view-header">
+    <h1>Timer</h1>
+    <button
+      class="btn btn-ghost btn-sm btn-reset"
+      id="btn-reset-timer"
+      title="Reset all data"
+    >
+      <svg
+        width="14"
+        height="14"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <polyline points="3 6 5 6 21 6" />
+        <path
+          d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+        />
+      </svg>
+      Reset
+    </button>
+  </div>
+  <div class="timer-container">
+    <div class="timer-ring-wrapper">
+      <svg class="timer-ring" viewBox="0 0 200 200">
+        <circle
+          class="timer-ring-bg"
+          cx="100"
+          cy="100"
+          r="90"
+          fill="none"
+          stroke-width="6"
+        />
+        <circle
+          class="timer-ring-progress"
+          cx="100"
+          cy="100"
+          r="90"
+          fill="none"
+          stroke-width="6"
+          stroke-dasharray="565.48"
+          stroke-dashoffset="565.48"
+          transform="rotate(-90 100 100)"
+        />
+      </svg>
+      <div class="timer-display">
+        <span class="timer-time" id="timer-display">00:00:00</span>
+        <span class="timer-task-name" id="timer-task-name"
+          >No task selected</span
+        >
+      </div>
+    </div>
+
+    <div
+      class="timer-estimate-bar"
+      id="timer-estimate-bar"
+      style="display: none"
+    >
+      <div class="estimate-bar-labels">
+        <span>Elapsed</span>
+        <span id="timer-estimate-label">Est: 0min</span>
+      </div>
+      <div class="estimate-bar-track">
+        <div class="estimate-bar-fill" id="timer-estimate-fill"></div>
+      </div>
+    </div>
+
+    <div class="timer-controls">
+      <button
+        class="timer-btn timer-btn-secondary"
+        id="btn-timer-stop"
+        disabled
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="6" y="6" width="12" height="12" rx="2" />
+        </svg>
+      </button>
+      <button class="timer-btn timer-btn-primary" id="btn-timer-start">
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          id="timer-play-icon"
+        >
+          <polygon points="5 3 19 12 5 21 5 3" />
+        </svg>
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          id="timer-pause-icon"
+          style="display: none"
+        >
+          <rect x="6" y="4" width="4" height="16" rx="1" />
+          <rect x="14" y="4" width="4" height="16" rx="1" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="timer-task-selector" id="timer-task-selector">
+      <h3>Select a task to track</h3>
+      <div class="timer-task-list" id="timer-task-list"></div>
+    </div>
+
+    <!-- Today's Sessions -->
+    <div class="timer-sessions">
+      <h3>Today's Sessions</h3>
+      <div class="session-list" id="timer-session-list">
+        <div class="empty-state small">
+          <p>No sessions recorded today</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

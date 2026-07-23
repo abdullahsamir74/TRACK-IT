@@ -2,11 +2,10 @@
    PROGRESS TRACKER — Design System & Styles
    ======================================== */
 
-@import "./styles/variables.css";
-@import "./styles/base.css";
-@import "./styles/layout.css";
-@import "./styles/buttons.css";
-@import "./styles/glass.css";
+/* Core Design System */
+@import "./styles/design-system.css";
+
+/* Component & View Styles */
 @import "./styles/task-item.css";
 @import "./styles/modals.css";
 @import "./styles/dashboard.css";
@@ -15,4 +14,3 @@
 @import "./styles/analytics.css";
 @import "./styles/projects.css";
 @import "./styles/habits.css";
-@import "./styles/utilities.css";

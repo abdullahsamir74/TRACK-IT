@@ -1,0 +1,94 @@
+<section id="view-projects" class="view">
+  <div class="view-header">
+    <div class="header-left">
+      <h1>Projects</h1>
+      <p>
+        Group and prioritize your GNOME Calendar tasks into visual custom
+        projects
+      </p>
+    </div>
+    <div class="view-actions">
+      <button
+        class="btn btn-ghost btn-sm btn-reset"
+        id="btn-reset-projects"
+        title="Reset all data"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="3 6 5 6 21 6" />
+          <path
+            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+          />
+        </svg>
+        Reset
+      </button>
+      <button class="btn btn-accent" id="btn-new-project">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Create Project
+      </button>
+    </div>
+  </div>
+  <div class="projects-container">
+    <!-- Full-Width Collapsible Unassigned Tasks Pool Panel -->
+    <div class="projects-unassigned-pool glass" id="unassigned-pool-panel">
+      <div class="pool-header" style="cursor: pointer">
+        <div class="pool-title-group">
+          <div
+            class="project-chevron"
+            id="unassigned-chevron"
+            title="Expand/collapse tasks"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </div>
+          <h3>📋 Unassigned Tasks Pool</h3>
+        </div>
+        <span class="badge" id="unassigned-tasks-count">0 tasks</span>
+      </div>
+      <div class="pool-body">
+        <div
+          class="pool-dropzone"
+          id="unassigned-tasks-pool"
+          data-project-id="unassigned"
+        >
+          <!-- Calendar events without a project -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Compact Project Cards Grid -->
+    <div class="projects-grid" id="projects-list-stack">
+      <!-- Dynamically rendered compact project cards -->
+    </div>
+  </div>
+</section>

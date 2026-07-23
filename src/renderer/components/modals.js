@@ -79,6 +79,11 @@ export function initModals() {
   if (formGlobalTarget) {
     formGlobalTarget.addEventListener("submit", handleSetGlobalTarget);
   }
+
+  const globalDeleteBtn = document.getElementById("btn-global-target-delete");
+  if (globalDeleteBtn) {
+    globalDeleteBtn.addEventListener("click", handleDeleteGlobalTarget);
+  }
 }
 
 // ---- Add Task Modal ----
@@ -175,6 +180,13 @@ async function handleSetGlobalTarget(e) {
   e.preventDefault();
   const val = document.getElementById("global-target-hours").value;
   await window.tracker.saveWeeklyTarget("global", val);
+  setWeeklyTargets(await window.tracker.getWeeklyTargets());
+  closeModals();
+  renderCurrentView();
+}
+
+async function handleDeleteGlobalTarget() {
+  await window.tracker.saveWeeklyTarget("global", "");
   setWeeklyTargets(await window.tracker.getWeeklyTargets());
   closeModals();
   renderCurrentView();

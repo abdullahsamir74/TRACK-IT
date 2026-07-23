@@ -1,14 +1,20 @@
 import { formatDuration, escapeHtml, getLocalDateString } from "../utils.js";
 import { analyticsChart, setAnalyticsChart } from "../state.js";
-import { openGlobalTargetModal } from "../components/modals.js";
+import {
+  openGlobalTargetModal,
+  openEditProjectModal,
+} from "../components/modals.js";
 
 /**
  * Initialize analytics range selector and global target button.
  */
 export function initAnalytics() {
-  document.getElementById("analytics-range").addEventListener("change", () => {
-    renderAnalytics();
-  });
+  const rangeEl = document.getElementById("analytics-range");
+  if (rangeEl) {
+    rangeEl.addEventListener("change", () => {
+      renderAnalytics();
+    });
+  }
 
   const btnGlobalTarget = document.getElementById("btn-edit-global-target");
   if (btnGlobalTarget) {
@@ -22,50 +28,55 @@ export function initAnalytics() {
  * Render the full analytics view.
  */
 export async function renderAnalytics() {
-  const range = document.getElementById("analytics-range").value;
+  const rangeEl = document.getElementById("analytics-range");
+  const range = rangeEl ? rangeEl.value : "week";
 
   try {
     const analytics = await window.tracker.getAnalytics(range);
+    if (!analytics) return;
 
     // Summary stats
-    document.getElementById("analytics-total-hours").textContent =
-      formatDuration(analytics.totalTrackedMinutes);
-    document.getElementById("analytics-total-sessions").textContent =
-      analytics.totalSessions;
+    const totalHoursEl = document.getElementById("analytics-total-hours");
+    if (totalHoursEl) {
+      totalHoursEl.textContent = formatDuration(
+        analytics.totalTrackedMinutes || 0,
+      );
+    }
 
-    const completionRate =
-      analytics.totalTaskCount > 0
-        ? Math.round(
-            (analytics.completedCount / analytics.totalTaskCount) * 100,
-          )
-        : 0;
-    document.getElementById("analytics-completion-rate").textContent =
-      `${completionRate}%`;
+    const totalSessionsEl = document.getElementById("analytics-total-sessions");
+    if (totalSessionsEl) {
+      totalSessionsEl.textContent = analytics.totalSessions || 0;
+    }
 
-    const days =
-      analytics && analytics.daily && analytics.daily.length > 0
-        ? analytics.daily.length
-        : 1;
-    const avgDaily = (analytics?.totalTrackedMinutes || 0) / days;
-    document.getElementById("analytics-avg-daily").textContent =
-      formatDuration(avgDaily);
+    const completionRateEl = document.getElementById(
+      "analytics-completion-rate",
+    );
+    if (completionRateEl) {
+      const rate =
+        analytics.totalTaskCount > 0
+          ? Math.round(
+              (analytics.completedCount / analytics.totalTaskCount) * 100,
+            )
+          : 0;
+      completionRateEl.textContent = `${rate}%`;
+    }
 
-    // Chart
+    const avgDailyEl = document.getElementById("analytics-avg-daily");
+    if (avgDailyEl) {
+      const days =
+        analytics.daily && analytics.daily.length > 0
+          ? analytics.daily.length
+          : 1;
+      const avgMins = (analytics.totalTrackedMinutes || 0) / days;
+      avgDailyEl.textContent = formatDuration(avgMins);
+    }
+
     renderChart(analytics.daily || []);
-
-    // Top tasks
     renderTopTasks(analytics.taskStats || []);
-
-    // Heatmap
     renderHeatmap(analytics.heatmapData || {});
-
-    // Weekly Targets
     await renderWeeklyTargets(analytics);
-
-    // Streak
-    document.getElementById("streak-count").textContent = analytics.streak || 0;
   } catch (err) {
-    console.error("Error rendering analytics:", err);
+    console.error("Failed to render analytics:", err);
   }
 }
 
@@ -81,7 +92,7 @@ function renderHeatmap(heatmapData) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Start date: 52 weeks ago aligned to Sunday
+  // Start date: 52 weeks ago (364 days) aligned to nearest Sunday
   const startDate = new Date(today);
   startDate.setDate(today.getDate() - 364);
   startDate.setDate(startDate.getDate() - startDate.getDay());
@@ -96,7 +107,7 @@ function renderHeatmap(heatmapData) {
   while (tempDate <= today) {
     totalDays++;
     const key = getLocalDateString(tempDate);
-    const mins = heatmapData[key] || 0;
+    const mins = (heatmapData && heatmapData[key]) || 0;
 
     let level = 0;
     if (mins > 0) {
@@ -134,14 +145,14 @@ function renderHeatmap(heatmapData) {
   let streakLimit = 365;
   while (streakLimit-- > 0) {
     const k = getLocalDateString(checkD);
-    if (heatmapData[k] > 0) {
+    if (heatmapData && heatmapData[k] > 0) {
       currentStreak++;
       checkD.setDate(checkD.getDate() - 1);
     } else {
       if (getLocalDateString(checkD) === getLocalDateString(today)) {
         checkD.setDate(checkD.getDate() - 1);
         const yk = getLocalDateString(checkD);
-        if (heatmapData[yk] > 0) {
+        if (heatmapData && heatmapData[yk] > 0) {
           continue;
         }
       }
@@ -149,16 +160,25 @@ function renderHeatmap(heatmapData) {
     }
   }
 
-  document.getElementById("heatmap-active-days").textContent = activeDaysCount;
-  const activeRate =
-    totalDays > 0 ? Math.round((activeDaysCount / totalDays) * 100) : 0;
-  document.getElementById("heatmap-active-rate").textContent = `${activeRate}%`;
-  document.getElementById("heatmap-longest-streak").textContent = maxStreak;
-  document.getElementById("heatmap-current-streak").textContent = currentStreak;
+  const activeDaysEl = document.getElementById("heatmap-active-days");
+  if (activeDaysEl) activeDaysEl.textContent = activeDaysCount;
+
+  const activeRateEl = document.getElementById("heatmap-active-rate");
+  if (activeRateEl) {
+    const activeRate =
+      totalDays > 0 ? Math.round((activeDaysCount / totalDays) * 100) : 0;
+    activeRateEl.textContent = `${activeRate}%`;
+  }
+
+  const maxStreakEl = document.getElementById("heatmap-longest-streak");
+  if (maxStreakEl) maxStreakEl.textContent = maxStreak;
+
+  const currStreakEl = document.getElementById("heatmap-current-streak");
+  if (currStreakEl) currStreakEl.textContent = currentStreak;
 }
 
 /**
- * Render Weekly Time Target Progress.
+ * Render Weekly Time Target Progress cards for global & per-project targets.
  */
 async function renderWeeklyTargets(analytics) {
   const gridEl = document.getElementById("targets-grid");
@@ -183,21 +203,24 @@ async function renderWeeklyTargets(analytics) {
   // Global target card
   const globalCard = document.createElement("div");
   globalCard.className = "target-item-card";
+  globalCard.style.cursor = "pointer";
+  globalCard.title = "Click to edit overall weekly target";
   globalCard.innerHTML = `
     <div class="target-item-header">
       <span class="target-item-title">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c6ef0" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Overall Weekly Target
       </span>
-      <span class="target-item-status">${globalTrackedHours}h / ${globalTargetHours > 0 ? globalTargetHours + "h (" + globalPercent + "%)" : "No goal"}</span>
+      <span class="target-item-status">${globalTrackedHours}h / ${globalTargetHours > 0 ? globalTargetHours + "h (" + globalPercent + "%)" : "No goal (click to set)"}</span>
     </div>
     <div class="target-track-bar">
       <div class="target-fill-bar" style="width: ${globalPercent}%; background: var(--gradient-accent);"></div>
     </div>
   `;
+  globalCard.addEventListener("click", () => openGlobalTargetModal());
   gridEl.appendChild(globalCard);
 
-  // Per-project target cards
+  // Per-project target cards (Render ONLY projects with assigned targets)
   Object.values(projects).forEach((proj) => {
     const targetHours = targets[proj.id] || 0;
     if (targetHours <= 0) return;
@@ -208,10 +231,12 @@ async function renderWeeklyTargets(analytics) {
 
     const card = document.createElement("div");
     card.className = "target-item-card";
+    card.style.cursor = "pointer";
+    card.title = `Click to edit target for ${escapeHtml(proj.name)}`;
     card.innerHTML = `
       <div class="target-item-header">
         <span class="target-item-title">
-          <span class="project-color-dot" style="background: ${proj.color}; width: 10px; height: 10px;"></span>
+          <span class="project-color-dot" style="background: ${proj.color}; width: 10px; height: 10px; display: inline-block; border-radius: 50%;"></span>
           ${escapeHtml(proj.name)}
         </span>
         <span class="target-item-status">${projHours}h / ${targetHours}h (${percent}%)</span>
@@ -220,6 +245,7 @@ async function renderWeeklyTargets(analytics) {
         <div class="target-fill-bar" style="width: ${percent}%; background: ${proj.color};"></div>
       </div>
     `;
+    card.addEventListener("click", () => openEditProjectModal(proj));
     gridEl.appendChild(card);
   });
 }
@@ -240,7 +266,7 @@ function renderChart(dailyData) {
     }
   }
 
-  const labels = dailyData.map((d) => {
+  const labels = (dailyData || []).map((d) => {
     const date = new Date(d.date + "T00:00:00");
     return date.toLocaleDateString("en-US", {
       weekday: "short",
@@ -249,8 +275,8 @@ function renderChart(dailyData) {
     });
   });
 
-  const trackedData = dailyData.map(
-    (d) => Math.round((d.trackedMinutes / 60) * 100) / 100,
+  const trackedData = (dailyData || []).map(
+    (d) => Math.round(((d.trackedMinutes || 0) / 60) * 100) / 100,
   );
 
   const newChart = new Chart(ctx, {
@@ -323,6 +349,7 @@ function renderChart(dailyData) {
  */
 function renderTopTasks(taskStats) {
   const listEl = document.getElementById("top-tasks-list");
+  if (!listEl) return;
 
   if (!taskStats || taskStats.length === 0) {
     listEl.innerHTML =

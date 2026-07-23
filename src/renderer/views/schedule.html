@@ -1,0 +1,56 @@
+<section id="view-schedule" class="view">
+  <div class="view-header">
+    <h1>Schedule</h1>
+    <div class="view-actions">
+      <button
+        class="btn btn-ghost btn-sm btn-reset"
+        id="btn-reset-schedule"
+        title="Reset all data"
+      >
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polyline points="3 6 5 6 21 6" />
+          <path
+            d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+          />
+        </svg>
+        Reset
+      </button>
+      <button class="btn btn-accent btn-sm" id="btn-add-task">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Add Task
+      </button>
+    </div>
+  </div>
+  <div class="schedule-filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="today">Today</button>
+    <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+    <button class="filter-btn" data-filter="past">Past</button>
+  </div>
+  <div class="task-list" id="schedule-task-list">
+    <div class="empty-state">
+      <p>Loading calendar events...</p>
+    </div>
+  </div>
+</section>

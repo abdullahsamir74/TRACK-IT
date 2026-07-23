@@ -44,6 +44,9 @@ class Store {
     projectOrder = this.state.projectOrder;
     weeklyTargets = this.state.weeklyTargets;
 
+    // Reset data-theme attribute to restore default theme
+    document.documentElement.removeAttribute("data-theme");
+
     this.notify();
   }
 

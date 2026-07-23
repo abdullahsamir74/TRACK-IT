@@ -52,15 +52,9 @@ export function initProjects() {
  */
 export async function renderProjects() {
   const projectsStack = document.getElementById("projects-list-stack");
-  const unassignedPool = document.getElementById("unassigned-tasks-pool");
-  const unassignedCountBadge = document.getElementById(
-    "unassigned-tasks-count",
-  );
-
-  if (!projectsStack || !unassignedPool) return;
+  if (!projectsStack) return;
 
   projectsStack.innerHTML = "";
-  unassignedPool.innerHTML = "";
 
   let timerState = null;
   let analytics = null;
@@ -101,8 +95,51 @@ export async function renderProjects() {
     } else {
       unassignedEvents.push(event);
     }
-  });
+  }); // 1. Render Top Full-Width Collapsible Unassigned Pool Panel
+  const poolPanel = document.getElementById("unassigned-pool-panel");
+  const unassignedPool = document.getElementById("unassigned-tasks-pool");
+  const unassignedCountBadge = document.getElementById(
+    "unassigned-tasks-count",
+  );
 
+  if (poolPanel && unassignedPool && unassignedCountBadge) {
+    unassignedPool.innerHTML = "";
+    unassignedCountBadge.textContent = `${unassignedEvents.length} tasks`;
+
+    const isUnassignedExpanded = expandedProjects["unassigned"] === true;
+    if (isUnassignedExpanded) {
+      poolPanel.classList.add("expanded");
+    } else {
+      poolPanel.classList.remove("expanded");
+    }
+
+    if (poolPanel.dataset.eventInit !== "true") {
+      poolPanel.dataset.eventInit = "true";
+      poolPanel.querySelector(".pool-header").addEventListener("click", () => {
+        const expanded = poolPanel.classList.toggle("expanded");
+        expandedProjects["unassigned"] = expanded;
+      });
+    }
+
+    if (unassignedEvents.length === 0) {
+      const emptyState = document.createElement("div");
+      emptyState.className = "empty-state small";
+      emptyState.style.width = "100%";
+      emptyState.style.textAlign = "center";
+      emptyState.style.padding = "8px 0";
+      emptyState.innerHTML =
+        "<p style='font-size:12px; margin:0;'>All tasks assigned to projects! 🎉</p>";
+      unassignedPool.appendChild(emptyState);
+    } else {
+      unassignedEvents.forEach((event) => {
+        const taskCard = createTaskItem(event, false, timerState);
+        taskCard.setAttribute("draggable", "true");
+        unassignedPool.appendChild(taskCard);
+      });
+    }
+  }
+
+  // 2. Render Custom Projects Cards Grid
   if (projects.length === 0) {
     const emptyBoard = document.createElement("div");
     emptyBoard.className = "empty-state";
@@ -133,7 +170,7 @@ export async function renderProjects() {
 
       const targetBadge =
         targetHours > 0
-          ? `<span class="project-target-badge" title="Weekly goal progress">${projHours}h / ${targetHours}h (${percent}%)</span>`
+          ? `<span class="project-target-badge" title="Weekly goal progress">Goal: ${projHours}h / ${targetHours}h (${percent}%)</span>`
           : "";
 
       const progressBar =
@@ -142,39 +179,43 @@ export async function renderProjects() {
           : "";
 
       card.innerHTML = `
-        <div class="project-card-header">
-          <div class="project-drag-handle" title="Drag to reorder projects">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
-              <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
-              <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
-            </svg>
-          </div>
-          <div class="project-chevron">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
-          </div>
-          <div class="project-card-info">
-            <div class="project-color-dot" style="background: ${project.color};"></div>
-            <span class="project-title">${escapeHtml(project.name)}</span>
+        <div class="project-card-header" style="cursor: pointer;">
+          <div class="project-card-top-row">
+            <div class="project-chevron" title="Expand/collapse tasks">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </div>
+            <div class="project-drag-handle" title="Drag to reorder project">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/>
+                <circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/>
+                <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
+              </svg>
+            </div>
+            <div class="project-card-info">
+              <div class="project-color-dot" style="background: ${project.color};"></div>
+              <span class="project-title">${escapeHtml(project.name)}</span>
+            </div>
             <span class="project-task-count">${projectTasks[project.id].length} tasks</span>
-            ${targetBadge}
+            <div class="project-card-actions">
+              <button class="btn-edit-project" data-project-id="${project.id}" title="Edit project">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button class="btn-delete-project" data-project-id="${project.id}" title="Delete project">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
           </div>
-          <button class="btn-edit-project" data-project-id="${project.id}" title="Rename or edit project">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-          </button>
-          <button class="btn-delete-project" data-project-id="${project.id}" title="Delete project">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            </svg>
-          </button>
+          ${targetBadge}
+          ${progressBar}
         </div>
-        ${progressBar}
         <div class="project-card-body">
           <div class="project-task-list" data-project-id="${project.id}">
             <!-- Assigned tasks -->
@@ -187,14 +228,14 @@ export async function renderProjects() {
       if (events.length === 0) {
         const emptyCol = document.createElement("div");
         emptyCol.className = "empty-state small";
-        emptyCol.style.padding = "var(--space-md) 0";
-        emptyCol.innerHTML = `<p style="font-size:12px;">Drag tasks here</p>`;
+        emptyCol.style.marginTop = "var(--space-sm)";
+        emptyCol.innerHTML = "<p>No tasks assigned yet</p>";
         listContainer.appendChild(emptyCol);
       } else {
         events.forEach((event) => {
-          const cardEl = createTaskItem(event, false, timerState);
-          cardEl.setAttribute("draggable", "true");
-          listContainer.appendChild(cardEl);
+          const taskCard = createTaskItem(event, false, timerState);
+          taskCard.setAttribute("draggable", "true");
+          listContainer.appendChild(taskCard);
         });
       }
 
@@ -229,27 +270,11 @@ export async function renderProjects() {
               delete expandedProjects[project.id];
               setCustomProjects(await window.tracker.getProjects());
               setTrackedTasks(await window.tracker.getTasks());
-              renderProjects();
             },
           });
         });
 
       projectsStack.appendChild(card);
-    });
-  }
-
-  unassignedCountBadge.textContent = unassignedEvents.length;
-  if (unassignedEvents.length === 0) {
-    unassignedPool.innerHTML = `
-      <div class="empty-state small" style="margin-top:var(--space-xl);">
-        <p>All tasks assigned!</p>
-      </div>
-    `;
-  } else {
-    unassignedEvents.forEach((event) => {
-      const card = createTaskItem(event, false, timerState);
-      card.setAttribute("draggable", "true");
-      unassignedPool.appendChild(card);
     });
   }
 
@@ -299,14 +324,16 @@ function initProjectsDragAndDrop() {
       const projectId = card.dataset.projectId;
 
       if (taskId) {
-        await window.tracker.assignTaskToProject(taskId, projectId);
+        const targetProjectId = projectId === "unassigned" ? null : projectId;
+        await window.tracker.assignTaskToProject(taskId, targetProjectId);
         setTrackedTasks(await window.tracker.getTasks());
         renderProjects();
       }
     });
   });
 
-  if (unassignedPool) {
+  if (unassignedPool && unassignedPool.dataset.dragInitDone !== "true") {
+    unassignedPool.dataset.dragInitDone = "true";
     unassignedPool.addEventListener("dragover", (e) => {
       e.preventDefault();
       e.dataTransfer.dropEffect = "move";

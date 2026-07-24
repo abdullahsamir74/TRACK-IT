@@ -1,0 +1,154 @@
+/* ========================================
+   TOKENS — Color Palettes, Theme Variables & Foundation Tokens
+   ======================================== */
+
+:root,
+[data-theme="dark"] {
+  /* Core Palette - Night Mode (Matte Dark) */
+  --bg-primary: #09090b;
+  --bg-secondary: #121215;
+  --bg-tertiary: #18181b;
+  --bg-card: #18181b;
+  --bg-card-hover: #222226;
+  --bg-glass: rgba(24, 24, 27, 0.8);
+  --bg-glass-border: #27272a;
+  --bg-hover: #27272a;
+  --bg-input: #121215;
+  --border-input: #27272a;
+
+  /* Typography Colors */
+  --text-primary: #f4f4f5;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --text-accent: #ffffff;
+
+  /* Accents */
+  --accent-primary: #ffffff;
+  --accent-primary-hover: #e4e4e7;
+  --accent-secondary: #2dd4bf;
+  --accent-pink: #f43f5e;
+  --accent-orange: #fb923c;
+  --accent-blue: #38bdf8;
+  --accent-green: #34d399;
+
+  /* Navigation & Buttons */
+  --nav-btn-hover: #1f1f23;
+  --nav-btn-active-bg: #27272a;
+  --nav-btn-active-text: #ffffff;
+  --btn-accent-bg: #f4f4f5;
+  --btn-accent-text: #09090b;
+  --btn-accent-hover: #e4e4e7;
+  --btn-ghost-bg: #18181b;
+  --btn-ghost-text: #f4f4f5;
+  --btn-ghost-border: #27272a;
+  --btn-ghost-hover: #27272a;
+
+  /* Gradients */
+  --gradient-accent: linear-gradient(135deg, #f4f4f5, #d4d4d8);
+  --gradient-warm: linear-gradient(135deg, #f43f5e, #fb923c);
+  --gradient-cool: linear-gradient(135deg, #38bdf8, #34d399);
+  --gradient-card: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.01)
+  );
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 16px rgba(255, 255, 255, 0.08);
+
+  /* Scrollbars */
+  --scrollbar-thumb: #27272a;
+  --scrollbar-thumb-hover: #3f3f46;
+
+  /* Spacing Scale */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-2xl: 48px;
+
+  /* Radii Scale */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+
+  /* Shell Dimensions */
+  --sidebar-width: 220px;
+  --titlebar-height: 40px;
+
+  /* Font Family */
+  --font-family:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+[data-theme="light"] {
+  /* Core Palette - Day Mode */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f4f4f6;
+  --bg-tertiary: #ededf0;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f4f4f6;
+  --bg-glass: rgba(255, 255, 255, 0.9);
+  --bg-glass-border: #e4e4e7;
+  --bg-hover: #e4e4e7;
+  --bg-input: #ffffff;
+  --border-input: #d4d4d8;
+
+  /* Typography Colors */
+  --text-primary: #09090b;
+  --text-secondary: #52525b;
+  --text-muted: #a1a1aa;
+  --text-accent: #09090b;
+
+  /* Accents */
+  --accent-primary: #09090b;
+  --accent-primary-hover: #27272a;
+  --accent-secondary: #0d9488;
+  --accent-pink: #e11d48;
+  --accent-orange: #ea580c;
+  --accent-blue: #0284c7;
+  --accent-green: #16a34a;
+
+  /* Navigation & Buttons */
+  --nav-btn-hover: #e4e4e7;
+  --nav-btn-active-bg: #e4e4e7;
+  --nav-btn-active-text: #09090b;
+  --btn-accent-bg: #09090b;
+  --btn-accent-text: #ffffff;
+  --btn-accent-hover: #27272a;
+  --btn-ghost-bg: #f4f4f6;
+  --btn-ghost-text: #09090b;
+  --btn-ghost-border: #e4e4e7;
+  --btn-ghost-hover: #e4e4e7;
+
+  /* Gradients */
+  --gradient-accent: linear-gradient(135deg, #09090b, #27272a);
+  --gradient-warm: linear-gradient(135deg, #e11d48, #ea580c);
+  --gradient-cool: linear-gradient(135deg, #0284c7, #16a34a);
+  --gradient-card: linear-gradient(
+    145deg,
+    rgba(0, 0, 0, 0.02),
+    rgba(0, 0, 0, 0.01)
+  );
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.1);
+  --shadow-glow: 0 0 16px rgba(0, 0, 0, 0.05);
+
+  /* Scrollbars */
+  --scrollbar-thumb: #d4d4d8;
+  --scrollbar-thumb-hover: #a1a1aa;
+}

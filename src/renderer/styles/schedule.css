@@ -1,5 +1,5 @@
 /* ========================================
-   SCHEDULE — Filters, date headers
+   SCHEDULE — Filters Container & Date Headers
    ======================================== */
 
 .schedule-filters {
@@ -7,30 +7,7 @@
   gap: var(--space-sm);
   margin-bottom: var(--space-lg);
 }
-.filter-btn {
-  padding: 6px 16px;
-  border: 1px solid var(--bg-glass-border);
-  border-radius: var(--radius-full);
-  background: var(--bg-card);
-  color: var(--text-secondary);
-  font-family: var(--font-family);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-.filter-btn:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-}
-.filter-btn.active {
-  background: var(--btn-accent-bg);
-  border-color: var(--btn-accent-bg);
-  color: var(--btn-accent-text);
-  font-weight: 600;
-}
 
-/* --- Schedule date headers --- */
 .schedule-date-header {
   font-size: 12px;
   font-weight: 600;

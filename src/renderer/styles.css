@@ -1,13 +1,19 @@
 /* ========================================
-   PROGRESS TRACKER — Design System & Styles
+   TRACK IT — Modular Architecture Index
    ======================================== */
 
-/* Core Design System */
-@import "./styles/design-system.css";
+/* Core Foundation Tokens & Base Styles */
+@import "./styles/tokens.css";
+@import "./styles/base.css";
 
-/* Component & View Styles */
+/* App Layout & Component System */
+@import "./styles/layout.css";
+@import "./styles/buttons.css";
+@import "./styles/cards.css";
 @import "./styles/task-item.css";
 @import "./styles/modals.css";
+
+/* View-Specific Styles */
 @import "./styles/dashboard.css";
 @import "./styles/schedule.css";
 @import "./styles/timer.css";

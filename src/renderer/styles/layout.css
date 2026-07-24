@@ -1,0 +1,220 @@
+/* ========================================
+   LAYOUT — Window Titlebar, Sidebar Navigation, Main Area & Views
+   ======================================== */
+
+/* --- Custom Titlebar --- */
+#titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--titlebar-height);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--bg-glass-border);
+  -webkit-app-region: drag;
+  position: relative;
+  z-index: 100;
+}
+
+.titlebar-drag {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding-left: var(--space-md);
+  flex: 1;
+}
+
+.titlebar-icon {
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+}
+
+.titlebar-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.04em;
+}
+
+.titlebar-controls {
+  display: flex;
+  align-items: center;
+  -webkit-app-region: no-drag;
+}
+
+/* --- App Main Layout Grid --- */
+#app-container {
+  display: flex;
+  height: calc(100vh - var(--titlebar-height));
+}
+
+#sidebar {
+  width: var(--sidebar-width);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--bg-glass-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-sm);
+  flex-shrink: 0;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+.nav-btn:hover {
+  background: var(--nav-btn-hover);
+  color: var(--text-primary);
+}
+.nav-btn.active {
+  background: var(--nav-btn-active-bg);
+  color: var(--nav-btn-active-text);
+  font-weight: 600;
+}
+.nav-btn.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 18px;
+  background: var(--text-primary);
+  border-radius: 0 2px 2px 0;
+}
+
+.sidebar-footer {
+  padding: var(--space-sm);
+}
+
+.streak-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: rgba(249, 115, 22, 0.08);
+  border: 1px solid rgba(249, 115, 22, 0.25);
+  border-radius: var(--radius-sm);
+  color: #f97316;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.15);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.streak-badge:hover {
+  transform: translateY(-1px);
+  border-color: rgba(249, 115, 22, 0.45);
+  box-shadow: 0 0 14px rgba(249, 115, 22, 0.25);
+}
+
+#main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--space-xl) var(--space-2xl);
+  background: var(--bg-primary);
+  position: relative;
+  min-width: 0;
+}
+
+/* --- View Management --- */
+.view {
+  display: none;
+  position: relative;
+  z-index: 1;
+  animation: fadeIn 0.25s ease;
+}
+.view.active {
+  display: block;
+}
+#view-projects.active,
+#view-analytics.active {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.view-header {
+  margin-bottom: var(--space-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.view-header h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+.view-subtitle {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  margin-top: var(--space-xs);
+}
+
+.view-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-md);
+}
+.section-header h2 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Responsive Layout */
+@media (max-width: 900px) {
+  #main-content {
+    padding: var(--space-lg) var(--space-xl);
+  }
+}
+
+@media (max-width: 600px) {
+  #main-content {
+    padding: var(--space-md) var(--space-lg);
+  }
+  .view-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+}

@@ -28,6 +28,20 @@ function createWindow() {
     icon: path.join(__dirname, "renderer", "icon.png"),
   });
 
+  mainWindow.maximize();
+
+  mainWindow.on("maximize", () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("window-maximized-change", true);
+    }
+  });
+
+  mainWindow.on("unmaximize", () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send("window-maximized-change", false);
+    }
+  });
+
   mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
 
   nativeTheme.themeSource = "dark";
@@ -110,6 +124,12 @@ function registerIpcHandlers(serviceManager) {
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.close();
     }
+  });
+
+  ipcMain.handle("window-is-maximized", () => {
+    return mainWindow && !mainWindow.isDestroyed()
+      ? mainWindow.isMaximized()
+      : false;
   });
 
   ipcMain.handle(

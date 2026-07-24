@@ -169,6 +169,23 @@ function initTheme() {
   applyTheme(savedTheme);
 }
 
+function updateMaximizeButton(isMaximized) {
+  const btnMax = document.getElementById("btn-maximize");
+  if (!btnMax) return;
+  const iconMax = btnMax.querySelector(".icon-maximize");
+  const iconRestore = btnMax.querySelector(".icon-restore");
+
+  if (isMaximized) {
+    btnMax.title = "Restore";
+    if (iconMax) iconMax.style.display = "none";
+    if (iconRestore) iconRestore.style.display = "block";
+  } else {
+    btnMax.title = "Maximize";
+    if (iconMax) iconMax.style.display = "block";
+    if (iconRestore) iconRestore.style.display = "none";
+  }
+}
+
 function initTitlebar() {
   const btnThemeToggle = document.getElementById("btn-theme-toggle");
   const btnMin = document.getElementById("btn-minimize");
@@ -184,9 +201,22 @@ function initTitlebar() {
   }
 
   if (btnMin) btnMin.addEventListener("click", () => window.tracker.minimize());
-  if (btnMax) btnMax.addEventListener("click", () => window.tracker.maximize());
+  if (btnMax) {
+    btnMax.addEventListener("click", () => window.tracker.maximize());
+    if (window.tracker && window.tracker.isMaximized) {
+      window.tracker.isMaximized().then((isMax) => {
+        updateMaximizeButton(isMax);
+      });
+    }
+  }
   if (btnClose)
     btnClose.addEventListener("click", () => window.tracker.close());
+
+  if (window.tracker && window.tracker.onMaximizedChange) {
+    window.tracker.onMaximizedChange((isMaximized) => {
+      updateMaximizeButton(isMaximized);
+    });
+  }
 
   initTheme();
 }

@@ -9,6 +9,13 @@ contextBridge.exposeInMainWorld("tracker", {
   minimize: () => ipcRenderer.send("window-minimize"),
   maximize: () => ipcRenderer.send("window-maximize"),
   close: () => ipcRenderer.send("window-close"),
+  isMaximized: () => ipcRenderer.invoke("window-is-maximized"),
+  onMaximizedChange: (callback) => {
+    ipcRenderer.removeAllListeners("window-maximized-change");
+    ipcRenderer.on("window-maximized-change", (event, isMaximized) =>
+      callback(isMaximized),
+    );
+  },
 
   // Calendar
   getCalendarEvents: () => invokeTracker("getCalendarEvents"),

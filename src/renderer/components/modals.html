@@ -3,42 +3,158 @@
   <div class="modal glass" id="modal-add-task">
     <div class="modal-header">
       <h2 id="modal-title">Add Task</h2>
-      <button class="btn btn-ghost btn-sm" id="btn-modal-close">✕</button>
+      <button class="btn btn-close-modal" id="btn-modal-close">
+        <svg
+          viewBox="0 0 24 24"
+          width="14"
+          height="14"
+          stroke="currentColor"
+          stroke-width="2.5"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
     <form id="form-add-task">
       <div class="form-group">
         <label for="task-name">Task Name</label>
-        <input type="text" id="task-name" required />
+        <div class="input-wrapper">
+          <svg
+            class="input-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 20h9"></path>
+            <path
+              d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+            ></path>
+          </svg>
+          <input
+            type="text"
+            id="task-name"
+            placeholder="What are you working on?"
+            required
+          />
+        </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label for="task-date">Date</label>
-          <input type="date" id="task-date" required />
+          <div class="input-wrapper">
+            <svg
+              class="input-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <input type="date" id="task-date" required />
+          </div>
         </div>
         <div class="form-group">
           <label for="task-time">Time</label>
-          <input type="time" id="task-time" required />
+          <div class="input-wrapper">
+            <svg
+              class="input-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <input type="time" id="task-time" required />
+          </div>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="task-priority">Priority</label>
-          <select id="task-priority" class="select-input">
-            <option value="low">Low (Lowest)</option>
-            <option value="medium" selected>Medium</option>
-            <option value="high">High</option>
-          </select>
+      <div class="form-group">
+        <label for="task-priority">Priority</label>
+        <select id="task-priority" class="select-input" style="display: none">
+          <option value="low">Low (Lowest)</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+        <div class="priority-selector" id="task-priority-selector">
+          <button type="button" class="priority-pill pill-low" data-value="low">
+            <span class="dot"></span>Low
+          </button>
+          <button
+            type="button"
+            class="priority-pill pill-medium active"
+            data-value="medium"
+          >
+            <span class="dot"></span>Medium
+          </button>
+          <button
+            type="button"
+            class="priority-pill pill-high"
+            data-value="high"
+          >
+            <span class="dot"></span>High
+          </button>
         </div>
-        <div class="form-group">
-          <label for="task-estimate">Estimated Duration (minutes)</label>
-          <input type="number" id="task-estimate" min="1" max="480" />
+      </div>
+      <div class="form-group">
+        <label for="task-estimate">Estimated Duration</label>
+        <div class="duration-input-container">
+          <div class="input-wrapper">
+            <svg
+              class="input-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 10"></polyline>
+            </svg>
+            <input
+              type="number"
+              id="task-estimate"
+              min="1"
+              max="480"
+              placeholder="60 minutes"
+            />
+          </div>
+          <div class="duration-presets" id="task-duration-presets">
+            <button type="button" class="preset-btn" data-value="15">
+              15m
+            </button>
+            <button type="button" class="preset-btn" data-value="30">
+              30m
+            </button>
+            <button type="button" class="preset-btn" data-value="60">1h</button>
+            <button type="button" class="preset-btn" data-value="90">
+              1.5h
+            </button>
+          </div>
         </div>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-ghost" id="btn-cancel-task">
           Cancel
         </button>
-        <button type="submit" class="btn btn-accent">Save Task</button>
+        <button type="submit" class="btn btn-accent-gradient">Save Task</button>
       </div>
     </form>
   </div>
@@ -49,21 +165,51 @@
   <div class="modal glass" id="modal-edit-task">
     <div class="modal-header">
       <h2>Edit Task</h2>
-      <button class="btn btn-ghost btn-sm" id="btn-edit-task-close">✕</button>
+      <button class="btn btn-close-modal" id="btn-edit-task-close">
+        <svg
+          viewBox="0 0 24 24"
+          width="14"
+          height="14"
+          stroke="currentColor"
+          stroke-width="2.5"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
     <form id="form-edit-task">
       <input type="hidden" id="edit-task-id" />
       <input type="hidden" id="edit-task-is-manual" />
       <div class="form-group">
         <label for="edit-task-name">Task Name</label>
-        <input type="text" id="edit-task-name" required />
+        <div class="input-wrapper">
+          <svg
+            class="input-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 20h9"></path>
+            <path
+              d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"
+            ></path>
+          </svg>
+          <input type="text" id="edit-task-name" required />
+        </div>
         <small
           id="edit-task-calendar-notice"
           style="
             display: none;
             color: var(--text-muted);
             font-size: 11px;
-            margin-top: 4px;
+            margin-top: 6px;
           "
           >Calendar task: Name, date, and time are sync'd from GNOME
           Calendar.</small
@@ -72,32 +218,119 @@
       <div class="form-row" id="edit-task-time-row">
         <div class="form-group">
           <label for="edit-task-date">Date</label>
-          <input type="date" id="edit-task-date" required />
+          <div class="input-wrapper">
+            <svg
+              class="input-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <input type="date" id="edit-task-date" required />
+          </div>
         </div>
         <div class="form-group">
           <label for="edit-task-time">Time</label>
-          <input type="time" id="edit-task-time" required />
+          <div class="input-wrapper">
+            <svg
+              class="input-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <input type="time" id="edit-task-time" required />
+          </div>
         </div>
       </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label for="edit-task-priority">Priority</label>
-          <select id="edit-task-priority" class="select-input">
-            <option value="low">Low (Lowest)</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-          </select>
+      <div class="form-group">
+        <label for="edit-task-priority">Priority</label>
+        <select
+          id="edit-task-priority"
+          class="select-input"
+          style="display: none"
+        >
+          <option value="low">Low (Lowest)</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+        <div class="priority-selector" id="edit-task-priority-selector">
+          <button type="button" class="priority-pill pill-low" data-value="low">
+            <span class="dot"></span>Low
+          </button>
+          <button
+            type="button"
+            class="priority-pill pill-medium"
+            data-value="medium"
+          >
+            <span class="dot"></span>Medium
+          </button>
+          <button
+            type="button"
+            class="priority-pill pill-high"
+            data-value="high"
+          >
+            <span class="dot"></span>High
+          </button>
         </div>
-        <div class="form-group">
-          <label for="edit-task-estimate">Estimated Duration (minutes)</label>
-          <input type="number" id="edit-task-estimate" min="1" max="480" />
+      </div>
+      <div class="form-group">
+        <label for="edit-task-estimate">Estimated Duration</label>
+        <div class="duration-input-container">
+          <div class="input-wrapper">
+            <svg
+              class="input-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 10"></polyline>
+            </svg>
+            <input
+              type="number"
+              id="edit-task-estimate"
+              min="1"
+              max="480"
+              placeholder="Minutes"
+            />
+          </div>
+          <div class="duration-presets" id="edit-task-duration-presets">
+            <button type="button" class="preset-btn" data-value="15">
+              15m
+            </button>
+            <button type="button" class="preset-btn" data-value="30">
+              30m
+            </button>
+            <button type="button" class="preset-btn" data-value="60">1h</button>
+            <button type="button" class="preset-btn" data-value="90">
+              1.5h
+            </button>
+          </div>
         </div>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-ghost" id="btn-edit-task-cancel">
           Cancel
         </button>
-        <button type="submit" class="btn btn-accent">Save Changes</button>
+        <button type="submit" class="btn btn-accent-gradient">
+          Save Changes
+        </button>
       </div>
     </form>
   </div>
@@ -108,19 +341,53 @@
   <div class="modal glass modal-sm" id="modal-estimate">
     <div class="modal-header">
       <h2>Set Estimate</h2>
-      <button class="btn btn-ghost btn-sm" id="btn-estimate-close">✕</button>
+      <button class="btn btn-close-modal" id="btn-estimate-close">
+        <svg
+          viewBox="0 0 24 24"
+          width="14"
+          height="14"
+          stroke="currentColor"
+          stroke-width="2.5"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
     <form id="form-estimate">
       <input type="hidden" id="estimate-task-id" />
       <div class="form-group">
         <label for="estimate-minutes">Estimated time (minutes)</label>
-        <input type="number" id="estimate-minutes" min="1" max="480" required />
+        <div class="input-wrapper">
+          <svg
+            class="input-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 10"></polyline>
+          </svg>
+          <input
+            type="number"
+            id="estimate-minutes"
+            min="1"
+            max="480"
+            required
+          />
+        </div>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-ghost" id="btn-estimate-cancel">
           Cancel
         </button>
-        <button type="submit" class="btn btn-accent">Save</button>
+        <button type="submit" class="btn btn-accent-gradient">Save</button>
       </div>
     </form>
   </div>
@@ -131,13 +398,47 @@
   <div class="modal glass modal-sm" id="modal-project">
     <div class="modal-header">
       <h2 id="project-modal-title">Create Project</h2>
-      <button class="btn btn-ghost btn-sm" id="btn-project-close">✕</button>
+      <button class="btn btn-close-modal" id="btn-project-close">
+        <svg
+          viewBox="0 0 24 24"
+          width="14"
+          height="14"
+          stroke="currentColor"
+          stroke-width="2.5"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
     <form id="form-project">
       <input type="hidden" id="project-id" />
       <div class="form-group">
         <label for="project-name">Project Name</label>
-        <input type="text" id="project-name" required />
+        <div class="input-wrapper">
+          <svg
+            class="input-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"
+            ></path>
+          </svg>
+          <input
+            type="text"
+            id="project-name"
+            placeholder="Project name"
+            required
+          />
+        </div>
       </div>
 
       <div class="form-group">
@@ -173,7 +474,7 @@
         <button type="button" class="btn btn-ghost" id="btn-project-cancel">
           Cancel
         </button>
-        <button type="submit" class="btn btn-accent">Save</button>
+        <button type="submit" class="btn btn-accent-gradient">Save</button>
       </div>
     </form>
   </div>
@@ -184,19 +485,53 @@
   <div class="modal glass modal-sm" id="modal-habit">
     <div class="modal-header">
       <h2 id="habit-modal-title">Create Habit</h2>
-      <button class="btn btn-ghost btn-sm" id="btn-habit-close">✕</button>
+      <button class="btn btn-close-modal" id="btn-habit-close">
+        <svg
+          viewBox="0 0 24 24"
+          width="14"
+          height="14"
+          stroke="currentColor"
+          stroke-width="2.5"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
     </div>
     <form id="form-habit">
       <input type="hidden" id="habit-id" />
       <div class="form-group">
         <label for="habit-name">Habit Name</label>
-        <input type="text" id="habit-name" required />
+        <div class="input-wrapper">
+          <svg
+            class="input-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+            ></path>
+          </svg>
+          <input
+            type="text"
+            id="habit-name"
+            placeholder="e.g. Exercise, Meditate..."
+            required
+          />
+        </div>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-ghost" id="btn-habit-cancel">
           Cancel
         </button>
-        <button type="submit" class="btn btn-accent">Save</button>
+        <button type="submit" class="btn btn-accent-gradient">Save</button>
       </div>
     </form>
   </div>
@@ -235,20 +570,48 @@
   <div class="modal glass modal-sm">
     <div class="modal-header">
       <h2>Set Overall Weekly Target</h2>
-      <button class="btn btn-ghost btn-sm" id="btn-global-target-close">
-        ✕
+      <button class="btn btn-close-modal" id="btn-global-target-close">
+        <svg
+          viewBox="0 0 24 24"
+          width="14"
+          height="14"
+          stroke="currentColor"
+          stroke-width="2.5"
+          fill="none"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
       </button>
     </div>
     <form id="form-global-target">
       <div class="form-group">
         <label for="global-target-hours">Weekly Target Hours</label>
-        <input
-          type="number"
-          id="global-target-hours"
-          min="0"
-          max="168"
-          step="0.5"
-        />
+        <div class="input-wrapper">
+          <svg
+            class="input-icon"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="6"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+          </svg>
+          <input
+            type="number"
+            id="global-target-hours"
+            min="0"
+            max="168"
+            step="0.5"
+            placeholder="e.g. 40"
+          />
+        </div>
       </div>
       <div class="form-actions" style="justify-content: space-between">
         <button
@@ -270,7 +633,9 @@
           >
             Cancel
           </button>
-          <button type="submit" class="btn btn-accent">Save Target</button>
+          <button type="submit" class="btn btn-accent-gradient">
+            Save Target
+          </button>
         </div>
       </div>
     </form>

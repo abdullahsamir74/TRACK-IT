@@ -84,6 +84,14 @@ export function initModals() {
   if (globalDeleteBtn) {
     globalDeleteBtn.addEventListener("click", handleDeleteGlobalTarget);
   }
+
+  // Priority selectors setup
+  setupPrioritySelector("task");
+  setupPrioritySelector("edit-task");
+
+  // Duration presets setup
+  setupDurationPresets("task");
+  setupDurationPresets("edit-task");
 }
 
 // ---- Add Task Modal ----
@@ -94,6 +102,7 @@ export function openAddTaskModal() {
   document.getElementById("task-name").value = "";
   document.getElementById("task-estimate").value = "";
   document.getElementById("task-priority").value = "medium";
+  syncPriorityPills("task", "medium");
   document.getElementById("modal-overlay").style.display = "flex";
 }
 
@@ -119,10 +128,11 @@ export function openEditTaskModal(task) {
 
   nameInput.value = task.name || "";
   estimateInput.value = task.estimate || "";
-  
+
   const priorityInput = document.getElementById("edit-task-priority");
   if (priorityInput) {
     priorityInput.value = task.priority || "medium";
+    syncPriorityPills("edit-task", task.priority || "medium");
   }
 
   if (task.start) {
@@ -393,4 +403,45 @@ export async function openEditProjectModal(project) {
       input.select();
     }
   }, 50);
+}
+
+// ---- Priority Selector Helpers ----
+function setupPrioritySelector(prefix) {
+  const container = document.getElementById(`${prefix}-priority-selector`);
+  if (!container) return;
+  const select = document.getElementById(`${prefix}-priority`);
+  const pills = container.querySelectorAll(".priority-pill");
+  pills.forEach((pill) => {
+    pill.addEventListener("click", () => {
+      const val = pill.getAttribute("data-value");
+      select.value = val;
+      pills.forEach((p) => p.classList.remove("active"));
+      pill.classList.add("active");
+    });
+  });
+}
+
+function syncPriorityPills(prefix, value) {
+  const container = document.getElementById(`${prefix}-priority-selector`);
+  if (!container) return;
+  const pills = container.querySelectorAll(".priority-pill");
+  pills.forEach((pill) => {
+    if (pill.getAttribute("data-value") === value) {
+      pill.classList.add("active");
+    } else {
+      pill.classList.remove("active");
+    }
+  });
+}
+
+function setupDurationPresets(prefix) {
+  const container = document.getElementById(`${prefix}-duration-presets`);
+  if (!container) return;
+  const input = document.getElementById(`${prefix}-estimate`);
+  const buttons = container.querySelectorAll(".preset-btn");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      input.value = btn.getAttribute("data-value");
+    });
+  });
 }

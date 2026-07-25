@@ -1,5 +1,5 @@
 /* ========================================
-   MODALS — Overlay, forms, confirm dialog
+   MODALS — Premium Glassmorphism Overhaul
    ======================================== */
 
 /* --- Modal Overlay --- */
@@ -9,56 +9,108 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background: rgba(8, 8, 10, 0.65);
+  backdrop-filter: blur(14px) saturate(190%);
+  -webkit-backdrop-filter: blur(14px) saturate(190%);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 200;
-  animation: fadeIn 0.2s ease;
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   -webkit-app-region: no-drag !important;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* --- Modal Card --- */
 .modal {
-  width: 440px;
+  width: 450px;
   padding: var(--space-xl);
-  background: var(--bg-card);
-  border: 1px solid var(--bg-glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  animation: slideUp 0.25s ease;
+  background: rgba(22, 22, 26, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.5),
+    0 0 80px rgba(255, 255, 255, 0.02),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
   -webkit-app-region: no-drag !important;
 }
+
 .modal.modal-sm {
-  width: 360px;
+  width: 380px;
 }
+
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(24px) scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
+
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--space-lg);
 }
+
 .modal-header h2 {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: linear-gradient(
+    135deg,
+    var(--text-primary) 30%,
+    var(--text-secondary)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* --- Close Button --- */
+.btn-close-modal {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: 0;
+}
+
+.btn-close-modal:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
   color: var(--text-primary);
+  transform: rotate(90deg) scale(1.05);
+}
+
+.btn-close-modal:active {
+  transform: rotate(90deg) scale(0.95);
 }
 
 /* --- Forms --- */
 .form-group {
   margin-bottom: var(--space-md);
 }
+
 .form-group label {
   display: block;
   font-size: 11px;
@@ -66,33 +118,71 @@
   color: var(--text-secondary);
   margin-bottom: var(--space-xs);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
 }
-.form-group input,
-.select-input {
+
+/* --- Input Wrapper & Elements --- */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: var(--space-sm) var(--space-md);
-  background: var(--bg-input);
-  border: 1px solid var(--border-input);
-  border-radius: var(--radius-sm);
+}
+
+.input-wrapper .input-icon {
+  position: absolute;
+  left: 14px;
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  pointer-events: none;
+  transition:
+    color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 10px 14px 10px 42px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
   color: var(--text-primary);
   font-family: var(--font-family);
-  font-size: 13.5px;
-  transition: border-color var(--transition-fast);
+  font-size: 14px;
+  transition: all var(--transition-fast);
   outline: none;
 }
-.form-group input:focus,
-.select-input:focus {
-  border-color: var(--text-primary);
+
+.input-wrapper input:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.04);
 }
-.form-group input::placeholder {
+
+.input-wrapper input:focus {
+  border-color: var(--accent-blue);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
+}
+
+.input-wrapper input:focus + .input-icon {
+  color: var(--accent-blue);
+  transform: scale(1.05);
+}
+
+.input-wrapper input::placeholder {
   color: var(--text-muted);
+  opacity: 0.65;
 }
+
+/* Form layout rows */
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-md);
 }
+
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -100,26 +190,165 @@
   margin-top: var(--space-lg);
 }
 
-.select-input {
+/* --- Native Calendar & Time Pickers --- */
+.input-wrapper input[type="date"]::-webkit-calendar-picker-indicator,
+.input-wrapper input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0.45;
   cursor: pointer;
-  appearance: none;
-  -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='%23a1a1aa'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 32px;
-}
-.select-input option {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
+  filter: invert(0.8);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
 }
 
-/* --- Color Picker --- */
+.input-wrapper input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.input-wrapper input[type="time"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 0.85;
+  transform: scale(1.1);
+}
+
+/* --- Priority Selector & Pills --- */
+.priority-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 4px;
+  width: 100%;
+}
+
+.priority-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 7px;
+  font-family: var(--font-family);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.priority-pill .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  transition: transform var(--transition-fast);
+}
+
+/* Low priority */
+.priority-pill.pill-low .dot {
+  background: var(--accent-green);
+}
+.priority-pill.pill-low:hover {
+  background: rgba(52, 211, 153, 0.05);
+  color: var(--accent-green);
+}
+.priority-pill.pill-low.active {
+  background: rgba(52, 211, 153, 0.12);
+  border-color: rgba(52, 211, 153, 0.25);
+  color: var(--accent-green);
+  box-shadow: 0 0 12px rgba(52, 211, 153, 0.15);
+}
+
+/* Medium priority */
+.priority-pill.pill-medium .dot {
+  background: var(--accent-orange);
+}
+.priority-pill.pill-medium:hover {
+  background: rgba(251, 146, 60, 0.05);
+  color: var(--accent-orange);
+}
+.priority-pill.pill-medium.active {
+  background: rgba(251, 146, 60, 0.12);
+  border-color: rgba(251, 146, 60, 0.25);
+  color: var(--accent-orange);
+  box-shadow: 0 0 12px rgba(251, 146, 60, 0.15);
+}
+
+/* High priority */
+.priority-pill.pill-high .dot {
+  background: var(--accent-pink);
+}
+.priority-pill.pill-high:hover {
+  background: rgba(244, 63, 94, 0.05);
+  color: var(--accent-pink);
+}
+.priority-pill.pill-high.active {
+  background: rgba(244, 63, 94, 0.12);
+  border-color: rgba(244, 63, 94, 0.25);
+  color: var(--accent-pink);
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.15);
+}
+
+.priority-pill.active .dot {
+  transform: scale(1.3);
+}
+
+/* --- Premium Buttons --- */
+.btn-accent-gradient {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: 9px 18px;
+  background: linear-gradient(135deg, #38bdf8, #2dd4bf);
+  color: #09090b;
+  font-family: var(--font-family);
+  font-size: 13.5px;
+  font-weight: 700;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(45, 212, 191, 0.25);
+  transition: all var(--transition-fast);
+}
+
+.btn-accent-gradient:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 20px rgba(45, 212, 191, 0.35);
+  filter: brightness(1.06);
+}
+
+.btn-accent-gradient:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* --- Cancel & Ghost Buttons override inside modals --- */
+.modal .btn-ghost {
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: var(--text-secondary) !important;
+  transition: all var(--transition-fast) !important;
+  font-size: 13px !important;
+}
+
+.modal .btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: var(--text-primary) !important;
+  transform: translateY(-1px);
+}
+
+.modal .btn-ghost:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* --- Color Picker Customizations --- */
 .color-picker-grid {
   display: flex;
   gap: var(--space-sm);
   margin-top: var(--space-xs);
 }
+
 .color-picker-option {
   position: relative;
   cursor: pointer;
@@ -127,6 +356,7 @@
   height: 32px;
   display: block;
 }
+
 .color-picker-option input {
   position: absolute;
   opacity: 0;
@@ -134,6 +364,7 @@
   height: 0;
   width: 0;
 }
+
 .color-picker-option span {
   position: absolute;
   top: 0;
@@ -145,12 +376,14 @@
   border: 2px solid transparent;
   transition:
     transform var(--transition-fast),
-    border-color var(--transition-fast);
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
+
 .color-picker-option input:checked ~ span {
-  transform: scale(1.1);
+  transform: scale(1.15);
   border-color: var(--text-primary);
-  box-shadow: 0 0 10px var(--option-color);
+  box-shadow: 0 0 14px var(--option-color);
 }
 
 /* --- Confirm Dialog --- */
@@ -160,37 +393,146 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  background: rgba(8, 8, 10, 0.65);
+  backdrop-filter: blur(14px) saturate(190%);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 300;
   animation: fadeIn 0.15s ease;
 }
+
 .confirm-dialog {
-  background: var(--bg-card);
-  border: 1px solid var(--bg-glass-border);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  padding: var(--space-xl);
-  width: 380px;
-  animation: slideUp 0.2s ease;
+  background: rgba(22, 22, 26, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  padding: 32px;
+  width: 400px;
+  animation: slideUp 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   text-align: center;
 }
+
 .confirm-dialog h3 {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: var(--space-sm);
+  margin-bottom: 12px;
+  letter-spacing: -0.01em;
 }
+
 .confirm-dialog p {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--text-secondary);
-  margin-bottom: var(--space-lg);
+  margin-bottom: 24px;
+  line-height: 1.5;
 }
+
 .confirm-actions {
   display: flex;
   justify-content: center;
-  gap: var(--space-sm);
+  gap: 12px;
+}
+
+.confirm-actions .btn-danger {
+  border-radius: 10px !important;
+  background: var(--accent-pink) !important;
+  color: white !important;
+  font-weight: 700 !important;
+  padding: 9px 18px !important;
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.25) !important;
+  transition: all var(--transition-fast) !important;
+}
+
+.confirm-actions .btn-danger:hover {
+  transform: translateY(-1.5px) !important;
+  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.35) !important;
+  filter: brightness(1.06) !important;
+}
+
+.confirm-actions .btn-danger:active {
+  transform: translateY(0) scale(0.97) !important;
+}
+
+/* --- Duration Preset Buttons --- */
+/* --- Duration Container --- */
+.duration-input-container {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+  width: 100%;
+}
+
+.duration-input-container .input-wrapper {
+  flex: 1.2;
+}
+
+.duration-input-container .duration-presets {
+  flex: 1.1;
+  display: flex;
+  gap: 6px;
+  height: 38px;
+  align-items: center;
+}
+
+.preset-btn {
+  flex: 1;
+  padding: 8px 6px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.preset-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.preset-btn:active {
+  transform: translateY(0) scale(0.96);
+}
+
+/* --- Select Input Polish --- */
+.select-input {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 13px;
+  outline: none;
+  transition: all var(--transition-fast);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding: 6px 32px 6px 12px;
+}
+
+.select-input:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.select-input:focus {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+}
+
+.select-input option {
+  background: #18181b;
+  color: var(--text-primary);
 }

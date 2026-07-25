@@ -192,6 +192,15 @@ class TrackerFacade {
   saveWeeklyTarget(targetKey, hours) {
     return this.tracking.saveWeeklyTarget(targetKey, hours);
   }
+
+  // Sort preference delegations
+  getTaskSortMode() {
+    return this.tracking.getTaskSortMode();
+  }
+
+  saveTaskSortMode(mode) {
+    return this.tracking.saveTaskSortMode(mode);
+  }
 }
 
 module.exports = TrackerFacade;

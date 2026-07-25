@@ -134,23 +134,33 @@
   <!-- Today's Tasks -->
   <div class="section-header">
     <h2>Today's Schedule</h2>
-    <button class="btn btn-ghost btn-sm" id="btn-refresh-calendar">
-      <svg
-        width="16"
-        height="16"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <path
-          d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"
-        />
-      </svg>
-      Refresh
-    </button>
+    <div style="display: flex; gap: var(--space-sm); align-items: center;">
+      <div class="sort-selector-container" style="display: flex; align-items: center; gap: 6px;">
+        <span style="font-size: 11px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Sort:</span>
+        <select id="select-dashboard-sort" class="select-input" style="width: auto; padding: 4px 28px 4px 10px; font-size: 12px; height: 28px;">
+          <option value="manual">Manual</option>
+          <option value="date">Start Date</option>
+          <option value="priority">Priority</option>
+        </select>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btn-refresh-calendar">
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"
+          />
+        </svg>
+        Refresh
+      </button>
+    </div>
   </div>
   <div class="task-list" id="dashboard-task-list">
     <div class="empty-state">

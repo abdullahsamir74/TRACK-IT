@@ -4,8 +4,14 @@
 
 .schedule-filters {
   display: flex;
-  gap: var(--space-sm);
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: var(--space-lg);
+}
+
+.schedule-filter-buttons {
+  display: flex;
+  gap: var(--space-sm);
 }
 
 .schedule-date-header {

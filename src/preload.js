@@ -59,6 +59,8 @@ contextBridge.exposeInMainWorld("tracker", {
   resetProjects: () => invokeTracker("resetProjects"),
   saveTaskOrder: (orderedIds) => invokeTracker("saveTaskOrder", orderedIds),
   getTaskOrder: () => invokeTracker("getTaskOrder"),
+  getTaskSortMode: () => invokeTracker("getTaskSortMode"),
+  saveTaskSortMode: (mode) => invokeTracker("saveTaskSortMode", mode),
 
   // Projects
   getProjects: () => invokeTracker("getProjects"),

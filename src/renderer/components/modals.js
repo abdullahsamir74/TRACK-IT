@@ -93,6 +93,7 @@ export function openAddTaskModal() {
   document.getElementById("task-time").value = "09:00";
   document.getElementById("task-name").value = "";
   document.getElementById("task-estimate").value = "";
+  document.getElementById("task-priority").value = "medium";
   document.getElementById("modal-overlay").style.display = "flex";
 }
 
@@ -118,6 +119,11 @@ export function openEditTaskModal(task) {
 
   nameInput.value = task.name || "";
   estimateInput.value = task.estimate || "";
+  
+  const priorityInput = document.getElementById("edit-task-priority");
+  if (priorityInput) {
+    priorityInput.value = task.priority || "medium";
+  }
 
   if (task.start) {
     const d = new Date(task.start);
@@ -204,6 +210,7 @@ async function handleAddTask(e) {
     10,
   );
   const estimate = isNaN(parsedEst) || parsedEst <= 0 ? 60 : parsedEst;
+  const priority = document.getElementById("task-priority").value;
 
   if (!name || !date || !time) return;
 
@@ -217,6 +224,7 @@ async function handleAddTask(e) {
     start: startDate.toISOString(),
     end: endDate.toISOString(),
     estimateMinutes: estimate,
+    priority,
     isManual: true,
     createdAt: new Date().toISOString(),
   };
@@ -261,6 +269,7 @@ async function handleEditTask(e) {
     10,
   );
   const estimate = isNaN(parsedEst) || parsedEst <= 0 ? null : parsedEst;
+  const priority = document.getElementById("edit-task-priority").value;
 
   if (isManual) {
     if (!name || !date || !time) return;
@@ -274,13 +283,20 @@ async function handleEditTask(e) {
       start: startDate.toISOString(),
       end: endDate.toISOString(),
       estimateMinutes: estimate,
+      priority,
       isManual: true,
       updatedAt: new Date().toISOString(),
     };
 
     await window.tracker.saveTask(task);
   } else {
-    await window.tracker.setEstimate(id, estimate);
+    const task = {
+      id,
+      estimateMinutes: estimate,
+      priority,
+      updatedAt: new Date().toISOString(),
+    };
+    await window.tracker.saveTask(task);
   }
 
   setTrackedTasks(await window.tracker.getTasks());

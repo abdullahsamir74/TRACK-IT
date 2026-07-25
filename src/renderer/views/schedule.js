@@ -2,7 +2,7 @@
    VIEW — Schedule
    ======================================== */
 
-import { calendarEvents, trackedTasks, taskOrder } from "../state.js";
+import { calendarEvents, trackedTasks, taskOrder, taskSortMode, setTaskSortMode } from "../state.js";
 import { createTaskItem } from "../components/task-item.js";
 import { openAddTaskModal } from "../components/modals.js";
 import { initDragAndDrop } from "../components/drag-drop.js";
@@ -30,6 +30,18 @@ export async function renderSchedule() {
 
   // Add task button
   document.getElementById("btn-add-task").onclick = () => openAddTaskModal();
+
+  // Sort preference setup
+  const sortSelect = document.getElementById("select-schedule-sort");
+  if (sortSelect) {
+    sortSelect.value = taskSortMode;
+    sortSelect.onchange = async () => {
+      const newMode = sortSelect.value;
+      await window.tracker.saveTaskSortMode(newMode);
+      setTaskSortMode(newMode);
+      renderSchedule();
+    };
+  }
 }
 
 /**
@@ -77,15 +89,40 @@ async function renderScheduleList(filter) {
     groups[dateKey].push(item);
   });
 
-  // Sort inside each date group using custom taskOrder
-  if (taskOrder.length > 0) {
-    const orderMap = {};
-    taskOrder.forEach((id, i) => (orderMap[id] = i));
+  // Sort inside each date group based on taskSortMode
+  if (taskSortMode === "manual") {
+    if (taskOrder.length > 0) {
+      const orderMap = {};
+      taskOrder.forEach((id, i) => (orderMap[id] = i));
+      for (const dateKey of Object.keys(groups)) {
+        groups[dateKey].sort((a, b) => {
+          const oa = orderMap[a.id] !== undefined ? orderMap[a.id] : 99999;
+          const ob = orderMap[b.id] !== undefined ? orderMap[b.id] : 99999;
+          if (oa !== ob) return oa - ob;
+          return new Date(a.start) - new Date(b.start);
+        });
+      }
+    } else {
+      for (const dateKey of Object.keys(groups)) {
+        groups[dateKey].sort((a, b) => new Date(a.start) - new Date(b.start));
+      }
+    }
+  } else if (taskSortMode === "date") {
+    for (const dateKey of Object.keys(groups)) {
+      groups[dateKey].sort((a, b) => new Date(a.start) - new Date(b.start));
+    }
+  } else if (taskSortMode === "priority") {
+    const priorityMap = { high: 3, medium: 2, low: 1 };
     for (const dateKey of Object.keys(groups)) {
       groups[dateKey].sort((a, b) => {
-        const oa = orderMap[a.id] !== undefined ? orderMap[a.id] : 99999;
-        const ob = orderMap[b.id] !== undefined ? orderMap[b.id] : 99999;
-        return oa - ob;
+        const taskA = trackedTasks[a.id] || {};
+        const taskB = trackedTasks[b.id] || {};
+        const pa = priorityMap[taskA.priority] || 0;
+        const pb = priorityMap[taskB.priority] || 0;
+        if (pa !== pb) {
+          return pb - pa;
+        }
+        return new Date(a.start) - new Date(b.start);
       });
     }
   }
@@ -107,11 +144,14 @@ async function renderScheduleList(filter) {
     }
     taskListEl.appendChild(header);
 
+    const isDraggable = taskSortMode === "manual";
     items.forEach((item) => {
-      taskListEl.appendChild(createTaskItem(item, true, timerState));
+      taskListEl.appendChild(createTaskItem(item, isDraggable, timerState));
     });
   }
 
   // Initialize drag-and-drop on the task list
-  initDragAndDrop(taskListEl);
+  if (taskSortMode === "manual") {
+    initDragAndDrop(taskListEl);
+  }
 }

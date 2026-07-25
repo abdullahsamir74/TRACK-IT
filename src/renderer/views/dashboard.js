@@ -13,6 +13,8 @@ import {
   setTrackedTasks,
   setCalendarEvents,
   taskOrder,
+  taskSortMode,
+  setTaskSortMode,
 } from "../state.js";
 import { switchView } from "../state.js";
 import { createTaskItem } from "../components/task-item.js";
@@ -103,6 +105,18 @@ export async function renderDashboard() {
     console.error("Error loading dashboard streak:", e);
   }
 
+  // Sort preference setup
+  const sortSelect = document.getElementById("select-dashboard-sort");
+  if (sortSelect) {
+    sortSelect.value = taskSortMode;
+    sortSelect.onchange = async () => {
+      const newMode = sortSelect.value;
+      await window.tracker.saveTaskSortMode(newMode);
+      setTaskSortMode(newMode);
+      renderDashboard();
+    };
+  }
+
   // Today's task list
   const taskListEl = document.getElementById("dashboard-task-list");
   if (todayEvents.length === 0) {
@@ -130,23 +144,43 @@ export async function renderDashboard() {
     }
   } else {
     taskListEl.innerHTML = "";
-    // Sort todayEvents using taskOrder
-    if (taskOrder && taskOrder.length > 0) {
-      const orderMap = {};
-      taskOrder.forEach((id, i) => (orderMap[id] = i));
+    // Sort todayEvents based on taskSortMode
+    if (taskSortMode === "manual") {
+      if (taskOrder && taskOrder.length > 0) {
+        const orderMap = {};
+        taskOrder.forEach((id, i) => (orderMap[id] = i));
+        todayEvents.sort((a, b) => {
+          const oa = orderMap[a.id] !== undefined ? orderMap[a.id] : 99999;
+          const ob = orderMap[b.id] !== undefined ? orderMap[b.id] : 99999;
+          if (oa !== ob) return oa - ob;
+          return new Date(a.start) - new Date(b.start);
+        });
+      } else {
+        todayEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+      }
+    } else if (taskSortMode === "date") {
+      todayEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+    } else if (taskSortMode === "priority") {
+      const priorityMap = { high: 3, medium: 2, low: 1 };
       todayEvents.sort((a, b) => {
-        const oa = orderMap[a.id] !== undefined ? orderMap[a.id] : 99999;
-        const ob = orderMap[b.id] !== undefined ? orderMap[b.id] : 99999;
-        if (oa !== ob) return oa - ob;
+        const taskA = trackedTasks[a.id] || {};
+        const taskB = trackedTasks[b.id] || {};
+        const pa = priorityMap[taskA.priority] || 0;
+        const pb = priorityMap[taskB.priority] || 0;
+        if (pa !== pb) {
+          return pb - pa;
+        }
         return new Date(a.start) - new Date(b.start);
       });
-    } else {
-      todayEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
     }
+
+    const isDraggable = taskSortMode === "manual";
     todayEvents.forEach((event) => {
-      taskListEl.appendChild(createTaskItem(event, true, timerState));
+      taskListEl.appendChild(createTaskItem(event, isDraggable, timerState));
     });
-    initDragAndDrop(taskListEl);
+    if (isDraggable) {
+      initDragAndDrop(taskListEl);
+    }
   }
 
   // Refresh button

@@ -41,6 +41,13 @@ export function initDragAndDrop(listEl) {
       return;
     }
 
+    const isTimerOption = e.target.closest(".timer-task-option");
+    const handle = e.target.closest(".drag-handle");
+    
+    if (!isTimerOption && !handle) {
+      return;
+    }
+
     const item = e.target.closest(".task-item, .timer-task-option");
     if (!item) return;
 

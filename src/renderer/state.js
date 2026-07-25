@@ -17,6 +17,7 @@ class Store {
       taskOrder: [],
       projectOrder: [],
       weeklyTargets: {},
+      taskSortMode: "manual",
     };
     this.listeners = [];
   }
@@ -43,6 +44,7 @@ class Store {
     taskOrder = this.state.taskOrder;
     projectOrder = this.state.projectOrder;
     weeklyTargets = this.state.weeklyTargets;
+    taskSortMode = this.state.taskSortMode;
 
     this.notify();
   }
@@ -82,6 +84,7 @@ export let analyticsChart = null;
 export let taskOrder = [];
 export let projectOrder = [];
 export let weeklyTargets = {};
+export let taskSortMode = "manual";
 
 // ---- State setters invoking the store ----
 export function setCalendarEvents(val) {
@@ -116,6 +119,9 @@ export function setProjectOrder(val) {
 }
 export function setWeeklyTargets(val) {
   storeInstance.updateState({ weeklyTargets: val });
+}
+export function setTaskSortMode(val) {
+  storeInstance.updateState({ taskSortMode: val });
 }
 
 // Expose store subscription if views want to register reactive updates
@@ -163,6 +169,8 @@ export async function loadData() {
       (await window.tracker.getTaskOrder().catch(() => [])) || [];
     const projectOrderVal =
       (await window.tracker.getProjectOrder().catch(() => [])) || [];
+    const taskSortModeVal =
+      (await window.tracker.getTaskSortMode().catch(() => "manual")) || "manual";
 
     // Sanitize legacy purple project colors
     if (projects) {
@@ -182,6 +190,7 @@ export async function loadData() {
       taskOrder: taskOrderVal,
       projectOrder: projectOrderVal,
       weeklyTargets: targets || {},
+      taskSortMode: taskSortModeVal,
     });
 
     // Import updateTimerDisplay dynamically to avoid circular dependency

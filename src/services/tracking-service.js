@@ -630,6 +630,21 @@ class TrackingService {
     this.store.set("habits", habits);
     return true;
   }
+
+  /**
+   * Get active task sort mode
+   */
+  getTaskSortMode() {
+    return this.store.get("taskSortMode", "manual");
+  }
+
+  /**
+   * Save active task sort mode
+   */
+  saveTaskSortMode(mode) {
+    this.store.set("taskSortMode", mode);
+    return mode;
+  }
 }
 
 module.exports = TrackingService;

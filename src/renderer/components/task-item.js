@@ -48,6 +48,15 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     ? `<span class="task-project-badge" style="color: ${project.color}; border-color: ${project.color};">${escapeHtml(project.name)}</span>`
     : "";
 
+  let priorityBadge = "";
+  if (task.priority) {
+    const p = task.priority.toLowerCase();
+    let label = "Medium";
+    if (p === "high") label = "High";
+    if (p === "low") label = "Low";
+    priorityBadge = `<span class="task-badge priority-${p}">${label}</span>`;
+  }
+
   item.innerHTML = `
     ${
       draggable
@@ -67,13 +76,14 @@ export function createTaskItem(event, draggable = false, timerState = null) {
       </div>
     </div>
     ${projectBadge}
+    ${priorityBadge}
     ${estimate ? `<span class="task-badge estimate">${formatDuration(estimate)}</span>` : ""}
     ${tracked > 0 ? `<span class="task-badge tracked">${formatDuration(tracked)} tracked</span>` : ""}
     <div class="task-actions">
       <button class="task-action-btn" title="Set estimate" data-action="estimate" data-task-id="${event.id}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       </button>
-      <button class="task-action-btn" title="Edit task" data-action="edit" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}" data-task-start="${event.start || ""}" data-task-estimate="${estimate || ""}" data-task-manual="${event.isManual || false}">
+      <button class="task-action-btn" title="Edit task" data-action="edit" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}" data-task-start="${event.start || ""}" data-task-estimate="${estimate || ""}" data-task-priority="${task.priority || "medium"}" data-task-manual="${event.isManual || false}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       </button>
       <button class="task-action-btn task-action-btn-danger" title="Delete task" data-action="delete" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}">
@@ -129,6 +139,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
             ? parseInt(btn.dataset.taskEstimate)
             : null,
           isManual: btn.dataset.taskManual === "true",
+          priority: btn.dataset.taskPriority || "medium",
         });
       } else if (action === "delete") {
         const taskName = btn.dataset.taskName || "this task";

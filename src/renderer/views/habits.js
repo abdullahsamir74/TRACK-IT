@@ -261,53 +261,88 @@ export async function renderHabitsView() {
       numDays > 0 ? Math.round((successCount / numDays) * 100) : 0;
     const currentStreak = calculateStreak(habit, selectedYear, selectedMonth);
 
+    // Calculate the weekday offset for the first of the month (Sunday-indexed)
+    const firstDayDate = new Date(selectedYear, selectedMonth, 1);
+    let startOffset = firstDayDate.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
     // Create habit card element
     const card = document.createElement("div");
     card.className = "habit-card glass";
 
     card.innerHTML = `
-      <div class="habit-card-header">
-        <div class="habit-info-group">
+      <div class="habit-card-info">
+        <div class="habit-card-title-row">
           <span class="habit-title">${escapeHtml(habit.name)}</span>
-          <div class="habit-stats">
-            <span class="habit-stat-badge success" title="Success days in ${monthNames[selectedMonth]}">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              ${successCount} Done
-            </span>
-            <span class="habit-stat-badge failure" title="Failed days in ${monthNames[selectedMonth]}">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              ${failCount} Failed
-            </span>
-            <span class="habit-stat-badge streak" title="Current consecutive streak of success days">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-              ${currentStreak} day streak
-            </span>
-            <span class="habit-stat-badge success">
-              ${completionRate}% rate
-            </span>
+          <div class="habit-actions">
+            <button class="habit-action-btn edit" title="Edit Habit">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+              </svg>
+            </button>
+            <button class="habit-action-btn delete" title="Delete Habit">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
           </div>
         </div>
-        <div class="habit-actions">
-          <button class="habit-action-btn edit" title="Edit Habit">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-              <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-            </svg>
-          </button>
-          <button class="habit-action-btn delete" title="Delete Habit">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polyline points="3 6 5 6 21 6"/>
-              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-            </svg>
-          </button>
+
+        <div class="habit-stats-panel">
+          <div class="habit-rate-section">
+            <div class="habit-rate-big">${completionRate}%</div>
+            <div class="habit-rate-label">Completion Rate</div>
+            <div class="habit-progress-bar-bg">
+              <div class="habit-progress-bar-fill" style="width: ${completionRate}%;"></div>
+            </div>
+          </div>
+          
+          <div class="habit-badges-grid">
+            <div class="habit-badge-item success" title="Success days in ${monthNames[selectedMonth]}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-bottom: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+              <span class="habit-badge-val">${successCount}</span>
+              <span class="habit-badge-lbl">Done</span>
+            </div>
+            <div class="habit-badge-item failure" title="Failed days in ${monthNames[selectedMonth]}">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-bottom: 2px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              <span class="habit-badge-val">${failCount}</span>
+              <span class="habit-badge-lbl">Failed</span>
+            </div>
+            <div class="habit-badge-item streak" title="Current consecutive streak of success days">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-bottom: 2px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              <span class="habit-badge-val">${currentStreak}d</span>
+              <span class="habit-badge-lbl">Streak</span>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="habit-days-grid">
-        <!-- Day circles will be inserted here -->
+
+      <div class="habit-card-calendar">
+        <div class="habit-calendar-title">${monthNames[selectedMonth]} Progress</div>
+        <div class="habit-days-grid">
+          <!-- Calendar cells are dynamically appended -->
+        </div>
       </div>
     `;
 
     const grid = card.querySelector(".habit-days-grid");
+
+    // Add weekday headers (S, M, T, W, T, F, S)
+    const weekdays = ["S", "M", "T", "W", "T", "F", "S"];
+    weekdays.forEach((day) => {
+      const headerCell = document.createElement("div");
+      headerCell.className = "habit-grid-header-cell";
+      headerCell.textContent = day;
+      grid.appendChild(headerCell);
+    });
+
+    // Add empty placeholders for day of the week offset
+    for (let i = 0; i < startOffset; i++) {
+      const placeholder = document.createElement("div");
+      placeholder.className = "habit-day-placeholder";
+      grid.appendChild(placeholder);
+    }
 
     // Build day circles
     for (let day = 1; day <= numDays; day++) {

@@ -94,8 +94,10 @@ class TrackerFacade {
       const tasks = this.tracking.getTasks();
       const task = tasks[taskId] || {};
       const estimateMin = task.estimateMinutes || 0;
-      if (estimateMin > 0) {
-        const durationMs = estimateMin * 60000;
+      const totalTrackedMinutes = task.totalTrackedMinutes || 0;
+      const remainingMin = estimateMin - totalTrackedMinutes;
+      if (remainingMin > 0) {
+        const durationMs = remainingMin * 60000;
         const taskDate =
           task.start && !isNaN(new Date(task.start).getTime())
             ? new Date(task.start)
@@ -107,7 +109,7 @@ class TrackerFacade {
           startTime: taskDate.toISOString(),
           endTime: endTime.toISOString(),
           durationMs,
-          durationMinutes: estimateMin,
+          durationMinutes: remainingMin,
           estimateMinutes: estimateMin,
           completionSession: true,
         });

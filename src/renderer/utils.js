@@ -48,6 +48,22 @@ export function getLocalDateString(date) {
 }
 
 /**
+ * Get the local time string in HH:MM format (24-hour) for a given Date object or date value.
+ * @param {Date|string|number} [date]
+ * @returns {string} e.g. "14:30"
+ */
+export function getLocalTimeString(date) {
+  const d =
+    typeof date === "string" || typeof date === "number"
+      ? new Date(date)
+      : date || new Date();
+  if (isNaN(d.getTime())) return "09:00";
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+  return `${hours}:${minutes}`;
+}
+
+/**
  * Combine calendar events and manual tasks from the store into a normalized array of event objects.
  * @param {Array} calendarEvents
  * @param {Object} trackedTasks

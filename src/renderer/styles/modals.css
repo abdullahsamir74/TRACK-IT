@@ -190,7 +190,13 @@
   margin-top: var(--space-lg);
 }
 
-/* --- Native Calendar & Time Pickers --- */
+/* --- Native & Custom Calendar & Time Pickers --- */
+.input-wrapper input[type="date"],
+.input-wrapper input[type="time"] {
+  cursor: pointer;
+  color-scheme: dark;
+}
+
 .input-wrapper input[type="date"]::-webkit-calendar-picker-indicator,
 .input-wrapper input[type="time"]::-webkit-calendar-picker-indicator {
   opacity: 0.45;

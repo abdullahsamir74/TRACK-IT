@@ -8,7 +8,11 @@ import {
   setWeeklyTargets,
   renderCurrentView,
 } from "../state.js";
-import { getLocalDateString } from "../utils.js";
+import { getLocalDateString, getLocalTimeString } from "../utils.js";
+import {
+  closeCustomPickers,
+  attachPickersToInputs,
+} from "./custom-pickers.js";
 
 // ---- Init ----
 export function initModals() {
@@ -92,17 +96,26 @@ export function initModals() {
   // Duration presets setup
   setupDurationPresets("task");
   setupDurationPresets("edit-task");
+
+  // Global ESC key listener to close active modal windows
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" || e.key === "Esc" || e.keyCode === 27) {
+      closeModals();
+    }
+  });
 }
 
 // ---- Add Task Modal ----
 export function openAddTaskModal() {
   const today = getLocalDateString();
+  const currentTime = getLocalTimeString();
   document.getElementById("task-date").value = today;
-  document.getElementById("task-time").value = "09:00";
+  document.getElementById("task-time").value = currentTime;
   document.getElementById("task-name").value = "";
   document.getElementById("task-estimate").value = "";
   document.getElementById("task-priority").value = "medium";
   syncPriorityPills("task", "medium");
+  attachPickersToInputs();
   document.getElementById("modal-overlay").style.display = "flex";
 }
 
@@ -164,6 +177,7 @@ export function openEditTaskModal(task) {
     calendarNotice.style.display = "block";
   }
 
+  attachPickersToInputs();
   document.getElementById("edit-task-modal-overlay").style.display = "flex";
 }
 
@@ -185,6 +199,7 @@ export async function openGlobalTargetModal() {
 
 // ---- Close All Modals ----
 export function closeModals() {
+  closeCustomPickers();
   document.getElementById("modal-overlay").style.display = "none";
   document.getElementById("estimate-modal-overlay").style.display = "none";
   document.getElementById("edit-task-modal-overlay").style.display = "none";

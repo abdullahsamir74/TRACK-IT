@@ -251,4 +251,9 @@ export async function renderCurrentView() {
   if (renderer) {
     await renderer();
   }
+  import("./components/custom-dropdown.js")
+    .then(({ attachCustomDropdowns }) => {
+      attachCustomDropdowns();
+    })
+    .catch(() => {});
 }

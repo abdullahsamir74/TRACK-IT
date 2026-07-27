@@ -28,6 +28,10 @@ import { initModals } from "./components/modals.js";
 import { initResetButtons } from "./components/confirm-dialog.js";
 import { initCustomPickers } from "./components/custom-pickers.js";
 import { initKeyboardShortcuts } from "./components/shortcuts.js";
+import {
+  initCustomDropdowns,
+  attachCustomDropdowns,
+} from "./components/custom-dropdown.js";
 
 // ---- Sounds ----
 import { playAlarmSound } from "./sounds.js";
@@ -102,6 +106,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initModals();
   initCustomPickers();
   initKeyboardShortcuts();
+  initCustomDropdowns();
   initTimerControls();
   initAnalytics();
   initResetButtons();

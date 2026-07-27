@@ -13,6 +13,7 @@
 @import "./styles/task-item.css";
 @import "./styles/modals.css";
 @import "./styles/custom-pickers.css";
+@import "./styles/custom-dropdown.css";
 
 /* View-Specific Styles */
 @import "./styles/dashboard.css";

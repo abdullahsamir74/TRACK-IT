@@ -615,33 +615,36 @@ function renderTimerTaskList() {
  */
 async function renderTodaySessions() {
   const sessions = await window.tracker.getAllSessions();
-  const todayStr = getLocalDateString();
-  const todaySessions = (sessions || []).filter((s) => {
-    return getLocalDateString(s.startTime) === todayStr;
-  });
-
   const listEl = document.getElementById("timer-session-list");
+  if (!listEl) return;
 
-  if (todaySessions.length === 0) {
+  const sortedSessions = (sessions || []).slice().reverse().slice(0, 15);
+
+  if (sortedSessions.length === 0) {
     listEl.innerHTML =
-      '<div class="empty-state small"><p>No sessions recorded today</p></div>';
+      '<div class="empty-state small"><p>No recent sessions recorded</p></div>';
     return;
   }
 
   listEl.innerHTML = "";
-  todaySessions.reverse().forEach((session) => {
+  sortedSessions.forEach((session) => {
     const item = document.createElement("div");
     item.className = "session-item";
-    const startTime = new Date(session.startTime).toLocaleTimeString("en-US", {
+    const dateObj = new Date(session.startTime);
+    const timeStr = dateObj.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
+    });
+    const dateStr = dateObj.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
     });
     const sessionId = session.id || session.startTime || session.savedAt;
     item.innerHTML = `
       <div>
         <div class="session-task-name">${escapeHtml(session.taskName || "Unknown")}</div>
-        <div class="session-time">${startTime}</div>
+        <div class="session-time">${dateStr}, ${timeStr}</div>
       </div>
       <div class="session-right-group">
         <span class="session-duration">${formatDuration(session.durationMinutes)}${session.completionSession ? " ✓" : ""}</span>

@@ -279,11 +279,31 @@
 .timer-sessions {
   width: 100%;
 }
-.timer-sessions h3 {
+.timer-sessions-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  padding: 4px 0;
+  margin-bottom: var(--space-md);
+}
+.timer-sessions-summary::-webkit-details-marker {
+  display: none;
+}
+.timer-sessions-summary h3 {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: var(--space-md);
+  margin: 0;
+}
+.timer-sessions-summary .chevron-icon {
+  color: var(--text-secondary);
+  transition: transform var(--transition-fast);
+}
+.timer-sessions[open] .timer-sessions-summary .chevron-icon {
+  transform: rotate(180deg);
 }
 .session-list {
   display: flex;

@@ -14,59 +14,28 @@ import {
   attachPickersToInputs,
 } from "./custom-pickers.js";
 
-// ---- Init ----
-export function initModals() {
-  // Add task modal
-  document
-    .getElementById("btn-modal-close")
-    .addEventListener("click", closeModals);
-  document
-    .getElementById("btn-cancel-task")
-    .addEventListener("click", closeModals);
-  document.getElementById("modal-overlay").addEventListener("click", (e) => {
-    if (e.target === document.getElementById("modal-overlay")) closeModals();
-  });
+// Helper to bind close button, cancel button, and overlay background click
+function bindOverlayClose(overlayId, closeBtnId, cancelBtnId) {
+  const overlay = document.getElementById(overlayId);
+  const closeBtn = document.getElementById(closeBtnId);
+  const cancelBtn = document.getElementById(cancelBtnId);
 
-  // Estimate modal
-  document
-    .getElementById("btn-estimate-close")
-    .addEventListener("click", closeModals);
-  document
-    .getElementById("btn-estimate-cancel")
-    .addEventListener("click", closeModals);
-  document
-    .getElementById("estimate-modal-overlay")
-    .addEventListener("click", (e) => {
-      if (e.target === document.getElementById("estimate-modal-overlay"))
-        closeModals();
-    });
-
-  // Edit task modal
-  document
-    .getElementById("btn-edit-task-close")
-    .addEventListener("click", closeModals);
-  document
-    .getElementById("btn-edit-task-cancel")
-    .addEventListener("click", closeModals);
-  document
-    .getElementById("edit-task-modal-overlay")
-    .addEventListener("click", (e) => {
-      if (e.target === document.getElementById("edit-task-modal-overlay"))
-        closeModals();
-    });
-
-  // Global target modal
-  const globalCloseBtn = document.getElementById("btn-global-target-close");
-  const globalCancelBtn = document.getElementById("btn-global-target-cancel");
-  const globalOverlay = document.getElementById("global-target-modal-overlay");
-
-  if (globalCloseBtn) globalCloseBtn.addEventListener("click", closeModals);
-  if (globalCancelBtn) globalCancelBtn.addEventListener("click", closeModals);
-  if (globalOverlay) {
-    globalOverlay.addEventListener("click", (e) => {
-      if (e.target === globalOverlay) closeModals();
+  if (closeBtn) closeBtn.addEventListener("click", closeModals);
+  if (cancelBtn) cancelBtn.addEventListener("click", closeModals);
+  if (overlay) {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) closeModals();
     });
   }
+}
+
+// ---- Init ----
+export function initModals() {
+  // Bind modal overlays
+  bindOverlayClose("modal-overlay", "btn-modal-close", "btn-cancel-task");
+  bindOverlayClose("estimate-modal-overlay", "btn-estimate-close", "btn-estimate-cancel");
+  bindOverlayClose("edit-task-modal-overlay", "btn-edit-task-close", "btn-edit-task-cancel");
+  bindOverlayClose("global-target-modal-overlay", "btn-global-target-close", "btn-global-target-cancel");
 
   // Form submissions
   document

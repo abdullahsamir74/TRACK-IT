@@ -4,7 +4,16 @@
 
 import { getLocalDateString, getLocalTimeString } from "../utils.js";
 
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+const WEEKDAY_NAMES = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
 let activePopover = null;
+
+// ---- Public API ----
 
 /** Close any open picker popover */
 export function closeCustomPickers() {
@@ -14,7 +23,7 @@ export function closeCustomPickers() {
   activePopover = null;
 }
 
-/** Initialize custom pickers on all date & time inputs */
+/** Initialize custom pickers event listeners */
 export function initCustomPickers() {
   // Global click outside listener
   document.addEventListener("click", (e) => {
@@ -42,11 +51,11 @@ export function initCustomPickers() {
     true
   );
 
-  // Attach handlers to date and time inputs
+  // Attach handlers to current date and time inputs
   attachPickersToInputs();
 }
 
-/** Attach pickers to inputs */
+/** Attach pickers to date and time inputs in DOM */
 export function attachPickersToInputs() {
   const dateInputs = document.querySelectorAll('input[type="date"]');
   const timeInputs = document.querySelectorAll('input[type="time"]');
@@ -55,13 +64,54 @@ export function attachPickersToInputs() {
   timeInputs.forEach((input) => setupInputPicker(input, "time"));
 }
 
+// ---- Helpers ----
+
+/** Update input value and dispatch standard DOM events */
+function notifyInputChange(input, newValue) {
+  input.value = newValue;
+  input.dispatchEvent(new Event("input", { bubbles: true }));
+  input.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+/** Parse date string "YYYY-MM-DD" safely */
+function parseDateValue(val) {
+  if (val) {
+    const parts = val.split("-");
+    if (parts.length === 3) {
+      const d = new Date(parts[0], parts[1] - 1, parts[2]);
+      if (!isNaN(d.getTime())) return d;
+    }
+  }
+  return new Date();
+}
+
+/** Parse time string "HH:MM" safely */
+function parseTimeValue(val) {
+  const defaultVal = val || getLocalTimeString();
+  const [hStr, mStr] = defaultVal.split(":");
+  let hours24 = parseInt(hStr, 10);
+  let minutes = parseInt(mStr, 10);
+  if (isNaN(hours24)) hours24 = 9;
+  if (isNaN(minutes)) minutes = 0;
+  return { hours24, minutes };
+}
+
+/** Format 24-hour hours and minutes into "HH:MM" */
+function formatTimeValue(hours24, minutes) {
+  const formattedH = String(hours24).padStart(2, "0");
+  const formattedM = String(minutes).padStart(2, "0");
+  return `${formattedH}:${formattedM}`;
+}
+
+// ---- Setup Input Handlers ----
+
 function setupInputPicker(input, type) {
   if (input.dataset.customPickerAttached) return;
   input.dataset.customPickerAttached = "true";
 
-  // Prevent default native browser popup where possible
   input.setAttribute("autocomplete", "off");
 
+  // Input keydown listener for Escape
   input.addEventListener("keydown", (e) => {
     if (e.key === "Escape" || e.key === "Esc" || e.keyCode === 27) {
       if (activePopover) {
@@ -103,29 +153,16 @@ function setupInputPicker(input, type) {
   }
 }
 
-/* ========================================
-   CALENDAR PICKER
-   ======================================== */
+// ---- Calendar Picker ----
+
 function openCalendarPicker(input, wrapper) {
   const popover = document.createElement("div");
   popover.className = "picker-popover";
   popover.dataset.targetId = input.id || "date-input";
 
-  let currentDate = new Date();
-  if (input.value) {
-    const parts = input.value.split("-");
-    if (parts.length === 3) {
-      currentDate = new Date(parts[0], parts[1] - 1, parts[2]);
-    }
-  }
-
-  let viewYear = currentDate.getFullYear();
-  let viewMonth = currentDate.getMonth();
-
-  const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
+  const initialDate = parseDateValue(input.value);
+  let viewYear = initialDate.getFullYear();
+  let viewMonth = initialDate.getMonth();
 
   function render() {
     const today = new Date();
@@ -139,18 +176,12 @@ function openCalendarPicker(input, wrapper) {
     popover.innerHTML = `
       <div class="picker-header">
         <button type="button" class="picker-nav-btn btn-prev-month" title="Previous Month">‹</button>
-        <span class="picker-title">${monthNames[viewMonth]} ${viewYear}</span>
+        <span class="picker-title">${MONTH_NAMES[viewMonth]} ${viewYear}</span>
         <button type="button" class="picker-today-btn btn-today">Today</button>
         <button type="button" class="picker-nav-btn btn-next-month" title="Next Month">›</button>
       </div>
       <div class="picker-weekdays">
-        <div class="picker-weekday">Su</div>
-        <div class="picker-weekday">Mo</div>
-        <div class="picker-weekday">Tu</div>
-        <div class="picker-weekday">We</div>
-        <div class="picker-weekday">Th</div>
-        <div class="picker-weekday">Fr</div>
-        <div class="picker-weekday">Sa</div>
+        ${WEEKDAY_NAMES.map(w => `<div class="picker-weekday">${w}</div>`).join('')}
       </div>
       <div class="picker-days-grid"></div>
     `;
@@ -176,25 +207,19 @@ function openCalendarPicker(input, wrapper) {
       cell.className = "picker-day-cell";
       cell.textContent = day;
 
-      if (dateVal === todayStr) {
-        cell.classList.add("today");
-      }
-      if (dateVal === selectedStr) {
-        cell.classList.add("selected");
-      }
+      if (dateVal === todayStr) cell.classList.add("today");
+      if (dateVal === selectedStr) cell.classList.add("selected");
 
       cell.addEventListener("click", (e) => {
         e.stopPropagation();
-        input.value = dateVal;
-        input.dispatchEvent(new Event("input", { bubbles: true }));
-        input.dispatchEvent(new Event("change", { bubbles: true }));
+        notifyInputChange(input, dateVal);
         closeCustomPickers();
       });
 
       grid.appendChild(cell);
     }
 
-    // Next month padding days to fill 42 cells (6 rows)
+    // Next month padding days to complete 6 rows (42 cells)
     const totalCellsSoFar = firstDayOfMonth + daysInMonth;
     const remaining = (42 - totalCellsSoFar) % 7;
     for (let i = 1; i <= remaining; i++) {
@@ -204,7 +229,7 @@ function openCalendarPicker(input, wrapper) {
       grid.appendChild(cell);
     }
 
-    // Events
+    // Navigation event listeners
     popover.querySelector(".btn-prev-month").addEventListener("click", (e) => {
       e.stopPropagation();
       viewMonth--;
@@ -230,10 +255,7 @@ function openCalendarPicker(input, wrapper) {
       const t = new Date();
       viewYear = t.getFullYear();
       viewMonth = t.getMonth();
-      const tStr = getLocalDateString(t);
-      input.value = tStr;
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-      input.dispatchEvent(new Event("change", { bubbles: true }));
+      notifyInputChange(input, getLocalDateString(t));
       closeCustomPickers();
     });
   }
@@ -243,25 +265,18 @@ function openCalendarPicker(input, wrapper) {
   activePopover = popover;
 }
 
-/* ========================================
-   TIME PICKER
-   ======================================== */
+// ---- Time Picker ----
+
 function openTimePicker(input, wrapper) {
   const popover = document.createElement("div");
   popover.className = "picker-popover";
   popover.dataset.targetId = input.id || "time-input";
 
-  let initialVal = input.value || getLocalTimeString();
-  let [hStr, mStr] = initialVal.split(":");
-  let hours24 = parseInt(hStr || "9", 10);
-  let minutes = parseInt(mStr || "0", 10);
+  let { hours24, minutes } = parseTimeValue(input.value);
 
-  function updateInputValue() {
-    const formattedH = String(hours24).padStart(2, "0");
-    const formattedM = String(minutes).padStart(2, "0");
-    input.value = `${formattedH}:${formattedM}`;
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-    input.dispatchEvent(new Event("change", { bubbles: true }));
+  function syncValueAndNotify() {
+    const formatted = formatTimeValue(hours24, minutes);
+    notifyInputChange(input, formatted);
   }
 
   function render() {
@@ -312,7 +327,7 @@ function openTimePicker(input, wrapper) {
       </div>
     `;
 
-    // Presets
+    // Presets handler
     popover.querySelectorAll(".picker-preset-pill").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -339,12 +354,12 @@ function openTimePicker(input, wrapper) {
           hours24 = parseInt(h, 10);
           minutes = parseInt(m, 10);
         }
-        updateInputValue();
+        syncValueAndNotify();
         render();
       });
     });
 
-    // AM / PM Switch
+    // AM / PM Switch handler
     popover.querySelectorAll(".picker-ampm-btn").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -354,12 +369,12 @@ function openTimePicker(input, wrapper) {
         } else if (!targetPm && hours24 >= 12) {
           hours24 -= 12;
         }
-        updateInputValue();
+        syncValueAndNotify();
         render();
       });
     });
 
-    // Hours Grid
+    // Hours Grid handler
     popover.querySelectorAll("[data-hour]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -370,33 +385,33 @@ function openTimePicker(input, wrapper) {
         } else {
           hours24 = selectedH12 === 12 ? 0 : selectedH12;
         }
-        updateInputValue();
+        syncValueAndNotify();
         render();
       });
     });
 
-    // Minutes Grid
+    // Minutes Grid handler
     popover.querySelectorAll("[data-minute]").forEach((btn) => {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         minutes = parseInt(btn.dataset.minute, 10);
-        updateInputValue();
+        syncValueAndNotify();
         render();
       });
     });
 
-    // Steppers
+    // Steppers handler
     popover.querySelector(".btn-min-minus").addEventListener("click", (e) => {
       e.stopPropagation();
       minutes = (minutes - 1 + 60) % 60;
-      updateInputValue();
+      syncValueAndNotify();
       render();
     });
 
     popover.querySelector(".btn-min-plus").addEventListener("click", (e) => {
       e.stopPropagation();
       minutes = (minutes + 1) % 60;
-      updateInputValue();
+      syncValueAndNotify();
       render();
     });
   }
@@ -406,7 +421,8 @@ function openTimePicker(input, wrapper) {
   activePopover = popover;
 }
 
-/* Position popover near target element */
+// ---- Positioning ----
+
 function positionPopover(popover, targetElement) {
   document.body.appendChild(popover);
   const rect = targetElement.getBoundingClientRect();
@@ -415,12 +431,12 @@ function positionPopover(popover, targetElement) {
   let top = rect.bottom + window.scrollY + 6;
   let left = rect.left + window.scrollX;
 
-  // Prevent overflowing right edge
+  // Constrain to right viewport edge
   if (left + popRect.width > window.innerWidth - 12) {
     left = window.innerWidth - popRect.width - 12;
   }
 
-  // Prevent overflowing bottom edge
+  // Constrain to bottom viewport edge
   if (top + popRect.height > window.innerHeight + window.scrollY - 12) {
     top = rect.top + window.scrollY - popRect.height - 6;
   }

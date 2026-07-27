@@ -17,8 +17,32 @@ import {
   taskOrder,
 } from "../state.js";
 import { initDragAndDrop } from "../components/drag-drop.js";
-import { playTimerStopSound } from "../sounds.js";
+import { playTimerStopSound, playAlarmSound } from "../sounds.js";
 import { resetEstimateAlert } from "../app.js";
+
+let timerMode = "stopwatch"; // "stopwatch" | "pomodoro"
+let pomodoroFocusMins = 25;
+let pomodoroBreakMins = 5;
+let pomodoroPhase = "focus"; // "focus" | "shortBreak" | "longBreak"
+let pomodoroBlockCount = 1; // 1 to 4
+let pomodoroPhaseFired = false;
+
+function updatePomodoroPhaseBadge() {
+  const phaseBadge = document.getElementById("pomodoro-phase-badge");
+  if (!phaseBadge) return;
+
+  phaseBadge.className = "pomodoro-phase-badge";
+
+  if (pomodoroPhase === "focus") {
+    phaseBadge.textContent = "FOCUS SESSION";
+  } else if (pomodoroPhase === "shortBreak") {
+    phaseBadge.classList.add("phase-break-short");
+    phaseBadge.textContent = `SHORT BREAK (${pomodoroBreakMins}M)`;
+  } else if (pomodoroPhase === "longBreak") {
+    phaseBadge.classList.add("phase-break-long");
+    phaseBadge.textContent = "LONG BREAK (15M)";
+  }
+}
 
 /**
  * Initialize timer control buttons (play/pause, stop).
@@ -26,6 +50,47 @@ import { resetEstimateAlert } from "../app.js";
 export function initTimerControls() {
   const startBtn = document.getElementById("btn-timer-start");
   const stopBtn = document.getElementById("btn-timer-stop");
+
+  // Mode switcher listeners
+  const modeBtns = document.querySelectorAll(".timer-mode-btn");
+  const presetsContainer = document.getElementById("pomodoro-presets");
+  const phaseBadge = document.getElementById("pomodoro-phase-badge");
+
+  modeBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      modeBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      timerMode = btn.dataset.mode;
+      pomodoroPhaseFired = false;
+
+      if (timerMode === "pomodoro") {
+        if (presetsContainer) presetsContainer.style.display = "flex";
+        if (phaseBadge) phaseBadge.style.display = "inline-block";
+        updatePomodoroPhaseBadge();
+      } else {
+        if (presetsContainer) presetsContainer.style.display = "none";
+        if (phaseBadge) phaseBadge.style.display = "none";
+      }
+
+      window.tracker.getTimerState().then((state) => {
+        updateTimerDisplay(state);
+      });
+    });
+  });
+
+  // Preset buttons listeners
+  const presetBtns = document.querySelectorAll(".pomo-preset-btn");
+  presetBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      presetBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      pomodoroFocusMins = parseInt(btn.dataset.focus, 10);
+      pomodoroBreakMins = parseInt(btn.dataset.break, 10);
+      window.tracker.getTimerState().then((state) => {
+        updateTimerDisplay(state);
+      });
+    });
+  });
 
   startBtn.addEventListener("click", async () => {
     const timerState = await window.tracker.getTimerState();
@@ -121,6 +186,11 @@ export function initTimerControls() {
 export async function startTimerForTask() {
   if (!selectedTimerTask) return;
 
+  // Reset Pomodoro session state cleanly for new task
+  pomodoroPhase = "focus";
+  pomodoroPhaseFired = false;
+  updatePomodoroPhaseBadge();
+
   // Reset the estimate-reached alert so it can fire for this new session
   resetEstimateAlert();
 
@@ -169,16 +239,95 @@ export async function startTimerForTask() {
  * Update the timer display from a tick event.
  */
 export function updateTimerDisplay(state) {
-  // Update timer display
-  document.getElementById("timer-display").textContent = state.elapsedFormatted;
-
-  // Update ring progress
-  const circumference = 565.48;
-  const progress = state.progress || 0;
-  const offset = circumference * (1 - Math.min(progress, 1));
   const ring = document.querySelector(".timer-ring-progress");
-  if (ring) {
-    ring.style.strokeDashoffset = offset;
+  const circumference = 565.48;
+
+  if (timerMode === "pomodoro") {
+    let targetMins = pomodoroFocusMins;
+    if (pomodoroPhase === "focus") {
+      const taskEst = selectedTimerTask ? selectedTimerTask.estimate : null;
+      if (
+        taskEst !== null &&
+        typeof taskEst === "number" &&
+        taskEst > 0 &&
+        taskEst < pomodoroFocusMins
+      ) {
+        targetMins = taskEst;
+      }
+    } else if (pomodoroPhase === "shortBreak") {
+      targetMins = pomodoroBreakMins;
+    } else if (pomodoroPhase === "longBreak") {
+      targetMins = 15;
+    }
+
+    const targetMs = targetMins * 60 * 1000;
+    const elapsedMs = state.elapsedMs || 0;
+    const remainingMs = Math.max(0, targetMs - elapsedMs);
+
+    const remSecs = Math.floor(remainingMs / 1000);
+    const remMins = Math.floor(remSecs / 60);
+    const remSecsMod = remSecs % 60;
+    const countdownStr = `${String(remMins).padStart(2, "0")}:${String(remSecsMod).padStart(2, "0")}`;
+
+    document.getElementById("timer-display").textContent = countdownStr;
+
+    const progress = Math.min(1, elapsedMs / targetMs);
+    const offset = circumference * (1 - progress);
+    if (ring) {
+      ring.style.strokeDashoffset = offset;
+      if (pomodoroPhase === "shortBreak") {
+        ring.style.stroke = "var(--accent-green, #34d399)";
+      } else if (pomodoroPhase === "longBreak") {
+        ring.style.stroke = "var(--accent-pink, #f43f5e)";
+      } else {
+        ring.style.stroke = "var(--accent-blue, #38bdf8)";
+      }
+    }
+
+    // Check phase completion
+    if (remainingMs <= 0 && state.running && !pomodoroPhaseFired) {
+      pomodoroPhaseFired = true;
+      playAlarmSound();
+
+      // Advance phase internally
+      if (pomodoroPhase === "focus") {
+        pomodoroPhase = "shortBreak";
+      } else {
+        pomodoroPhase = "focus";
+      }
+
+      updatePomodoroPhaseBadge();
+
+      // Stop timer and await manual Start from user
+      window.tracker.stopTimer().then(async () => {
+        const tasks = await window.tracker.getTasks();
+        setTrackedTasks(tasks);
+
+        const playIcon = document.getElementById("timer-play-icon");
+        const pauseIcon = document.getElementById("timer-pause-icon");
+        const stopBtn = document.getElementById("btn-timer-stop");
+
+        if (playIcon) playIcon.style.display = "";
+        if (pauseIcon) pauseIcon.style.display = "none";
+        if (stopBtn) stopBtn.disabled = true;
+
+        renderTimerView();
+      });
+    }
+  } else {
+    // Stopwatch Mode (Standard open-ended count-up)
+    document.getElementById("timer-display").textContent = state.elapsedFormatted;
+
+    const progress = state.progress || 0;
+    const offset = circumference * (1 - Math.min(progress, 1));
+    if (ring) {
+      ring.style.strokeDashoffset = offset;
+      if (progress > 1) {
+        ring.style.stroke = "var(--accent-pink)";
+      } else {
+        ring.style.stroke = "var(--text-primary)";
+      }
+    }
   }
 
   const ringWrapper = document.querySelector(".timer-ring-wrapper");
@@ -191,9 +340,9 @@ export function updateTimerDisplay(state) {
   }
 
   // Update estimate bar
-  if (state.estimateMinutes) {
+  if (state.estimateMinutes && timerMode !== "pomodoro") {
     const fill = document.getElementById("timer-estimate-fill");
-    if (fill) fill.style.width = `${Math.min(progress * 100, 100)}%`;
+    if (fill) fill.style.width = `${Math.min((state.progress || 0) * 100, 100)}%`;
   }
 
   // Update dashboard timer
@@ -203,16 +352,9 @@ export function updateTimerDisplay(state) {
     document.getElementById("dashboard-timer-task").textContent =
       state.taskName;
     document.getElementById("dashboard-timer-display").textContent =
-      state.elapsedFormatted;
-  }
-
-  // Change ring color if over estimate
-  if (ring) {
-    if (progress > 1) {
-      ring.style.stroke = "var(--accent-pink)";
-    } else {
-      ring.style.stroke = "var(--text-primary)";
-    }
+      timerMode === "pomodoro"
+        ? document.getElementById("timer-display").textContent
+        : state.elapsedFormatted;
   }
 
   // Update fullscreen display if it is visible
@@ -220,7 +362,11 @@ export function updateTimerDisplay(state) {
   if (fsOverlay && fsOverlay.style.display !== "none") {
     const fsDisplay = document.getElementById("fullscreen-timer-display");
     const fsTask = document.getElementById("fullscreen-task-name");
-    if (fsDisplay) fsDisplay.textContent = state.elapsedFormatted;
+    if (fsDisplay)
+      fsDisplay.textContent =
+        timerMode === "pomodoro"
+          ? document.getElementById("timer-display").textContent
+          : state.elapsedFormatted;
     if (fsTask) fsTask.textContent = state.taskName;
   }
 }
@@ -269,8 +415,48 @@ export function exitFullscreenTimer() {
   }
 }
 
+function refreshIdleTimerDisplay() {
+  const ring = document.querySelector(".timer-ring-progress");
+  if (timerMode === "pomodoro") {
+    let targetMins = pomodoroFocusMins;
+    if (pomodoroPhase === "focus") {
+      const taskEst = selectedTimerTask ? selectedTimerTask.estimate : null;
+      if (
+        taskEst !== null &&
+        typeof taskEst === "number" &&
+        taskEst > 0 &&
+        taskEst < pomodoroFocusMins
+      ) {
+        targetMins = taskEst;
+      }
+    } else if (pomodoroPhase === "shortBreak") {
+      targetMins = pomodoroBreakMins;
+    } else if (pomodoroPhase === "longBreak") {
+      targetMins = 15;
+    }
+    const countdownStr = `${String(targetMins).padStart(2, "0")}:00`;
+    document.getElementById("timer-display").textContent = countdownStr;
+    if (ring) {
+      ring.style.strokeDashoffset = "0";
+      if (pomodoroPhase === "shortBreak") {
+        ring.style.stroke = "var(--accent-green, #34d399)";
+      } else if (pomodoroPhase === "longBreak") {
+        ring.style.stroke = "var(--accent-pink, #f43f5e)";
+      } else {
+        ring.style.stroke = "var(--accent-blue, #38bdf8)";
+      }
+    }
+  } else {
+    document.getElementById("timer-display").textContent = "00:00:00";
+    if (ring) {
+      ring.style.strokeDashoffset = "565.48";
+      ring.style.stroke = "var(--text-primary)";
+    }
+  }
+}
+
 /**
- * Render the full timer view.
+ * Render the main timer view.
  */
 export async function renderTimerView() {
   const timerState = await window.tracker.getTimerState();
@@ -312,15 +498,10 @@ export async function renderTimerView() {
     document.getElementById("timer-task-name").textContent = selectedTimerTask
       ? selectedTimerTask.name
       : "No task selected";
-    document.getElementById("timer-display").textContent = "00:00:00";
     document.getElementById("timer-play-icon").style.display = "";
     document.getElementById("timer-pause-icon").style.display = "none";
     document.getElementById("timer-estimate-bar").style.display = "none";
-    const ring = document.querySelector(".timer-ring-progress");
-    if (ring) {
-      ring.style.strokeDashoffset = "565.48";
-      ring.style.stroke = "var(--text-primary)";
-    }
+    refreshIdleTimerDisplay();
   }
 
   // Task selector
@@ -415,6 +596,12 @@ function renderTimerTaskList() {
         .querySelectorAll(".timer-task-option")
         .forEach((o) => o.classList.remove("selected"));
       opt.classList.add("selected");
+
+      window.tracker.getTimerState().then((tState) => {
+        if (!tState || !tState.running) {
+          refreshIdleTimerDisplay();
+        }
+      });
     });
     listEl.appendChild(opt);
   });

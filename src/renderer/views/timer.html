@@ -25,6 +25,17 @@
     </button>
   </div>
   <div class="timer-container">
+    <div class="timer-mode-switcher">
+      <button type="button" class="timer-mode-btn active" data-mode="stopwatch">Stopwatch</button>
+      <button type="button" class="timer-mode-btn" data-mode="pomodoro">Pomodoro Focus</button>
+    </div>
+
+    <div class="pomodoro-presets" id="pomodoro-presets" style="display: none;">
+      <button type="button" class="pomo-preset-btn active" data-focus="25" data-break="5">25m / 5m</button>
+      <button type="button" class="pomo-preset-btn" data-focus="50" data-break="10">50m / 10m</button>
+      <button type="button" class="pomo-preset-btn" data-focus="15" data-break="3">15m / 3m</button>
+    </div>
+
     <div class="timer-ring-wrapper">
       <svg class="timer-ring" viewBox="0 0 200 200">
         <circle
@@ -48,6 +59,7 @@
         />
       </svg>
       <div class="timer-display">
+        <div class="pomodoro-phase-badge" id="pomodoro-phase-badge" style="display: none;">FOCUS SESSION</div>
         <span class="timer-time" id="timer-display">00:00:00</span>
         <span class="timer-task-name" id="timer-task-name"
           >No task selected</span

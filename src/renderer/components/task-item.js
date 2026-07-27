@@ -167,13 +167,23 @@ export function createTaskItem(event, draggable = false, timerState = null) {
           }
           switchView("timer");
         } else {
-          // Start new timer for this task
+          // Start new timer for this task with remaining estimate calculation
+          const taskId = btn.dataset.taskId;
+          const taskObj = trackedTasks[taskId] || {};
+          const totalEst = btn.dataset.estimate
+            ? parseInt(btn.dataset.estimate)
+            : taskObj.estimateMinutes || null;
+          const tracked = taskObj.totalTrackedMinutes || 0;
+          const remainingEst =
+            totalEst !== null && totalEst > 0
+              ? Math.max(0, totalEst - tracked)
+              : null;
+
           setSelectedTimerTask({
-            id: btn.dataset.taskId,
+            id: taskId,
             name: btn.dataset.taskName,
-            estimate: btn.dataset.estimate
-              ? parseInt(btn.dataset.estimate)
-              : null,
+            estimate: remainingEst,
+            totalEstimate: totalEst,
           });
           switchView("timer");
           // Dynamically import to avoid circular deps

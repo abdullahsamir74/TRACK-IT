@@ -52,8 +52,78 @@ class TrackingService {
   /**
    * Get all tasks with their metadata (estimates, status, etc.)
    */
+  /**
+   * Get all tasks with their metadata (estimates, status, etc.)
+   */
   getTasks() {
     const tasks = this.store.get("tasks", {});
+    const sessions = this.store.get("sessions", []);
+    let updated = false;
+
+    // Fallback estimate map from sessions
+    const sessionEstimateMap = {};
+    for (const s of sessions) {
+      if (s.taskId && s.estimateMinutes && !sessionEstimateMap[s.taskId]) {
+        sessionEstimateMap[s.taskId] = s.estimateMinutes;
+      }
+    }
+
+    // Ensure all taskIds present in sessions exist in tasks object
+    for (const s of sessions) {
+      if (s.taskId && !tasks[s.taskId]) {
+        tasks[s.taskId] = {
+          id: s.taskId,
+          name: s.taskName || "Task",
+          createdAt: new Date().toISOString(),
+        };
+        updated = true;
+      }
+    }
+
+    for (const id in tasks) {
+      if (!tasks[id].deleted) {
+        const task = tasks[id];
+
+        // Recalculate totalTrackedMinutes from sessions
+        const taskSessions = sessions.filter((s) => s.taskId === id);
+        const calcTracked = taskSessions.reduce(
+          (sum, s) => sum + (s.durationMinutes || 0),
+          0,
+        );
+        if (task.totalTrackedMinutes !== calcTracked) {
+          task.totalTrackedMinutes = calcTracked;
+          updated = true;
+        }
+
+        // Check fallback estimate from sessions
+        if (!task.estimateMinutes && sessionEstimateMap[id]) {
+          task.estimateMinutes = sessionEstimateMap[id];
+          updated = true;
+        }
+
+        const est = task.estimateMinutes;
+        const tracked = task.totalTrackedMinutes || 0;
+
+        // Auto-complete if total tracked time >= estimate
+        if (
+          !task.completed &&
+          !task.manuallyUncompleted &&
+          est &&
+          est > 0 &&
+          tracked >= est
+        ) {
+          task.completed = true;
+          task.completedAt = task.completedAt || new Date().toISOString();
+          task.updatedAt = new Date().toISOString();
+          updated = true;
+        }
+      }
+    }
+
+    if (updated) {
+      this.store.set("tasks", tasks);
+    }
+
     const activeTasks = {};
     for (const id in tasks) {
       if (!tasks[id].deleted) {
@@ -112,6 +182,17 @@ class TrackingService {
       tasks[taskId] = { id: taskId, createdAt: new Date().toISOString() };
     }
     tasks[taskId].estimateMinutes = estimateMinutes;
+    const tracked = tasks[taskId].totalTrackedMinutes || 0;
+    if (
+      estimateMinutes &&
+      estimateMinutes > 0 &&
+      tracked >= estimateMinutes &&
+      !tasks[taskId].manuallyUncompleted
+    ) {
+      tasks[taskId].completed = true;
+      tasks[taskId].completedAt =
+        tasks[taskId].completedAt || new Date().toISOString();
+    }
     tasks[taskId].updatedAt = new Date().toISOString();
     this.store.set("tasks", tasks);
     return tasks[taskId];
@@ -126,6 +207,7 @@ class TrackingService {
       tasks[taskId] = { id: taskId, createdAt: new Date().toISOString() };
     }
     tasks[taskId].completed = true;
+    tasks[taskId].manuallyUncompleted = false;
     tasks[taskId].completedAt = new Date().toISOString();
     tasks[taskId].updatedAt = new Date().toISOString();
     this.store.set("tasks", tasks);
@@ -140,6 +222,7 @@ class TrackingService {
     if (tasks[taskId]) {
       tasks[taskId].completed = false;
       tasks[taskId].completedAt = null;
+      tasks[taskId].manuallyUncompleted = true;
       tasks[taskId].updatedAt = new Date().toISOString();
     }
 
@@ -169,7 +252,9 @@ class TrackingService {
   saveSession(session) {
     const sessions = this.store.get("sessions", []);
     const sessionWithId = {
-      id: session.id || `session_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
+      id:
+        session.id ||
+        `session_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
       ...session,
       savedAt: new Date().toISOString(),
     };
@@ -185,10 +270,22 @@ class TrackingService {
         createdAt: new Date().toISOString(),
       };
     }
-    const totalTracked =
-      (tasks[session.taskId].totalTrackedMinutes || 0) +
-      (session.durationMinutes || 0);
+    const currentTracked = tasks[session.taskId].totalTrackedMinutes || 0;
+    if (!tasks[session.taskId].estimateMinutes && session.estimateMinutes) {
+      tasks[session.taskId].estimateMinutes = session.estimateMinutes + currentTracked;
+    }
+    tasks[session.taskId].manuallyUncompleted = false;
+
+    const totalTracked = currentTracked + (session.durationMinutes || 0);
     tasks[session.taskId].totalTrackedMinutes = totalTracked;
+
+    const est = tasks[session.taskId].estimateMinutes;
+    if (est && est > 0 && totalTracked >= est) {
+      tasks[session.taskId].completed = true;
+      tasks[session.taskId].completedAt =
+        tasks[session.taskId].completedAt || new Date().toISOString();
+    }
+
     tasks[session.taskId].updatedAt = new Date().toISOString();
     this.store.set("tasks", tasks);
 

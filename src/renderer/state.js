@@ -182,6 +182,32 @@ export async function loadData() {
       });
     }
 
+    // Sync calendar event estimates with trackedTasks and auto-complete if needed
+    if (events && events.length > 0 && tasks) {
+      events.forEach((e) => {
+        const task = tasks[e.id];
+        if (task) {
+          if (!task.estimateMinutes && e.durationMinutes) {
+            task.estimateMinutes = e.durationMinutes;
+          }
+          const est = task.estimateMinutes || e.durationMinutes;
+          const tracked = task.totalTrackedMinutes || 0;
+          if (
+            !task.completed &&
+            !task.manuallyUncompleted &&
+            est &&
+            est > 0 &&
+            tracked >= est
+          ) {
+            task.completed = true;
+            task.completedAt = task.completedAt || new Date().toISOString();
+            task.updatedAt = new Date().toISOString();
+            window.tracker.saveTask(task).catch(() => {});
+          }
+        }
+      });
+    }
+
     storeInstance.updateState({
       calendarEvents: events || [],
       trackedTasks: tasks || {},

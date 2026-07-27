@@ -82,6 +82,9 @@ export function initTimerControls() {
       document.getElementById("timer-estimate-bar").style.display = "none";
       document.getElementById("timer-estimate-fill").style.width = "0%";
 
+      // Clear selected timer task
+      setSelectedTimerTask(null);
+
       // Refresh
       setTrackedTasks(await window.tracker.getTasks());
       renderTimerView();
@@ -121,10 +124,26 @@ export async function startTimerForTask() {
   // Reset the estimate-reached alert so it can fire for this new session
   resetEstimateAlert();
 
+  const taskObj = trackedTasks[selectedTimerTask.id] || {};
+  const totalEst =
+    selectedTimerTask.totalEstimate ||
+    selectedTimerTask.estimate ||
+    taskObj.estimateMinutes ||
+    null;
+  const tracked = taskObj.totalTrackedMinutes || 0;
+  const remainingEst =
+    totalEst !== null && totalEst > 0
+      ? Math.max(0, totalEst - tracked)
+      : null;
+
+  // Update selectedTimerTask with calculated remaining estimate
+  selectedTimerTask.estimate = remainingEst;
+  selectedTimerTask.totalEstimate = totalEst;
+
   await window.tracker.startTimer(
     selectedTimerTask.id,
     selectedTimerTask.name,
-    selectedTimerTask.estimate,
+    remainingEst,
   );
 
   document.getElementById("timer-task-name").textContent =
@@ -134,10 +153,12 @@ export async function startTimerForTask() {
   document.getElementById("btn-timer-stop").disabled = false;
 
   // Show estimate bar if there's an estimate
-  if (selectedTimerTask.estimate) {
+  if (remainingEst !== null && remainingEst > 0) {
     document.getElementById("timer-estimate-bar").style.display = "block";
     document.getElementById("timer-estimate-label").textContent =
-      `Est: ${formatDuration(selectedTimerTask.estimate)}`;
+      `Est: ${formatDuration(remainingEst)}`;
+  } else {
+    document.getElementById("timer-estimate-bar").style.display = "none";
   }
 
   // Automatically trigger fullscreen mode when timer starts
@@ -285,7 +306,12 @@ export async function renderTimerView() {
   } else {
     // Reset view to idle if nothing is running
     document.getElementById("btn-timer-stop").disabled = true;
-    document.getElementById("timer-task-name").textContent = "No task selected";
+    if (selectedTimerTask && trackedTasks[selectedTimerTask.id]?.completed) {
+      setSelectedTimerTask(null);
+    }
+    document.getElementById("timer-task-name").textContent = selectedTimerTask
+      ? selectedTimerTask.name
+      : "No task selected";
     document.getElementById("timer-display").textContent = "00:00:00";
     document.getElementById("timer-play-icon").style.display = "";
     document.getElementById("timer-pause-icon").style.display = "none";
@@ -351,6 +377,15 @@ function renderTimerTaskList() {
 
   listEl.innerHTML = "";
   unique.slice(0, 8).forEach((task) => {
+    const taskObj = trackedTasks[task.id] || {};
+    const totalEst = task.estimate;
+    const tracked = taskObj.totalTrackedMinutes || 0;
+    const remainingEst =
+      totalEst !== null && totalEst > 0
+        ? Math.max(0, totalEst - tracked)
+        : null;
+    const displayEst = remainingEst !== null ? remainingEst : totalEst;
+
     const opt = document.createElement("div");
     opt.className = `timer-task-option${selectedTimerTask?.id === task.id ? " selected" : ""}`;
     opt.dataset.taskId = task.id;
@@ -359,10 +394,23 @@ function renderTimerTaskList() {
     opt.innerHTML = `
       <div class="task-color-dot" style="background: ${task.calendarColor || "#38bdf8"}; height: 24px;"></div>
       <span style="flex:1; text-align:left;">${escapeHtml(task.name)}</span>
-      ${task.estimate ? `<span class="task-badge estimate">${formatDuration(task.estimate)}</span>` : ""}
+      ${displayEst ? `<span class="task-badge estimate">${formatDuration(displayEst)}${tracked > 0 ? " left" : ""}</span>` : ""}
     `;
     opt.addEventListener("click", () => {
-      setSelectedTimerTask(task);
+      setSelectedTimerTask({
+        id: task.id,
+        name: task.name,
+        estimate: displayEst,
+        totalEstimate: totalEst,
+      });
+      document.getElementById("timer-task-name").textContent = task.name;
+      if (displayEst) {
+        document.getElementById("timer-estimate-bar").style.display = "block";
+        document.getElementById("timer-estimate-label").textContent =
+          `Est: ${formatDuration(displayEst)}`;
+      } else {
+        document.getElementById("timer-estimate-bar").style.display = "none";
+      }
       document
         .querySelectorAll(".timer-task-option")
         .forEach((o) => o.classList.remove("selected"));

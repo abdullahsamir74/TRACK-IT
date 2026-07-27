@@ -27,6 +27,7 @@ import { initHabits, renderHabitsView } from "./views/habits.js";
 import { initModals } from "./components/modals.js";
 import { initResetButtons } from "./components/confirm-dialog.js";
 import { initCustomPickers } from "./components/custom-pickers.js";
+import { initKeyboardShortcuts } from "./components/shortcuts.js";
 
 // ---- Sounds ----
 import { playAlarmSound } from "./sounds.js";
@@ -100,6 +101,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   initNavigation();
   initModals();
   initCustomPickers();
+  initKeyboardShortcuts();
   initTimerControls();
   initAnalytics();
   initResetButtons();

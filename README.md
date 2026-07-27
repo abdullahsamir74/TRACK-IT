@@ -1,39 +1,52 @@
 # Track It
 
-Track It is a premium desktop time-tracking and productivity suite built natively for Linux (GNOME). It integrates with GNOME Calendar via Evolution Data Server so your schedule events automatically appear as trackable tasks. All tracking data is kept locally and privately on your machine.
+> A desktop time-tracking and productivity suite built natively for Linux (GNOME). Integrates with GNOME Calendar via Evolution Data Server to automatically bring your scheduled events into your daily workflow.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform: Linux](https://img.shields.io/badge/Platform-Linux%20%2F%20GNOME-informational.svg)]()
+[![Built with Electron](https://img.shields.io/badge/Built%20with-Electron%20%2F%20JavaScript-9cf.svg)]()
+
+---
+
+## Overview
+
+**Track It** combines task scheduling, focus timing, project management, and habit tracking into a unified desktop application. All tracking data remains 100% private and stored locally on your machine.
 
 ---
 
 ## Features
 
-### Theme Customization
-Toggle between dark and light themes instantly from the titlebar to match your workspace lighting.
+### Custom Calendar & Time Pickers
+- **Dark Glassmorphic UI**: Custom popover controls with blurred backdrops and smooth animations.
+- **Current Time Default**: Task start times automatically default to your current local time.
+- **Interactive Controls**: Month navigation, single-click `Today` shortcut, digital clock display, 12-hour/minute grid selectors, presets (`Now`, `+15m`, `+30m`, `+1h`), and minute steppers.
 
-### Dashboard Overview
-Check today's schedule, total tracked time, session counts, and daily progress stats at a glance.
+### Global Keyboard Shortcuts
+Control your workspace effortlessly without leaving your keyboard:
 
-### Schedule and Sorting
-Organize all your GNOME Calendar events and manually created tasks. You can sort tasks by start time, priority levels, or manually drag and drop them to fit your day.
+| Shortcut | Command | Function |
+| :--- | :--- | :--- |
+| <kbd>Ctrl</kbd> + <kbd>N</kbd> / <kbd>Cmd</kbd> + <kbd>N</kbd> | Quick Add Task | Open task creation modal from anywhere |
+| <kbd>Spacebar</kbd> | Toggle Timer | Start, pause, or resume the active focus timer |
+| <kbd>Ctrl</kbd> + <kbd>1</kbd> .. <kbd>6</kbd> | Switch Views | Jump directly to Dashboard, Schedule, Timer, Analytics, Projects, or Habits |
+| <kbd>Esc</kbd> | Dismiss Overlays | Close active date/time pickers or modal windows |
 
-### Timer and Focus Mode
-Start tracking any task with an active timer, including a fullscreen focus mode to help you work without distractions.
-
-### Analytics and Heatmap
-View weekly charts and a yearly activity heatmap to visualize your productivity patterns and keep track of your weekly targets.
-
-### Projects Board
-Group tasks under different projects to keep your workspace organized, with a dedicated section for unassigned tasks.
-
-### Habits Tracker
-Track your daily habits on a monthly calendar grid. Includes a stats section to monitor streaks, success rates, and overall progress.
+### Core Functionality
+- **Theme Customization**: Instant toggle between dark and light themes from the titlebar.
+- **Dashboard Overview**: Daily schedule summary, active timer status, tracked minutes, and productivity stats at a glance.
+- **Schedule & Drag-and-Drop**: Sort tasks by start date, priority level, or custom manual drag-and-drop reordering.
+- **Timer & Fullscreen Focus Mode**: Active session timer with progress indicators, estimate alert sounds, and distraction-free fullscreen view.
+- **Analytics & Heatmap**: Weekly distribution charts, project breakdowns, and yearly activity heatmaps.
+- **Projects Board**: Organize tasks into color-coded project categories with custom weekly target hours.
+- **Habits Tracker**: Monitor daily habits on a monthly grid with streak metrics and success rates.
 
 ---
 
-## Privacy and Architecture
+## Privacy & Local Architecture
 
-- **Local Storage**: All data is stored locally. There are no remote servers, no cloud sync, and no tracking telemetry.
-- **Calendar Integration**: Syncs in real-time with GNOME Calendar.
-- **Crash Protection**: Active timer sessions are saved automatically if the application closes unexpectedly.
+- **100% Local Data**: No cloud synchronization, remote API dependencies, or telemetry tracking.
+- **Real-Time Calendar Sync**: Syncs with GNOME Calendar via Evolution Data Server (`eds-service`).
+- **Crash Recovery**: Active timer sessions automatically save if the application closes unexpectedly.
 
 ---
 
@@ -41,40 +54,45 @@ Track your daily habits on a monthly calendar grid. Includes a stats section to 
 
 ### Prerequisites
 
-* **Node.js** >= v24.18.0
-* **npm** >= v11.16.0
-* **GNOME Desktop** with Evolution Data Server (`eds-service` pre-installed on Ubuntu, Fedora, Debian, Pop!_OS, Arch, and most GNOME distributions).
+- **Node.js** `>= v24.18.0`
+- **npm** `>= v11.16.0`
+- **GNOME Desktop Environment** with Evolution Data Server.
 
 ### Installation
 
 ```bash
+# Clone repository
 git clone https://github.com/abdullahsamir74/TRACK-IT.git
+
+# Navigate into directory
 cd TRACK-IT
+
+# Install dependencies
 npm install
 ```
 
-### Running the App
+### Running the Application
 
 ```bash
-# Start standard desktop mode
+# Run desktop application
 npm start
 
-# Start development mode
+# Run in development mode (with DevTools)
 npm run dev
 ```
 
 ---
 
-## GNOME Dock Shortcut
+## Desktop Integration (GNOME Dock)
 
-1. Install the GNOME desktop launcher:
+1. Register the application desktop entry:
    ```bash
    npm run install-desktop
    ```
-2. Press **Super**, search for **"TRACK IT"**, right-click the icon, and select **Add to Favorites** or **Pin to Dash**.
+2. Open **Activities** (press <kbd>Super</kbd>), search for **TRACK IT**, right-click the icon, and select **Add to Favorites**.
 
 ---
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for details.

@@ -127,6 +127,48 @@
   box-shadow: 0 0 14px rgba(249, 115, 22, 0.25);
 }
 
+.nav-shortcut-hint {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-muted);
+  opacity: 0.6;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 1px 5px;
+  transition: opacity var(--transition-fast);
+}
+
+.nav-btn:hover .nav-shortcut-hint,
+.nav-btn.active .nav-shortcut-hint {
+  opacity: 0.95;
+}
+
+.sidebar-shortcut-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.sidebar-shortcut-info kbd {
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--accent-blue, #38bdf8);
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
 #main-content {
   flex: 1;
   overflow-y: auto;

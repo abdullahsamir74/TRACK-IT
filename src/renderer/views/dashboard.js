@@ -15,6 +15,7 @@ import {
   taskOrder,
   taskSortMode,
   setTaskSortMode,
+  updateStreakCount,
 } from "../state.js";
 import { switchView } from "../state.js";
 import { createTaskItem } from "../components/task-item.js";
@@ -98,12 +99,7 @@ export async function renderDashboard() {
   }
 
   // Streak
-  try {
-    const analytics = await window.tracker.getAnalytics("week");
-    document.getElementById("streak-count").textContent = analytics.streak || 0;
-  } catch (e) {
-    console.error("Error loading dashboard streak:", e);
-  }
+  await updateStreakCount();
 
   // Sort preference setup
   const sortSelect = document.getElementById("select-dashboard-sort");

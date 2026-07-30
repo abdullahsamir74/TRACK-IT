@@ -219,6 +219,8 @@ export async function loadData() {
       taskSortMode: taskSortModeVal,
     });
 
+    updateStreakCount();
+
     // Import updateTimerDisplay dynamically to avoid circular dependency
     if (timerState && timerState.running) {
       const { updateTimerDisplay } = await import("./views/timer.js");
@@ -226,6 +228,20 @@ export async function loadData() {
     }
   } catch (err) {
     console.error("Error loading data:", err);
+  }
+}
+
+/**
+ * Update the global streak badge count in the sidebar
+ */
+export async function updateStreakCount() {
+  const streakEl = document.getElementById("streak-count");
+  if (!streakEl) return;
+  try {
+    const analytics = await window.tracker.getAnalytics("week");
+    streakEl.textContent = analytics.streak || 0;
+  } catch (e) {
+    console.error("Error updating sidebar streak:", e);
   }
 }
 
@@ -247,6 +263,7 @@ export function switchView(viewName) {
 }
 
 export async function renderCurrentView() {
+  updateStreakCount();
   const renderer = viewRenderers[currentView];
   if (renderer) {
     await renderer();

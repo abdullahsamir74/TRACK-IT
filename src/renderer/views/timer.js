@@ -15,6 +15,7 @@ import {
   selectedTimerTask,
   setSelectedTimerTask,
   taskOrder,
+  updateStreakCount,
 } from "../state.js";
 import { initDragAndDrop } from "../components/drag-drop.js";
 import { playTimerStopSound, playAlarmSound } from "../sounds.js";
@@ -459,6 +460,7 @@ function refreshIdleTimerDisplay() {
  * Render the main timer view.
  */
 export async function renderTimerView() {
+  updateStreakCount();
   const timerState = await window.tracker.getTimerState();
 
   // Update buttons based on state
@@ -663,6 +665,7 @@ async function renderTodaySessions() {
         e.stopPropagation();
         await window.tracker.deleteSession(sessionId);
         await renderTodaySessions();
+        updateStreakCount();
       });
     }
 

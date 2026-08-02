@@ -75,10 +75,10 @@ export function initModals() {
 }
 
 // ---- Add Task Modal ----
-export function openAddTaskModal() {
+export function openAddTaskModal(prefilledDate) {
   const today = getLocalDateString();
   const currentTime = getLocalTimeString();
-  document.getElementById("task-date").value = today;
+  document.getElementById("task-date").value = prefilledDate || today;
   document.getElementById("task-time").value = currentTime;
   document.getElementById("task-name").value = "";
   document.getElementById("task-estimate").value = "";

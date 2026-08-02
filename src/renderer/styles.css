@@ -18,6 +18,7 @@
 /* View-Specific Styles */
 @import "./styles/dashboard.css";
 @import "./styles/schedule.css";
+@import "./styles/calendar.css";
 @import "./styles/timer.css";
 @import "./styles/analytics.css";
 @import "./styles/projects.css";

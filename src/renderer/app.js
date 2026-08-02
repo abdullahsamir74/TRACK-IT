@@ -22,6 +22,7 @@ import {
 import { initAnalytics, renderAnalytics } from "./views/analytics.js";
 import { initProjects, renderProjects } from "./views/projects.js";
 import { initHabits, renderHabitsView } from "./views/habits.js";
+import { renderCalendar } from "./views/calendar.js";
 
 // ---- Components ----
 import { initModals } from "./components/modals.js";
@@ -69,6 +70,7 @@ async function loadViewTemplates() {
   const views = [
     "dashboard",
     "schedule",
+    "calendar",
     "timer",
     "analytics",
     "projects",
@@ -94,6 +96,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   registerViewRenderers({
     dashboard: renderDashboard,
     schedule: renderSchedule,
+    calendar: renderCalendar,
     timer: renderTimerView,
     analytics: renderAnalytics,
     projects: renderProjects,

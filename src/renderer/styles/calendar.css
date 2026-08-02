@@ -106,7 +106,6 @@
 
 /* ---- Day Cell — Glass Cards ---- */
 .cal-day-cell {
-  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100px;
@@ -119,44 +118,14 @@
     rgba(255, 255, 255, 0.04) 0%,
     rgba(255, 255, 255, 0.005) 100%
   );
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   cursor: pointer;
-  transition: all var(--transition-base);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
   overflow: hidden;
-}
-
-.cal-day-cell::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.03) 0%,
-    transparent 40%
-  );
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--transition-fast);
 }
 
 .cal-day-cell:hover {
   border-color: rgba(255, 255, 255, 0.14);
   background-color: rgba(255, 255, 255, 0.05);
-  transform: translateY(-3px) scale(1.01);
-  box-shadow:
-    0 8px 24px rgba(0, 0, 0, 0.4),
-    0 0 12px rgba(56, 189, 248, 0.06);
-}
-
-.cal-day-cell:hover::before {
-  opacity: 1;
-}
-
-.cal-day-cell:active {
-  transform: translateY(0) scale(0.98);
-  transition-duration: 80ms;
 }
 
 /* Other month days */
@@ -178,9 +147,6 @@
     rgba(56, 189, 248, 0.08) 0%,
     rgba(45, 212, 191, 0.03) 100%
   );
-  box-shadow:
-    0 0 20px rgba(56, 189, 248, 0.08),
-    inset 0 1px 0 rgba(56, 189, 248, 0.1);
 }
 
 .cal-day-cell.today .cal-day-num {
@@ -198,11 +164,7 @@
     rgba(56, 189, 248, 0.14) 0%,
     rgba(45, 212, 191, 0.08) 100%
   );
-  box-shadow:
-    0 0 28px rgba(56, 189, 248, 0.15),
-    0 10px 28px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.1);
 }
 
 .cal-day-cell.selected .cal-day-num {
@@ -213,7 +175,7 @@
 }
 
 .cal-day-cell.selected:hover {
-  transform: translateY(-3px) scale(1.01);
+  border-color: rgba(56, 189, 248, 0.55);
 }
 
 /* Day number */
@@ -223,7 +185,6 @@
   color: var(--text-primary);
   line-height: 1;
   margin-bottom: 5px;
-  transition: all var(--transition-fast);
 }
 
 /* ---- Task Previews Inside Cells ---- */
@@ -244,12 +205,7 @@
   border-radius: 5px;
   background: rgba(255, 255, 255, 0.04);
   border-left: 2px solid var(--accent-orange);
-  transition: all var(--transition-fast);
   overflow: hidden;
-}
-
-.cal-day-cell:hover .cal-task-preview {
-  background: rgba(255, 255, 255, 0.07);
 }
 
 .cal-task-preview.priority-low {
@@ -298,12 +254,6 @@
   color: var(--accent-blue);
   padding: 1px 6px;
   text-align: center;
-  opacity: 0.7;
-  transition: opacity var(--transition-fast);
-}
-
-.cal-day-cell:hover .cal-tasks-more {
-  opacity: 1;
 }
 
 /* ---- Day Detail Panel ---- */
@@ -317,12 +267,6 @@
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: var(--radius-lg);
   padding: var(--space-lg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  animation: calDetailSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes calDetailSlideIn {

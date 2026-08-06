@@ -86,6 +86,13 @@ export function openAddTaskModal(prefilledDate) {
   syncPriorityPills("task", "medium");
   attachPickersToInputs();
   document.getElementById("modal-overlay").style.display = "flex";
+
+  setTimeout(() => {
+    const input = document.getElementById("task-name");
+    if (input) {
+      input.focus();
+    }
+  }, 50);
 }
 
 // ---- Estimate Modal ----
@@ -93,6 +100,14 @@ export function openEstimateModal(taskId, currentEstimate) {
   document.getElementById("estimate-task-id").value = taskId;
   document.getElementById("estimate-minutes").value = currentEstimate || "";
   document.getElementById("estimate-modal-overlay").style.display = "flex";
+
+  setTimeout(() => {
+    const input = document.getElementById("estimate-minutes");
+    if (input) {
+      input.focus();
+      input.select();
+    }
+  }, 50);
 }
 
 // ---- Edit Task Modal ----
@@ -148,6 +163,13 @@ export function openEditTaskModal(task) {
 
   attachPickersToInputs();
   document.getElementById("edit-task-modal-overlay").style.display = "flex";
+
+  setTimeout(() => {
+    if (nameInput && !nameInput.disabled) {
+      nameInput.focus();
+      nameInput.select();
+    }
+  }, 50);
 }
 
 // ---- Global Target Modal ----

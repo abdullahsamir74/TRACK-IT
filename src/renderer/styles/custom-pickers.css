@@ -2,9 +2,6 @@
    CUSTOM PICKERS — Modern Calendar & Time Picker Popovers
    ======================================== */
 
-:root {
-  color-scheme: dark light;
-}
 
 .picker-popover {
   position: absolute;

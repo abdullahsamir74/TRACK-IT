@@ -1,0 +1,517 @@
+/* ========================================
+   LIGHT THEME — Vercel / Linear Modern Light Mode Component Overrides
+   Consolidated styling for clean contrast, crisp 1px borders, and high visibility.
+   ======================================== */
+
+/* ---- Text Selection ---- */
+[data-theme="light"] ::selection {
+  background: rgba(79, 70, 229, 0.15);
+  color: #09090b;
+}
+
+/* ============================================================
+   LAYOUT — Navigation, Sidebar & Titlebar
+   ============================================================ */
+[data-theme="light"] .nav-shortcut-hint {
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  color: var(--text-muted);
+}
+
+[data-theme="light"] .sidebar-shortcut-info {
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+}
+
+[data-theme="light"] .sidebar-shortcut-info kbd {
+  background: rgba(79, 70, 229, 0.08);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  color: var(--accent-primary);
+}
+
+/* Active navigation indicator — Indigo bar */
+[data-theme="light"] .nav-btn.active::before {
+  background: var(--accent-primary);
+}
+
+/* ============================================================
+   MODALS & DIALOGS — Clean White Card & Crisp Borders
+   ============================================================ */
+[data-theme="light"] .modal-overlay {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+[data-theme="light"] .modal {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .modal-header h2 {
+  background: none;
+  -webkit-text-fill-color: initial;
+  color: #09090b;
+}
+
+/* Close button */
+[data-theme="light"] .btn-close-modal {
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+  color: #52525b;
+}
+
+[data-theme="light"] .btn-close-modal:hover {
+  background: #e4e4e7;
+  color: #09090b;
+}
+
+/* --- Form Inputs inside Modals --- */
+[data-theme="light"] .input-wrapper input {
+  background: #ffffff;
+  border: 1px solid #d4d4d8;
+  color: #09090b;
+}
+
+[data-theme="light"] .input-wrapper input:hover {
+  border-color: #a1a1aa;
+  background: #ffffff;
+}
+
+[data-theme="light"] .input-wrapper input:focus {
+  border-color: var(--accent-primary);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+}
+
+[data-theme="light"] .input-wrapper input[type="date"],
+[data-theme="light"] .input-wrapper input[type="time"] {
+  color-scheme: light;
+}
+
+[data-theme="light"] .input-wrapper input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="light"] .input-wrapper input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: none;
+  opacity: 0.6;
+}
+
+/* --- Priority Selector --- */
+[data-theme="light"] .priority-selector {
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+}
+
+/* --- Ghost Buttons inside Modals --- */
+[data-theme="light"] .modal .btn-ghost {
+  background: #ffffff !important;
+  border: 1px solid #d4d4d8 !important;
+  color: #09090b !important;
+}
+
+[data-theme="light"] .modal .btn-ghost:hover {
+  background: #f4f4f5 !important;
+  border-color: #a1a1aa !important;
+}
+
+/* --- Confirm Dialog --- */
+[data-theme="light"] .confirm-overlay {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+}
+
+[data-theme="light"] .confirm-dialog {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  box-shadow:
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.08);
+}
+
+/* --- Duration Presets --- */
+[data-theme="light"] .preset-btn {
+  background: #ffffff;
+  border: 1px solid #d4d4d8;
+  color: #52525b;
+}
+
+[data-theme="light"] .preset-btn:hover {
+  background: #f4f4f5;
+  border-color: #a1a1aa;
+  color: #09090b;
+}
+
+/* --- Select Inputs --- */
+[data-theme="light"] .select-input {
+  background-color: #ffffff;
+  border: 1px solid #d4d4d8;
+  color: #09090b;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2371717a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+[data-theme="light"] .select-input:hover {
+  background-color: #ffffff;
+  border-color: #a1a1aa;
+}
+
+[data-theme="light"] .select-input option {
+  background: #ffffff;
+  color: #09090b;
+}
+
+/* ============================================================
+   TIMER — Mode Switcher, Presets & Controls
+   ============================================================ */
+[data-theme="light"] .timer-mode-switcher {
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+}
+
+[data-theme="light"] .timer-mode-btn.active {
+  background: #ffffff;
+  color: var(--accent-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .pomo-preset-btn {
+  border: 1px solid #d4d4d8;
+  background: #ffffff;
+  color: #52525b;
+}
+
+[data-theme="light"] .pomo-preset-btn:hover {
+  background: #f4f4f5;
+  color: #09090b;
+}
+
+[data-theme="light"] .pomo-preset-btn.active {
+  background: rgba(79, 70, 229, 0.08);
+  border-color: rgba(79, 70, 229, 0.3);
+  color: var(--accent-primary);
+}
+
+[data-theme="light"] .timer-ring-wrapper.running .timer-ring-progress {
+  stroke: var(--accent-primary);
+}
+
+@keyframes pulseGlowVercel {
+  0%, 100% {
+    filter: drop-shadow(0 0 6px rgba(79, 70, 229, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 14px rgba(79, 70, 229, 0.6));
+  }
+}
+
+[data-theme="light"] .timer-ring-wrapper.running .timer-ring-progress {
+  animation-name: pulseGlowVercel;
+}
+
+/* ============================================================
+   CUSTOM PICKERS — Modern Popovers
+   ============================================================ */
+[data-theme="light"] .picker-popover {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 8px 10px -6px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .picker-title {
+  color: #09090b;
+}
+
+[data-theme="light"] .picker-nav-btn {
+  border: 1px solid #d4d4d8;
+  background: #ffffff;
+  color: #09090b;
+}
+
+[data-theme="light"] .picker-nav-btn:hover {
+  background: #f4f4f5;
+  border-color: #a1a1aa;
+}
+
+[data-theme="light"] .picker-today-btn {
+  background: rgba(79, 70, 229, 0.08);
+  border: 1px solid rgba(79, 70, 229, 0.25);
+  color: var(--accent-primary);
+}
+
+[data-theme="light"] .picker-today-btn:hover {
+  background: rgba(79, 70, 229, 0.15);
+}
+
+[data-theme="light"] .picker-day-cell:hover:not(.empty):not(.selected) {
+  background: #f4f4f5;
+}
+
+[data-theme="light"] .picker-time-display-card {
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+}
+
+[data-theme="light"] .picker-preset-pill {
+  background: #ffffff;
+  border: 1px solid #d4d4d8;
+  color: #52525b;
+}
+
+[data-theme="light"] .picker-preset-pill:hover {
+  background: #f4f4f5;
+  color: #09090b;
+}
+
+[data-theme="light"] .picker-ampm-switch {
+  background: #f4f4f5;
+}
+
+[data-theme="light"] .picker-unit-pill {
+  border: 1px solid #d4d4d8;
+  background: #ffffff;
+  color: #52525b;
+}
+
+[data-theme="light"] .picker-unit-pill:hover {
+  background: #f4f4f5;
+  color: #09090b;
+}
+
+[data-theme="light"] .picker-unit-pill.active {
+  background: #f4f4f5;
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+[data-theme="light"] .picker-steppers {
+  border-top: 1px solid #e4e4e7;
+}
+
+[data-theme="light"] .picker-stepper-btn {
+  background: #ffffff;
+  border: 1px solid #d4d4d8;
+  color: #09090b;
+}
+
+[data-theme="light"] .picker-stepper-btn:hover {
+  background: #f4f4f5;
+}
+
+/* ============================================================
+   CUSTOM DROPDOWNS — Crisp White Menus
+   ============================================================ */
+[data-theme="light"] .custom-dropdown-popover {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .dropdown-option-item:hover {
+  background: #f4f4f5;
+  color: #09090b;
+}
+
+[data-theme="light"] .dropdown-option-item.selected {
+  background: rgba(79, 70, 229, 0.08);
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  color: var(--accent-primary);
+}
+
+/* ============================================================
+   HABITS — Day Circles, Stats & Cards
+   ============================================================ */
+[data-theme="light"] .habit-rate-section {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .habit-progress-bar-bg {
+  background: #e2e8f0;
+}
+
+[data-theme="light"] .habit-badge-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+}
+
+[data-theme="light"] .habit-day-circle {
+  border: 1px solid #d4d4d8;
+  background: #ffffff;
+  color: #52525b;
+}
+
+[data-theme="light"] .habit-day-circle:hover {
+  border-color: #09090b;
+  color: #09090b;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================================
+   ANALYTICS — Targets, Metrics & Heatmap
+   ============================================================ */
+[data-theme="light"] .target-single-card {
+  background: #ffffff;
+  border: 1px solid #e4e4e7;
+}
+
+[data-theme="light"] .target-single-card:hover {
+  border-color: #a1a1aa;
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="light"] .target-track-bar-enhanced {
+  background: #e4e4e7;
+  border: 1px solid #d4d4d8;
+}
+
+[data-theme="light"] .target-fill-glow-tip {
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="light"] .target-metrics-grid {
+  border-top: 1px solid #e4e4e7;
+}
+
+[data-theme="light"] .target-metric-card {
+  background: #f4f4f5;
+  border: 1px solid #e4e4e7;
+}
+
+[data-theme="light"] .target-single-card:hover .target-metric-card {
+  background: #e4e4e7;
+}
+
+/* Heatmap — GitHub / Vercel style crisp greens */
+[data-theme="light"] .heatmap-cell.level-0 {
+  background: #ebedf0;
+}
+[data-theme="light"] .heatmap-cell.level-1 {
+  background: #9be9a8;
+  box-shadow: none;
+}
+[data-theme="light"] .heatmap-cell.level-2 {
+  background: #40c463;
+  box-shadow: none;
+}
+[data-theme="light"] .heatmap-cell.level-3 {
+  background: #30a14e;
+  box-shadow: none;
+}
+[data-theme="light"] .heatmap-cell.level-4 {
+  background: #216e39;
+  box-shadow: none;
+}
+
+/* ============================================================
+   CALENDAR VIEW — Clean White Day Cells
+   ============================================================ */
+[data-theme="light"] .cal-day-cell {
+  background: #ffffff;
+  border-color: #e4e4e7;
+}
+
+[data-theme="light"] .cal-day-cell:hover {
+  background-color: #fafafa;
+  border-color: #a1a1aa;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .cal-day-cell.today {
+  border-color: var(--accent-primary);
+  background-image: linear-gradient(
+    160deg,
+    rgba(79, 70, 229, 0.05) 0%,
+    rgba(79, 70, 229, 0.01) 100%
+  );
+}
+
+[data-theme="light"] .cal-day-cell.selected {
+  border-color: var(--accent-primary);
+  background-image: linear-gradient(
+    160deg,
+    rgba(79, 70, 229, 0.08) 0%,
+    rgba(79, 70, 229, 0.03) 100%
+  );
+  box-shadow: 0 0 0 1px var(--accent-primary);
+}
+
+[data-theme="light"] .cal-day-cell.other-month {
+  background: #f4f4f5;
+  border-color: #e4e4e7;
+  opacity: 0.6;
+}
+
+[data-theme="light"] .cal-task-preview {
+  background: #f4f4f5;
+}
+
+[data-theme="light"] .cal-day-cell:hover .cal-task-preview {
+  background: #e4e4e7;
+}
+
+[data-theme="light"] .cal-nav-btn {
+  border-color: #d4d4d8;
+  background: #ffffff;
+}
+
+[data-theme="light"] .cal-nav-btn:hover {
+  background: #f4f4f5;
+  border-color: #a1a1aa;
+}
+
+[data-theme="light"] .cal-today-btn {
+  background: rgba(79, 70, 229, 0.08);
+  border-color: rgba(79, 70, 229, 0.25);
+  color: var(--accent-primary);
+}
+
+[data-theme="light"] .cal-today-btn:hover {
+  background: rgba(79, 70, 229, 0.15);
+}
+
+[data-theme="light"] .cal-detail-panel {
+  background: #ffffff;
+  border-color: #e4e4e7;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .cal-detail-header {
+  border-bottom-color: #e4e4e7;
+}
+
+/* ============================================================
+   CARDS & BUTTONS — Crisp Overrides
+   ============================================================ */
+[data-theme="light"] .glass {
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .glass:hover {
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="light"] .stat-card {
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .task-item:hover {
+  border-color: #a1a1aa;
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="light"] .btn-accent-gradient {
+  background: linear-gradient(135deg, #4f46e5, #3b82f6);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
+}
+
+[data-theme="light"] .btn-accent-gradient:hover {
+  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+}

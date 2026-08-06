@@ -4,6 +4,7 @@
 
 /* Core Foundation Tokens & Base Styles */
 @import "./styles/tokens.css";
+@import "./styles/light-theme.css";
 @import "./styles/base.css";
 
 /* App Layout & Component System */

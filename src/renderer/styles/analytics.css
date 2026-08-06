@@ -187,8 +187,20 @@
   background: var(--bg-hover);
 }
 .heatmap-cell.level-1 {
-  background: #22c55e;
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.45);
+  background: #0e4429;
+  box-shadow: 0 0 4px rgba(14, 68, 41, 0.35);
+}
+.heatmap-cell.level-2 {
+  background: #006d32;
+  box-shadow: 0 0 5px rgba(0, 109, 50, 0.4);
+}
+.heatmap-cell.level-3 {
+  background: #26a641;
+  box-shadow: 0 0 6px rgba(38, 166, 65, 0.45);
+}
+.heatmap-cell.level-4 {
+  background: #39d353;
+  box-shadow: 0 0 8px rgba(57, 211, 83, 0.5);
 }
 .heatmap-cell.future-day {
   opacity: 0.25;

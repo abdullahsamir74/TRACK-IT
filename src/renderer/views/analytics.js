@@ -139,7 +139,11 @@ function renderHeatmap(heatmapData) {
 
     let level = 0;
     if (mins > 0) {
-      level = 1;
+      const hours = mins / 60;
+      if (hours >= 4) level = 4;
+      else if (hours >= 3) level = 3;
+      else if (hours >= 1) level = 2;
+      else level = 1;
       activeDaysCount++;
       tempStreak++;
       if (tempStreak > maxStreak) maxStreak = tempStreak;

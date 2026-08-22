@@ -24,4 +24,8 @@ Thumbs.db
 # Local configuration / data store files
 src/renderer/icon.png.backup
 data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.db
 *.log

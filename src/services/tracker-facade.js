@@ -1,207 +1,174 @@
 class TrackerFacade {
-  constructor(trackingService, timerService, calendarService) {
-    this.tracking = trackingService;
+  constructor(repository, analyticsService, timerService, calendarService) {
+    this.repo = repository;
+    this.analytics = analyticsService;
     this.timer = timerService;
     this.calendar = calendarService;
   }
 
-  // Task tracking delegation
-  getTasks() {
-    return this.tracking.getTasks();
+  // --- Calendar ---
+  async getCalendarEvents() {
+    return await this.calendar.getEvents();
   }
 
-  saveTask(task) {
-    return this.tracking.saveTask(task);
-  }
-
-  deleteTask(taskId) {
-    return this.tracking.deleteTask(taskId);
-  }
-
-  setEstimate(taskId, minutes) {
-    return this.tracking.setEstimate(taskId, minutes);
-  }
-
-  getSessions(taskId) {
-    return this.tracking.getSessions(taskId);
-  }
-
-  getAllSessions() {
-    return this.tracking.getAllSessions();
-  }
-
-  deleteSession(identifier) {
-    return this.tracking.deleteSession(identifier);
-  }
-
-  getAnalytics(range) {
-    return this.tracking.getAnalytics(range);
-  }
-
-  // Calendar delegation
   getCalendars() {
     return this.calendar.getCalendars();
   }
 
-  getCalendarEvents() {
-    return this.calendar.getEvents();
+  // --- Tasks ---
+  getTasks() {
+    return this.repo.getTasks();
   }
 
-  // Timer delegation
-  getTimerState() {
-    return this.timer.getState();
+  saveTask(task) {
+    return this.repo.saveTask(task);
+  }
+
+  deleteTask(taskId) {
+    return this.repo.deleteTask(taskId);
+  }
+
+  setEstimate(taskId, minutes) {
+    return this.repo.setEstimate(taskId, minutes);
+  }
+
+  markTaskComplete(taskId) {
+    return this.repo.markTaskComplete(taskId);
+  }
+
+  markTaskIncomplete(taskId) {
+    return this.repo.markTaskIncomplete(taskId);
+  }
+
+  saveTaskOrder(orderedIds) {
+    return this.repo.saveTaskOrder(orderedIds);
+  }
+
+  getTaskOrder() {
+    return this.repo.getTaskOrder();
+  }
+
+  getTaskSortMode() {
+    return this.repo.getTaskSortMode();
+  }
+
+  saveTaskSortMode(mode) {
+    return this.repo.saveTaskSortMode(mode);
+  }
+
+  // --- Time Entries / Sessions ---
+  getAllSessions(options) {
+    return this.repo.getAllSessions(options);
+  }
+
+  getSessions(taskId) {
+    return this.repo.getSessions(taskId);
+  }
+
+  saveSession(session) {
+    return this.repo.saveSession(session);
+  }
+
+  deleteSession(identifier) {
+    return this.repo.deleteSession(identifier);
+  }
+
+  // --- Projects ---
+  getProjects() {
+    return this.repo.getProjects();
+  }
+
+  saveProject(project) {
+    return this.repo.saveProject(project);
+  }
+
+  deleteProject(projectId) {
+    return this.repo.deleteProject(projectId);
+  }
+
+  assignTaskToProject(taskId, projectId) {
+    return this.repo.assignTaskToProject(taskId, projectId);
+  }
+
+  saveProjectOrder(orderedIds) {
+    return this.repo.saveProjectOrder(orderedIds);
+  }
+
+  getProjectOrder() {
+    return this.repo.getProjectOrder();
+  }
+
+  // --- Habits ---
+  getHabits() {
+    return this.repo.getHabits();
+  }
+
+  saveHabit(habit) {
+    return this.repo.saveHabit(habit);
+  }
+
+  deleteHabit(habitId) {
+    return this.repo.deleteHabit(habitId);
+  }
+
+  // --- Targets & Settings ---
+  getWeeklyTargets() {
+    return this.repo.getWeeklyTargets();
+  }
+
+  saveWeeklyTarget(targetKey, hours) {
+    return this.repo.saveWeeklyTarget(targetKey, hours);
+  }
+
+  getSetting(key, defaultVal) {
+    return this.repo.getSetting(key, defaultVal);
+  }
+
+  setSetting(key, value) {
+    return this.repo.setSetting(key, value);
+  }
+
+  // --- Analytics ---
+  getAnalytics(range) {
+    return this.analytics.getAnalytics(range);
+  }
+
+  // --- Timer ---
+  startTimer(taskId, taskName, estimateMinutes) {
+    return this.timer.start(taskId, taskName, estimateMinutes);
   }
 
   pauseTimer() {
     return this.timer.pause();
   }
 
-  resumeTimer(onTick) {
-    return this.timer.resume(onTick);
-  }
-
-  startTimer(taskId, taskName, estimateMinutes, onTick) {
-    // If another timer is running, stop and save it first
-    if (this.timer.isRunning()) {
-      const state = this.timer.getState();
-      if (state.taskId !== taskId) {
-        const session = this.timer.stop();
-        if (session) {
-          this.tracking.saveSession(session);
-        }
-      }
-    }
-    return this.timer.start(taskId, taskName, estimateMinutes, onTick);
+  resumeTimer() {
+    return this.timer.resume();
   }
 
   stopTimer() {
     const session = this.timer.stop();
     if (session) {
-      this.tracking.saveSession(session);
+      this.repo.saveSession(session);
     }
     return session;
   }
 
-  // Task Completion coordination
-  markTaskComplete(taskId) {
-    const timerState = this.timer.getState();
-    if (this.timer.isRunning() && timerState.taskId === taskId) {
-      const session = this.timer.stop();
-      if (session) {
-        this.tracking.saveSession(session);
-      }
-    } else {
-      const tasks = this.tracking.getTasks();
-      const task = tasks[taskId] || {};
-      const estimateMin = task.estimateMinutes || 0;
-      const totalTrackedMinutes = task.totalTrackedMinutes || 0;
-      const remainingMin = estimateMin - totalTrackedMinutes;
-      if (remainingMin > 0) {
-        const durationMs = remainingMin * 60000;
-        const taskDate =
-          task.start && !isNaN(new Date(task.start).getTime())
-            ? new Date(task.start)
-            : new Date();
-        const endTime = new Date(taskDate.getTime() + durationMs);
-        this.tracking.saveSession({
-          taskId,
-          taskName: task.name || taskId,
-          startTime: taskDate.toISOString(),
-          endTime: endTime.toISOString(),
-          durationMs,
-          durationMinutes: remainingMin,
-          estimateMinutes: estimateMin,
-          completionSession: true,
-        });
-      }
-    }
-    return this.tracking.markComplete(taskId);
+  getTimerState() {
+    return this.timer.getState();
   }
 
-  markTaskIncomplete(taskId) {
-    return this.tracking.markIncomplete(taskId);
+  // --- Backup & Safe Data Management ---
+  exportBackup() {
+    return this.repo.exportDatabaseJson();
   }
 
-  // Reset delegations
-  resetAll() {
-    return this.tracking.resetAll();
+  importBackup(jsonData) {
+    return this.repo.importDatabaseJson(jsonData);
   }
 
-  resetTrackingData() {
-    return this.tracking.resetTrackingData();
-  }
-
-  resetSessions() {
-    return this.tracking.resetSessions();
-  }
-
-  resetProjects() {
-    return this.tracking.resetProjects();
-  }
-
-  // Task ordering delegations
-  saveTaskOrder(orderedIds) {
-    return this.tracking.saveTaskOrder(orderedIds);
-  }
-
-  getTaskOrder() {
-    return this.tracking.getTaskOrder();
-  }
-
-  // Projects delegations
-  getProjects() {
-    return this.tracking.getProjects();
-  }
-
-  saveProject(project) {
-    return this.tracking.saveProject(project);
-  }
-
-  deleteProject(projectId) {
-    return this.tracking.deleteProject(projectId);
-  }
-
-  assignTaskToProject(taskId, projectId) {
-    return this.tracking.assignTaskToProject(taskId, projectId);
-  }
-
-  saveProjectOrder(orderedIds) {
-    return this.tracking.saveProjectOrder(orderedIds);
-  }
-
-  getProjectOrder() {
-    return this.tracking.getProjectOrder();
-  }
-
-  // Habits delegations
-  getHabits() {
-    return this.tracking.getHabits();
-  }
-
-  saveHabit(habit) {
-    return this.tracking.saveHabit(habit);
-  }
-
-  deleteHabit(habitId) {
-    return this.tracking.deleteHabit(habitId);
-  }
-
-  // Weekly Targets delegations
-  getWeeklyTargets() {
-    return this.tracking.getWeeklyTargets();
-  }
-
-  saveWeeklyTarget(targetKey, hours) {
-    return this.tracking.saveWeeklyTarget(targetKey, hours);
-  }
-
-  // Sort preference delegations
-  getTaskSortMode() {
-    return this.tracking.getTaskSortMode();
-  }
-
-  saveTaskSortMode(mode) {
-    return this.tracking.saveTaskSortMode(mode);
+  resetData(scope) {
+    return this.repo.resetData(scope);
   }
 }
 

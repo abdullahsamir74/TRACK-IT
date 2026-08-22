@@ -99,26 +99,6 @@ export function initHabits() {
       renderCurrentView();
     });
   }
-
-  // Reset habits button
-  const resetHabitsBtn = document.getElementById("btn-reset-habits");
-  if (resetHabitsBtn) {
-    resetHabitsBtn.addEventListener("click", () => {
-      showConfirmDialog({
-        title: "Reset Habits?",
-        message:
-          "This will permanently delete all habits and their entire tracking history. This action cannot be undone.",
-        confirmText: "Reset Habits",
-        onConfirm: async () => {
-          const currentHabits = await window.tracker.getHabits();
-          for (const id of Object.keys(currentHabits)) {
-            await window.tracker.deleteHabit(id);
-          }
-          setHabits({});
-        },
-      });
-    });
-  }
 }
 
 /**

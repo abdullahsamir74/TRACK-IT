@@ -1,5 +1,5 @@
 /* ========================================
-   LEARNING TRACKER — App Entry Point
+   TRACK IT — App Entry Point
    ======================================== */
 
 // ---- State & Navigation ----
@@ -19,14 +19,15 @@ import {
   renderTimerView,
   updateTimerDisplay,
 } from "./views/timer.js";
+import { initTimeLogs, renderTimeLogs } from "./views/time-logs.js";
 import { initAnalytics, renderAnalytics } from "./views/analytics.js";
 import { initProjects, renderProjects } from "./views/projects.js";
 import { initHabits, renderHabitsView } from "./views/habits.js";
 import { renderCalendar } from "./views/calendar.js";
+import { initSettings, renderSettings } from "./views/settings.js";
 
 // ---- Components ----
 import { initModals } from "./components/modals.js";
-import { initResetButtons } from "./components/confirm-dialog.js";
 import { initCustomPickers } from "./components/custom-pickers.js";
 import { initKeyboardShortcuts } from "./components/shortcuts.js";
 import {
@@ -37,7 +38,6 @@ import {
 // ---- Sounds ----
 import { playAlarmSound } from "./sounds.js";
 
-// Track whether the estimate-reached alert has already fired for the current session
 let estimateAlertFired = false;
 let currentAlarm = null;
 
@@ -72,16 +72,23 @@ async function loadViewTemplates() {
     "schedule",
     "calendar",
     "timer",
-    "analytics",
+    "time-logs",
     "projects",
     "habits",
+    "analytics",
+    "settings",
   ];
 
   if (mainContent) {
     const viewHtmls = await Promise.all(
       views.map(async (v) => {
-        const res = await fetch(`views/${v}.html`);
-        return res.text();
+        try {
+          const res = await fetch(`views/${v}.html`);
+          return await res.text();
+        } catch (e) {
+          console.error(`Failed to load view template ${v}:`, e);
+          return "";
+        }
       }),
     );
     mainContent.innerHTML = viewHtmls.join("\n");
@@ -92,15 +99,17 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Load HTML templates dynamically
   await loadViewTemplates();
 
-  // Register view renderers (avoids circular imports in state.js)
+  // Register view renderers
   registerViewRenderers({
     dashboard: renderDashboard,
     schedule: renderSchedule,
     calendar: renderCalendar,
     timer: renderTimerView,
-    analytics: renderAnalytics,
+    "time-logs": renderTimeLogs,
     projects: renderProjects,
     habits: renderHabitsView,
+    analytics: renderAnalytics,
+    settings: renderSettings,
   });
 
   // Init UI components
@@ -111,10 +120,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   initKeyboardShortcuts();
   initCustomDropdowns();
   initTimerControls();
+  initTimeLogs();
   initAnalytics();
-  initResetButtons();
   initProjects();
   initHabits();
+  initSettings();
 
   // Load data & render
   await loadData();
@@ -131,7 +141,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateTimerDisplay(state);
 
     // Play alert sound when the timer reaches the estimate
-    if (state.estimateMinutes && state.progress >= 1 && !estimateAlertFired) {
+    const soundEnabled = localStorage.getItem("tracker-sounds-enabled") !== "false";
+    if (soundEnabled && state.estimateMinutes && state.progress >= 1 && !estimateAlertFired) {
       estimateAlertFired = true;
       currentAlarm = playAlarmSound();
     }
@@ -140,7 +151,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Update date on dashboard
   updateDashboardDate();
 
-  // Listen for window resize to handle dynamic chart scaling
+  // Listen for window resize
   window.addEventListener("resize", () => {
     import("./state.js").then(({ analyticsChart }) => {
       if (analyticsChart && typeof analyticsChart.resize === "function") {
@@ -161,16 +172,19 @@ export function applyTheme(theme) {
 
   if (moonIcon && sunIcon) {
     if (theme === "light") {
-      // In light mode, show moon icon to switch to night mode
       moonIcon.style.display = "block";
       sunIcon.style.display = "none";
       btnToggle.title = "Switch to Night Mode (Dark)";
     } else {
-      // In dark mode, show sun icon to switch to day mode
       moonIcon.style.display = "none";
       sunIcon.style.display = "block";
       btnToggle.title = "Switch to Day Mode (Light)";
     }
+  }
+
+  const settingsThemeSelect = document.getElementById("settings-theme-select");
+  if (settingsThemeSelect && settingsThemeSelect.value !== theme) {
+    settingsThemeSelect.value = theme;
   }
 
   renderCurrentView();

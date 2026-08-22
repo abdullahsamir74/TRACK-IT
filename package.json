@@ -1,5 +1,6 @@
 {
   "name": "track-it",
+  "productName": "track-it",
   "version": "1.0.0",
   "description": "TRACK IT — Time & Task Progress Tracker integrates with GNOME Calendar",
   "main": "src/main.js",
@@ -11,7 +12,7 @@
   "author": "Abdullah",
   "license": "MIT",
   "dependencies": {
-    "electron-store": "^10.0.0",
+    "better-sqlite3": "^13.0.3",
     "node-ical": "^0.20.1"
   },
   "devDependencies": {

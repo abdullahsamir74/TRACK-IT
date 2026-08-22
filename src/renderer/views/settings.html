@@ -1,0 +1,151 @@
+<div class="view" id="view-settings">
+  <div class="view-header">
+    <div class="view-header-left">
+      <h2>Settings & Data Management</h2>
+      <p class="view-subtitle">Manage preferences, backup your database, and configure tracking</p>
+    </div>
+  </div>
+
+  <div class="settings-grid">
+    <!-- Section 1: Appearance & Sounds -->
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5" />
+          <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+        </svg>
+        <h3>Preferences</h3>
+      </div>
+      <div class="settings-card-body">
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-title">Theme</span>
+            <span class="setting-desc">Choose between dark cyberpunk or clean light theme</span>
+          </div>
+          <div class="setting-control">
+            <select id="settings-theme-select" class="select-input">
+              <option value="dark">Dark Theme</option>
+              <option value="light">Light Theme</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-title">Sound Effects</span>
+            <span class="setting-desc">Play audio chimes when timer finishes or alarms trigger</span>
+          </div>
+          <div class="setting-control">
+            <label class="switch">
+              <input type="checkbox" id="settings-sounds-toggle" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Backup & Restore -->
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="7 10 12 15 17 10" />
+          <line x1="12" y1="15" x2="12" y2="3" />
+        </svg>
+        <h3>Backup & Restore</h3>
+      </div>
+      <div class="settings-card-body">
+        <p class="settings-desc-block">Export a full JSON backup of your database (tasks, projects, time logs, habits) or restore from an existing backup.</p>
+        
+        <div class="settings-actions-row">
+          <button class="btn btn-primary" id="btn-export-backup">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Export Backup (.json)</span>
+          </button>
+          
+          <button class="btn btn-secondary" id="btn-import-backup">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Restore Backup</span>
+          </button>
+          <input type="file" id="file-import-backup" accept=".json" style="display: none;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Database Statistics & Storage -->
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+        </svg>
+        <h3>Database Storage</h3>
+      </div>
+      <div class="settings-card-body">
+        <div class="stats-mini-grid">
+          <div class="stat-mini-pill">
+            <span class="stat-mini-label">Tasks</span>
+            <span class="stat-mini-val" id="db-stat-tasks">0</span>
+          </div>
+          <div class="stat-mini-pill">
+            <span class="stat-mini-label">Time Entries</span>
+            <span class="stat-mini-val" id="db-stat-sessions">0</span>
+          </div>
+          <div class="stat-mini-pill">
+            <span class="stat-mini-label">Projects</span>
+            <span class="stat-mini-val" id="db-stat-projects">0</span>
+          </div>
+          <div class="stat-mini-pill">
+            <span class="stat-mini-label">Habits</span>
+            <span class="stat-mini-val" id="db-stat-habits">0</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Danger Zone / Scoped Reset -->
+    <div class="settings-card settings-card-danger">
+      <div class="settings-card-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        <h3>Data Maintenance & Reset</h3>
+      </div>
+      <div class="settings-card-body">
+        <p class="settings-desc-block text-muted">
+          All reset operations are isolated and require explicit confirmation. Deleting time logs will <strong>not</strong> delete or uncheck your tasks.
+        </p>
+
+        <div class="reset-actions-grid">
+          <div class="reset-action-item">
+            <div>
+              <strong>Clear Time Logs Only</strong>
+              <p>Deletes session history. Your tasks, estimates, and completions remain intact.</p>
+            </div>
+            <button class="btn btn-outline-danger btn-sm" id="btn-reset-sessions-only">Clear Logs</button>
+          </div>
+
+          <div class="reset-action-item">
+            <div>
+              <strong>Clear Habits Only</strong>
+              <p>Deletes habit trackers and check-off history.</p>
+            </div>
+            <button class="btn btn-outline-danger btn-sm" id="btn-reset-habits-only">Clear Habits</button>
+          </div>
+
+          <div class="reset-action-item">
+            <div>
+              <strong>Factory Reset</strong>
+              <p>Permanently deletes all local tasks, projects, logs, and settings.</p>
+            </div>
+            <button class="btn btn-danger btn-sm" id="btn-factory-reset">Factory Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

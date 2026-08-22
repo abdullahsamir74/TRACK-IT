@@ -7,63 +7,101 @@ try {
   const homeDir = os.homedir();
   const projectDir = process.cwd();
 
-  // Resolve paths
-  const nodeBinary = process.execPath;
+  // Resolve binary paths
+  const electronDistBinary = path.join(
+    projectDir,
+    "node_modules",
+    "electron",
+    "dist",
+    "electron",
+  );
   const electronCli = path.join(
     projectDir,
     "node_modules",
     "electron",
     "cli.js",
   );
-  const iconPath = path.join(projectDir, "src", "renderer", "icon.png");
+  const nodeBinary = process.execPath;
+
+  // Use direct electron executable if available, otherwise node cli
+  const execCommand = fs.existsSync(electronDistBinary)
+    ? `${electronDistBinary} ${projectDir}`
+    : `${nodeBinary} ${electronCli} ${projectDir}`;
+
+  const iconSource = path.join(projectDir, "src", "renderer", "icon.png");
+
+  // 1. Copy icon to standard system icon locations
+  const iconTargets = [
+    path.join(homeDir, ".local", "share", "icons", "hicolor", "512x512", "apps", "track-it.png"),
+    path.join(homeDir, ".local", "share", "icons", "hicolor", "256x256", "apps", "track-it.png"),
+    path.join(homeDir, ".local", "share", "icons", "hicolor", "128x128", "apps", "track-it.png"),
+    path.join(homeDir, ".local", "share", "icons", "hicolor", "64x64", "apps", "track-it.png"),
+    path.join(homeDir, ".local", "share", "icons", "hicolor", "48x48", "apps", "track-it.png"),
+    path.join(homeDir, ".local", "share", "icons", "hicolor", "scalable", "apps", "track-it.png"),
+    path.join(homeDir, ".local", "share", "pixmaps", "track-it.png"),
+  ];
+
+  for (const target of iconTargets) {
+    const dir = path.dirname(target);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    fs.copyFileSync(iconSource, target);
+  }
+
+  // 2. Generate desktop entry
   const destDir = path.join(homeDir, ".local", "share", "applications");
   const destFile = path.join(destDir, "track-it.desktop");
 
-  if (!fs.existsSync(electronCli)) {
-    console.error(
-      'Error: Electron dependency not found. Please run "npm install" first.',
-    );
-    process.exit(1);
-  }
-
-  // Ensure target applications directory exists
   if (!fs.existsSync(destDir)) {
     fs.mkdirSync(destDir, { recursive: true });
   }
 
-  // Generate desktop entry content
   const desktopEntry = `[Desktop Entry]
 Name=TRACK IT
-Comment=TRACK IT — Time & Task Progress Tracker with GNOME Calendar integration
-Exec=${nodeBinary} ${electronCli} ${projectDir}
+GenericName=Time & Task Progress Tracker
+Comment=Time & Task Progress Tracker integrates with GNOME Calendar
+Exec=${execCommand}
 Path=${projectDir}
-Icon=${iconPath}
+Icon=${iconSource}
 Terminal=false
 Type=Application
-Categories=Utility;Education;ProjectManagement;
+Categories=Utility;ProjectManagement;Office;
 StartupWMClass=track-it
-StartupNotify=true
+StartupNotify=false
+Actions=NewTask;
+
+[Desktop Action NewTask]
+Name=New Task
+Exec=${execCommand}
 `;
 
   fs.writeFileSync(destFile, desktopEntry, "utf8");
   fs.chmodSync(destFile, "755");
 
-  // Update desktop database if possible
+  // 3. Clear GNOME thumbnail & icon caches to force immediate refresh
   try {
-    execSync(`update-desktop-database ${destDir}`, { stdio: "ignore" });
-  } catch (e) {
-    // Ignore database update failures if utility is absent
-  }
+    const thumbDir = path.join(homeDir, ".cache", "thumbnails");
+    if (fs.existsSync(thumbDir)) {
+      execSync(`rm -rf "${thumbDir}"/*`, { stdio: "ignore" });
+    }
+  } catch (e) {}
+
+  try {
+    execSync(`gtk-update-icon-cache -f -t "${path.join(homeDir, ".local", "share", "icons", "hicolor")}"`, { stdio: "ignore" });
+  } catch (e) {}
+
+  try {
+    execSync(`update-desktop-database "${destDir}"`, { stdio: "ignore" });
+  } catch (e) {}
 
   console.log("\n==================================================");
-  console.log("🎉 Desktop shortcut registered successfully!");
-  console.log(`Location: ${destFile}`);
-  console.log("\nInstructions to pin:");
-  console.log("1. Press Super/Win key to open GNOME Activities.");
-  console.log('2. Search for "TRACK IT".');
-  console.log('3. Right-click the app icon and select "Add to Favorites".');
+  console.log("🎉 Desktop launcher and dock icon registered!");
+  console.log(`Shortcut: ${destFile}`);
+  console.log("Icon installed to system icon theme (track-it)");
+  console.log("StartupWMClass configured to 'track-it' (Instant window association)");
   console.log("==================================================\n");
 } catch (error) {
-  console.error("Failed to create desktop shortcut:", error.message);
+  console.error("Failed to register desktop shortcut:", error.message);
   process.exit(1);
 }

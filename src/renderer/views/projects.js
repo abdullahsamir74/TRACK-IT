@@ -22,29 +22,10 @@ import {
 import { showConfirmDialog } from "../components/confirm-dialog.js";
 
 /**
- * Initialize the projects view (modals, reset button).
+ * Initialize the projects view.
  */
 export function initProjects() {
   initProjectModal();
-
-  const resetProjBtn = document.getElementById("btn-reset-projects");
-  if (resetProjBtn) {
-    resetProjBtn.addEventListener("click", () => {
-      showConfirmDialog({
-        title: "Reset Projects?",
-        message:
-          "This will permanently delete all custom projects and project ordering. Tasks inside these projects will be kept but returned to Unassigned.",
-        confirmText: "Reset Projects",
-        onConfirm: async () => {
-          await window.tracker.resetProjects();
-          setCustomProjects({});
-          setProjectOrder([]);
-          setExpandedProjects({});
-          setTrackedTasks(await window.tracker.getTasks());
-        },
-      });
-    });
-  }
 }
 
 /**

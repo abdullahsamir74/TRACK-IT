@@ -1,18 +1,22 @@
 /* ========================================
-   COMPONENT — Modals (Add Task, Estimate, Project)
+   COMPONENT — Modals (Add Task, Estimate, Project, Log Time, Edit Session)
    ======================================== */
 
 import {
+  trackedTasks,
+  customProjects,
   setTrackedTasks,
   setCustomProjects,
   setWeeklyTargets,
   renderCurrentView,
+  loadData,
 } from "../state.js";
 import { getLocalDateString, getLocalTimeString } from "../utils.js";
 import {
   closeCustomPickers,
   attachPickersToInputs,
 } from "./custom-pickers.js";
+import { showToast } from "./toast.js";
 
 // Helper to bind close button, cancel button, and overlay background click
 function bindOverlayClose(overlayId, closeBtnId, cancelBtnId) {
@@ -36,17 +40,25 @@ export function initModals() {
   bindOverlayClose("estimate-modal-overlay", "btn-estimate-close", "btn-estimate-cancel");
   bindOverlayClose("edit-task-modal-overlay", "btn-edit-task-close", "btn-edit-task-cancel");
   bindOverlayClose("global-target-modal-overlay", "btn-global-target-close", "btn-global-target-cancel");
+  bindOverlayClose("log-time-modal-overlay", "btn-log-time-close", "btn-log-time-cancel");
+  bindOverlayClose("edit-time-entry-modal-overlay", "btn-edit-time-entry-close", "btn-edit-entry-cancel");
 
   // Form submissions
   document
     .getElementById("form-add-task")
-    .addEventListener("submit", handleAddTask);
+    ?.addEventListener("submit", handleAddTask);
   document
     .getElementById("form-estimate")
-    .addEventListener("submit", handleSetEstimate);
+    ?.addEventListener("submit", handleSetEstimate);
   document
     .getElementById("form-edit-task")
-    .addEventListener("submit", handleEditTask);
+    ?.addEventListener("submit", handleEditTask);
+  document
+    .getElementById("form-log-time")
+    ?.addEventListener("submit", handleLogTime);
+  document
+    .getElementById("form-edit-time-entry")
+    ?.addEventListener("submit", handleEditTimeEntry);
 
   const formGlobalTarget = document.getElementById("form-global-target");
   if (formGlobalTarget) {
@@ -172,6 +184,114 @@ export function openEditTaskModal(task) {
   }, 50);
 }
 
+// ---- Log Past / Manual Time Modal (NEW) ----
+export function openLogTimeModal(prefilledTaskId = null) {
+  const overlay = document.getElementById("log-time-modal-overlay");
+  if (!overlay) return;
+
+  const taskSelect = document.getElementById("log-task-select");
+  const nameInput = document.getElementById("log-task-name");
+  const dateInput = document.getElementById("log-time-date");
+  const durInput = document.getElementById("log-time-duration");
+  const projSelect = document.getElementById("log-time-project");
+  const notesInput = document.getElementById("log-time-notes");
+
+  // Populate task dropdown
+  if (taskSelect) {
+    taskSelect.innerHTML = `<option value="">-- Choose Existing Task or Type Name Below --</option>`;
+    Object.values(trackedTasks).forEach((t) => {
+      const opt = document.createElement("option");
+      opt.value = t.id;
+      opt.textContent = t.name + (t.completed ? " (Completed)" : "");
+      if (prefilledTaskId && t.id === prefilledTaskId) opt.selected = true;
+      taskSelect.appendChild(opt);
+    });
+
+    taskSelect.onchange = () => {
+      const selectedId = taskSelect.value;
+      if (selectedId && trackedTasks[selectedId]) {
+        nameInput.value = trackedTasks[selectedId].name;
+        if (trackedTasks[selectedId].projectId) {
+          projSelect.value = trackedTasks[selectedId].projectId;
+        }
+      }
+    };
+  }
+
+  // Populate project dropdown
+  if (projSelect) {
+    projSelect.innerHTML = `<option value="">No Project (Unassigned)</option>`;
+    Object.values(customProjects).forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.name;
+      projSelect.appendChild(opt);
+    });
+  }
+
+  if (prefilledTaskId && trackedTasks[prefilledTaskId]) {
+    nameInput.value = trackedTasks[prefilledTaskId].name;
+    if (trackedTasks[prefilledTaskId].projectId) {
+      projSelect.value = trackedTasks[prefilledTaskId].projectId;
+    }
+  } else {
+    nameInput.value = "";
+  }
+
+  dateInput.value = getLocalDateString();
+  durInput.value = "30";
+  notesInput.value = "";
+
+  overlay.style.display = "flex";
+
+  setTimeout(() => {
+    if (nameInput) {
+      nameInput.focus();
+    }
+  }, 50);
+}
+
+// ---- Edit Time Entry Modal (NEW) ----
+export function openEditTimeEntryModal(session) {
+  const overlay = document.getElementById("edit-time-entry-modal-overlay");
+  if (!overlay) return;
+
+  document.getElementById("edit-entry-id").value = session.id || "";
+  document.getElementById("edit-entry-task-id").value = session.taskId || "";
+  document.getElementById("edit-entry-type").value = session.entryType || "timer";
+
+  const nameInput = document.getElementById("edit-entry-name");
+  const dateInput = document.getElementById("edit-entry-date");
+  const durInput = document.getElementById("edit-entry-duration");
+  const projSelect = document.getElementById("edit-entry-project");
+  const notesInput = document.getElementById("edit-entry-notes");
+
+  nameInput.value = session.taskName || "Untitled Task";
+  dateInput.value = getLocalDateString(session.startTime);
+  durInput.value = session.durationMinutes || 0;
+  notesInput.value = session.notes || "";
+
+  if (projSelect) {
+    projSelect.innerHTML = `<option value="">No Project (Unassigned)</option>`;
+    Object.values(customProjects).forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.name;
+      if (session.projectId === p.id) opt.selected = true;
+      projSelect.appendChild(opt);
+    });
+  }
+
+  overlay.style.display = "flex";
+
+  setTimeout(() => {
+    if (durInput) {
+      durInput.focus();
+      durInput.select();
+    }
+  }, 50);
+}
+
 // ---- Global Target Modal ----
 export async function openGlobalTargetModal() {
   const overlay = document.getElementById("global-target-modal-overlay");
@@ -194,6 +314,13 @@ export function closeModals() {
   document.getElementById("modal-overlay").style.display = "none";
   document.getElementById("estimate-modal-overlay").style.display = "none";
   document.getElementById("edit-task-modal-overlay").style.display = "none";
+  
+  const logModal = document.getElementById("log-time-modal-overlay");
+  if (logModal) logModal.style.display = "none";
+
+  const editSessionModal = document.getElementById("edit-time-entry-modal-overlay");
+  if (editSessionModal) editSessionModal.style.display = "none";
+
   const globalOverlay = document.getElementById("global-target-modal-overlay");
   if (globalOverlay) globalOverlay.style.display = "none";
 }
@@ -204,6 +331,7 @@ async function handleSetGlobalTarget(e) {
   await window.tracker.saveWeeklyTarget("global", val);
   setWeeklyTargets(await window.tracker.getWeeklyTargets());
   closeModals();
+  showToast("Weekly goal updated! 🎯", "success");
   renderCurrentView();
 }
 
@@ -211,6 +339,7 @@ async function handleDeleteGlobalTarget() {
   await window.tracker.saveWeeklyTarget("global", "");
   setWeeklyTargets(await window.tracker.getWeeklyTargets());
   closeModals();
+  showToast("Weekly goal removed", "info");
   renderCurrentView();
 }
 
@@ -249,6 +378,7 @@ async function handleAddTask(e) {
   setTrackedTasks(await window.tracker.getTasks());
 
   closeModals();
+  showToast("Task created successfully", "success");
   renderCurrentView();
 }
 
@@ -268,6 +398,7 @@ async function handleSetEstimate(e) {
   setTrackedTasks(await window.tracker.getTasks());
 
   closeModals();
+  showToast("Estimate saved", "success");
   renderCurrentView();
 }
 
@@ -317,10 +448,82 @@ async function handleEditTask(e) {
 
   setTrackedTasks(await window.tracker.getTasks());
   closeModals();
+  showToast("Task updated", "success");
   renderCurrentView();
 }
 
-// ---- Project Modal (init is handled by views/projects.js) ----
+async function handleLogTime(e) {
+  e.preventDefault();
+
+  const taskId = document.getElementById("log-task-select").value || null;
+  const taskName = document.getElementById("log-task-name").value.trim();
+  const dateVal = document.getElementById("log-time-date").value;
+  const durationVal = parseFloat(document.getElementById("log-time-duration").value);
+  const projectId = document.getElementById("log-time-project").value || null;
+  const notes = document.getElementById("log-time-notes").value.trim();
+
+  if (!taskName || !dateVal || isNaN(durationVal) || durationVal <= 0) return;
+
+  const start = new Date(`${dateVal}T12:00:00`);
+  const end = new Date(start.getTime() + durationVal * 60000);
+
+  const session = {
+    taskId,
+    taskName,
+    projectId,
+    startTime: start.toISOString(),
+    endTime: end.toISOString(),
+    durationMinutes: durationVal,
+    entryType: "manual",
+    notes,
+  };
+
+  await window.tracker.saveSession(session);
+  await loadData();
+
+  closeModals();
+  showToast("Work logged successfully! ⏱️", "success");
+  renderCurrentView();
+}
+
+async function handleEditTimeEntry(e) {
+  e.preventDefault();
+
+  const id = document.getElementById("edit-entry-id").value;
+  const taskId = document.getElementById("edit-entry-task-id").value || null;
+  const entryType = document.getElementById("edit-entry-type").value || "timer";
+  const taskName = document.getElementById("edit-entry-name").value.trim();
+  const dateVal = document.getElementById("edit-entry-date").value;
+  const durationVal = parseFloat(document.getElementById("edit-entry-duration").value);
+  const projectId = document.getElementById("edit-entry-project").value || null;
+  const notes = document.getElementById("edit-entry-notes").value.trim();
+
+  if (!id || !taskName || !dateVal || isNaN(durationVal) || durationVal <= 0) return;
+
+  const start = new Date(`${dateVal}T12:00:00`);
+  const end = new Date(start.getTime() + durationVal * 60000);
+
+  const session = {
+    id,
+    taskId,
+    taskName,
+    projectId,
+    startTime: start.toISOString(),
+    endTime: end.toISOString(),
+    durationMinutes: durationVal,
+    entryType,
+    notes,
+  };
+
+  await window.tracker.saveSession(session);
+  await loadData();
+
+  closeModals();
+  showToast("Time entry updated! 💾", "success");
+  renderCurrentView();
+}
+
+// ---- Project Modal ----
 export function initProjectModal() {
   const newProjBtn = document.getElementById("btn-new-project");
   const projModalOverlay = document.getElementById("project-modal-overlay");
@@ -339,7 +542,6 @@ export function initProjectModal() {
       if (radios.length > 0) radios[0].checked = true;
       projModalOverlay.style.display = "flex";
 
-      // Force input focus in Electron
       setTimeout(() => {
         const input = document.getElementById("project-name");
         if (input) {
@@ -378,7 +580,7 @@ export function initProjectModal() {
 
       setCustomProjects(await window.tracker.getProjects());
       closeProjModal();
-      // Dynamically import to avoid circular deps
+      showToast("Project saved! 📁", "success");
       const { renderProjects } = await import("../views/projects.js");
       renderProjects();
     });
@@ -386,7 +588,7 @@ export function initProjectModal() {
 }
 
 /**
- * Open the project modal in edit mode populated with the given project details.
+ * Open the project modal in edit mode
  */
 export async function openEditProjectModal(project) {
   const projModalOverlay = document.getElementById("project-modal-overlay");

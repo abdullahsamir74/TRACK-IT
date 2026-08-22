@@ -2,7 +2,6 @@
    STATE — Shared application state & data
    ======================================== */
 
-// Centralized State Store implementation
 class Store {
   constructor() {
     this.state = {
@@ -11,6 +10,7 @@ class Store {
       customProjects: {},
       expandedProjects: {},
       habits: {},
+      allSessions: [],
       currentView: "dashboard",
       selectedTimerTask: null,
       analyticsChart: null,
@@ -38,6 +38,7 @@ class Store {
     customProjects = this.state.customProjects;
     expandedProjects = this.state.expandedProjects;
     habits = this.state.habits;
+    allSessions = this.state.allSessions;
     currentView = this.state.currentView;
     selectedTimerTask = this.state.selectedTimerTask;
     analyticsChart = this.state.analyticsChart;
@@ -49,9 +50,6 @@ class Store {
     this.notify();
   }
 
-  /**
-   * Subscribe to state updates
-   */
   subscribe(listener) {
     this.listeners.push(listener);
     return () => {
@@ -78,6 +76,7 @@ export let trackedTasks = {};
 export let customProjects = {};
 export let expandedProjects = {};
 export let habits = {};
+export let allSessions = [];
 export let currentView = "dashboard";
 export let selectedTimerTask = null;
 export let analyticsChart = null;
@@ -88,19 +87,22 @@ export let taskSortMode = "manual";
 
 // ---- State setters invoking the store ----
 export function setCalendarEvents(val) {
-  storeInstance.updateState({ calendarEvents: val });
+  storeInstance.updateState({ calendarEvents: val || [] });
 }
 export function setTrackedTasks(val) {
-  storeInstance.updateState({ trackedTasks: val });
+  storeInstance.updateState({ trackedTasks: val || {} });
 }
 export function setCustomProjects(val) {
-  storeInstance.updateState({ customProjects: val });
+  storeInstance.updateState({ customProjects: val || {} });
 }
 export function setExpandedProjects(val) {
-  storeInstance.updateState({ expandedProjects: val });
+  storeInstance.updateState({ expandedProjects: val || {} });
 }
 export function setHabits(val) {
-  storeInstance.updateState({ habits: val });
+  storeInstance.updateState({ habits: val || {} });
+}
+export function setAllSessions(val) {
+  storeInstance.updateState({ allSessions: val || [] });
 }
 export function setCurrentView(val) {
   storeInstance.updateState({ currentView: val });
@@ -112,22 +114,21 @@ export function setAnalyticsChart(val) {
   storeInstance.updateState({ analyticsChart: val });
 }
 export function setTaskOrder(val) {
-  storeInstance.updateState({ taskOrder: val });
+  storeInstance.updateState({ taskOrder: val || [] });
 }
 export function setProjectOrder(val) {
-  storeInstance.updateState({ projectOrder: val });
+  storeInstance.updateState({ projectOrder: val || [] });
 }
 export function setWeeklyTargets(val) {
-  storeInstance.updateState({ weeklyTargets: val });
+  storeInstance.updateState({ weeklyTargets: val || {} });
 }
 export function setTaskSortMode(val) {
-  storeInstance.updateState({ taskSortMode: val });
+  storeInstance.updateState({ taskSortMode: val || "manual" });
 }
 
-// Expose store subscription if views want to register reactive updates
 export const subscribeToState = (listener) => storeInstance.subscribe(listener);
 
-// ---- View registry (populated by app.js to avoid circular imports) ----
+// ---- View registry ----
 let viewRenderers = {};
 
 export function registerViewRenderers(renderers) {
@@ -137,7 +138,7 @@ export function registerViewRenderers(renderers) {
 // ---- Data Loading ----
 export async function loadData() {
   try {
-    const [events, tasks, timerState, projects, habitsData, targets] =
+    const [events, tasks, timerState, projects, habitsData, targets, sessions] =
       await Promise.all([
         window.tracker.getCalendarEvents().catch((err) => {
           console.error("Failed to load calendar events:", err);
@@ -163,6 +164,10 @@ export async function loadData() {
           console.error("Failed to load weekly targets:", err);
           return {};
         }),
+        window.tracker.getAllSessions().catch((err) => {
+          console.error("Failed to load sessions:", err);
+          return [];
+        }),
       ]);
 
     const taskOrderVal =
@@ -172,47 +177,12 @@ export async function loadData() {
     const taskSortModeVal =
       (await window.tracker.getTaskSortMode().catch(() => "manual")) || "manual";
 
-    // Sanitize legacy purple project colors
-    if (projects) {
-      Object.values(projects).forEach((proj) => {
-        if (proj.color === "#7c6ef0" || proj.color === "#6b5ce0") {
-          proj.color = "#38bdf8";
-          window.tracker.saveProject(proj).catch(() => {});
-        }
-      });
-    }
-
-    // Sync calendar event estimates with trackedTasks and auto-complete if needed
-    if (events && events.length > 0 && tasks) {
-      events.forEach((e) => {
-        const task = tasks[e.id];
-        if (task) {
-          if (!task.estimateMinutes && e.durationMinutes) {
-            task.estimateMinutes = e.durationMinutes;
-          }
-          const est = task.estimateMinutes || e.durationMinutes;
-          const tracked = task.totalTrackedMinutes || 0;
-          if (
-            !task.completed &&
-            !task.manuallyUncompleted &&
-            est &&
-            est > 0 &&
-            tracked >= est
-          ) {
-            task.completed = true;
-            task.completedAt = task.completedAt || new Date().toISOString();
-            task.updatedAt = new Date().toISOString();
-            window.tracker.saveTask(task).catch(() => {});
-          }
-        }
-      });
-    }
-
     storeInstance.updateState({
       calendarEvents: events || [],
       trackedTasks: tasks || {},
       customProjects: projects || {},
       habits: habitsData || {},
+      allSessions: sessions || [],
       taskOrder: taskOrderVal,
       projectOrder: projectOrderVal,
       weeklyTargets: targets || {},
@@ -221,7 +191,6 @@ export async function loadData() {
 
     updateStreakCount();
 
-    // Import updateTimerDisplay dynamically to avoid circular dependency
     if (timerState && timerState.running) {
       const { updateTimerDisplay } = await import("./views/timer.js");
       updateTimerDisplay(timerState);

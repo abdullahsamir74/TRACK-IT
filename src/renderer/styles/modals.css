@@ -142,7 +142,9 @@
     transform var(--transition-fast);
 }
 
-.input-wrapper input {
+.input-wrapper input,
+.input-wrapper textarea,
+.textarea-input {
   width: 100%;
   padding: 10px 14px 10px 42px;
   background: rgba(255, 255, 255, 0.02);
@@ -151,27 +153,49 @@
   color: var(--text-primary);
   font-family: var(--font-family);
   font-size: 14px;
+  line-height: 1.5;
   transition: all var(--transition-fast);
   outline: none;
 }
 
-.input-wrapper input:hover {
+.input-wrapper textarea,
+.textarea-input {
+  resize: vertical;
+  min-height: 72px;
+}
+
+.input-wrapper input:hover,
+.input-wrapper textarea:hover,
+.textarea-input:hover {
   border-color: rgba(255, 255, 255, 0.15);
   background: rgba(255, 255, 255, 0.04);
 }
 
-.input-wrapper input:focus {
+.input-wrapper input:focus,
+.input-wrapper textarea:focus,
+.textarea-input:focus {
   border-color: var(--accent-blue);
   background: rgba(255, 255, 255, 0.05);
   box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);
 }
 
-.input-wrapper input:focus + .input-icon {
+.input-wrapper input:focus + .input-icon,
+.input-wrapper textarea:focus + .input-icon {
   color: var(--accent-blue);
   transform: scale(1.05);
 }
 
-.input-wrapper input::placeholder {
+.input-wrapper-textarea {
+  align-items: flex-start;
+}
+
+.input-wrapper-textarea .input-icon {
+  top: 13px;
+}
+
+.input-wrapper input::placeholder,
+.input-wrapper textarea::placeholder,
+.textarea-input::placeholder {
   color: var(--text-muted);
   opacity: 0.65;
 }

@@ -15,12 +15,15 @@
 @import "./styles/modals.css";
 @import "./styles/custom-pickers.css";
 @import "./styles/custom-dropdown.css";
+@import "./styles/toast.css";
 
 /* View-Specific Styles */
 @import "./styles/dashboard.css";
 @import "./styles/schedule.css";
 @import "./styles/calendar.css";
 @import "./styles/timer.css";
+@import "./styles/time-logs.css";
 @import "./styles/analytics.css";
 @import "./styles/projects.css";
 @import "./styles/habits.css";
+@import "./styles/settings.css";

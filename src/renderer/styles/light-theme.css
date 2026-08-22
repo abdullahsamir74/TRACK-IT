@@ -71,18 +71,24 @@
 }
 
 /* --- Form Inputs inside Modals --- */
-[data-theme="light"] .input-wrapper input {
+[data-theme="light"] .input-wrapper input,
+[data-theme="light"] .input-wrapper textarea,
+[data-theme="light"] .textarea-input {
   background: #ffffff;
   border: 1px solid #d4d4d8;
   color: #09090b;
 }
 
-[data-theme="light"] .input-wrapper input:hover {
+[data-theme="light"] .input-wrapper input:hover,
+[data-theme="light"] .input-wrapper textarea:hover,
+[data-theme="light"] .textarea-input:hover {
   border-color: #a1a1aa;
   background: #ffffff;
 }
 
-[data-theme="light"] .input-wrapper input:focus {
+[data-theme="light"] .input-wrapper input:focus,
+[data-theme="light"] .input-wrapper textarea:focus,
+[data-theme="light"] .textarea-input:focus {
   border-color: var(--accent-primary);
   background: #ffffff;
   box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);

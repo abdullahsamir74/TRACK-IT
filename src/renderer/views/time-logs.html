@@ -1,0 +1,62 @@
+<div class="view" id="view-time-logs">
+  <div class="view-header">
+    <div class="view-header-left">
+      <h2>Time Logs & History</h2>
+      <p class="view-subtitle">Manage recorded sessions, edit logged hours, and log offline work</p>
+    </div>
+    <div class="view-header-right">
+      <button class="btn btn-primary btn-sm" id="btn-log-past-time">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        <span>Log Past Time</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter & Summary Bar -->
+  <div class="time-logs-filter-bar">
+    <div class="time-logs-filters">
+      <div class="filter-group">
+        <label for="time-logs-range">Date Range:</label>
+        <select id="time-logs-range" class="select-input">
+          <option value="today">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="this_week" selected>This Week</option>
+          <option value="last_7_days">Last 7 Days</option>
+          <option value="this_month">This Month</option>
+          <option value="all">All Time</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="time-logs-project-filter">Project:</label>
+        <select id="time-logs-project-filter" class="select-input">
+          <option value="all">All Projects</option>
+        </select>
+      </div>
+
+      <div class="filter-group filter-search">
+        <input type="text" id="time-logs-search" class="search-input" placeholder="Search tasks or notes..." />
+      </div>
+    </div>
+
+    <!-- Summary KPI Pills -->
+    <div class="time-logs-summary">
+      <div class="summary-pill">
+        <span class="summary-pill-label">Total Time</span>
+        <span class="summary-pill-val" id="logs-total-time">0m</span>
+      </div>
+      <div class="summary-pill">
+        <span class="summary-pill-label">Sessions</span>
+        <span class="summary-pill-val" id="logs-total-count">0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sessions Timeline List -->
+  <div class="time-logs-timeline" id="time-logs-list">
+    <!-- Rendered dynamically -->
+  </div>
+</div>

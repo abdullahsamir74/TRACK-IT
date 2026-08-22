@@ -1,21 +1,37 @@
-const { app, BrowserWindow, ipcMain, nativeTheme } = require("electron");
+const { app, BrowserWindow, ipcMain, nativeTheme, dialog, nativeImage } = require("electron");
 const path = require("path");
+
+// Configure app name and model ID early so GNOME and Linux WMs associate the window & icon instantly
+app.name = "track-it";
+if (process.platform === "linux") {
+  app.setAppUserModelId("track-it");
+}
+
+const DatabaseManager = require("./db/database");
+const Repository = require("./services/repository");
+const AnalyticsService = require("./services/analytics-service");
 const CalendarService = require("./services/calendar-service");
-const TrackingService = require("./services/tracking-service");
 const TimerService = require("./services/timer-service");
 const TrackerFacade = require("./services/tracker-facade");
 const ServiceManager = require("./services/service-manager");
 
 let mainWindow = null;
-let trackingService = null;
+let dbManager = null;
+let repository = null;
+let analyticsService = null;
+let calendarService = null;
 let timerService = null;
 
 function createWindow() {
+  const iconPath = path.join(__dirname, "renderer", "icon.png");
+  const appIcon = nativeImage.createFromPath(iconPath);
+
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 820,
-    minWidth: 960,
-    minHeight: 600,
+    title: "TRACK IT",
+    width: 1320,
+    height: 840,
+    minWidth: 980,
+    minHeight: 620,
     frame: false,
     transparent: false,
     backgroundColor: "#0a0e1a",
@@ -25,8 +41,12 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    icon: path.join(__dirname, "renderer", "icon.png"),
+    icon: appIcon,
   });
+
+  if (process.platform === "linux" && !appIcon.isEmpty()) {
+    mainWindow.setIcon(appIcon);
+  }
 
   mainWindow.maximize();
 
@@ -46,7 +66,6 @@ function createWindow() {
 
   nativeTheme.themeSource = "dark";
 
-  // Open DevTools in dev mode
   if (process.argv.includes("--dev")) {
     mainWindow.webContents.openDevTools();
   }
@@ -58,12 +77,15 @@ function createWindow() {
 
 app.whenReady().then(async () => {
   try {
-    const calendarService = new CalendarService();
-    trackingService = new TrackingService();
+    dbManager = new DatabaseManager();
+    repository = new Repository(dbManager);
+    analyticsService = new AnalyticsService(repository);
+    calendarService = new CalendarService();
     timerService = new TimerService();
 
     const trackerFacade = new TrackerFacade(
-      trackingService,
+      repository,
+      analyticsService,
       timerService,
       calendarService,
     );
@@ -72,12 +94,14 @@ app.whenReady().then(async () => {
     serviceManager.register("tracker", trackerFacade);
     serviceManager.register("timer", timerService);
 
+    // Relay service manager events to renderer
     serviceManager.onEvent((serviceName, eventName, data) => {
       if (mainWindow && !mainWindow.isDestroyed()) {
         mainWindow.webContents.send(`${serviceName}-${eventName}`, data);
       }
     });
 
+    // Watch GNOME calendar changes
     calendarService.watchForChanges((events) => {
       serviceManager.notify("calendar", "updated", events);
     });
@@ -93,12 +117,18 @@ app.on("window-all-closed", () => {
   if (timerService && timerService.isRunning()) {
     try {
       const session = timerService.stop();
-      if (session && trackingService) {
-        trackingService.saveSession(session);
+      if (session && repository) {
+        repository.saveSession(session);
       }
     } catch (err) {
       console.error("Error saving running timer on shutdown:", err);
     }
+  }
+  if (calendarService) {
+    calendarService.stopWatching();
+  }
+  if (dbManager) {
+    dbManager.close();
   }
   app.quit();
 });
@@ -130,6 +160,18 @@ function registerIpcHandlers(serviceManager) {
     return mainWindow && !mainWindow.isDestroyed()
       ? mainWindow.isMaximized()
       : false;
+  });
+
+  // Save dialog helper for export backup
+  ipcMain.handle("dialog-save-file", async (event, options) => {
+    if (!mainWindow) return null;
+    return await dialog.showSaveDialog(mainWindow, options);
+  });
+
+  // Open dialog helper for import backup
+  ipcMain.handle("dialog-open-file", async (event, options) => {
+    if (!mainWindow) return null;
+    return await dialog.showOpenDialog(mainWindow, options);
   });
 
   ipcMain.handle(

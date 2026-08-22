@@ -5,14 +5,7 @@
 import { openAddTaskModal } from "./modals.js";
 import { switchView } from "../state.js";
 
-const VIEW_MAP = [
-  "dashboard", // Ctrl + 1
-  "schedule",  // Ctrl + 2
-  "timer",     // Ctrl + 3
-  "analytics", // Ctrl + 4
-  "projects",  // Ctrl + 5
-  "habits",    // Ctrl + 6
-];
+
 
 /** Check if the active element is a text input, textarea, select, or editable element */
 function isInputElement(el) {
@@ -42,6 +35,16 @@ function isAnyModalOpen() {
 
 /** Initialize global keyboard shortcuts listener */
 export function initKeyboardShortcuts() {
+  // Dynamically annotate sidebar buttons with shortcut tooltips (Ctrl+1 .. Ctrl+9)
+  const navButtons = document.querySelectorAll("#sidebar .sidebar-nav .nav-btn");
+  navButtons.forEach((btn, idx) => {
+    const num = idx + 1;
+    if (num <= 9) {
+      const label = btn.querySelector("span")?.textContent || btn.dataset.view || "";
+      btn.setAttribute("title", `${label} (Ctrl+${num})`);
+    }
+  });
+
   window.addEventListener("keydown", (e) => {
     const isCmdOrCtrl = e.ctrlKey || e.metaKey;
     const key = e.key ? e.key.toLowerCase() : "";
@@ -53,12 +56,16 @@ export function initKeyboardShortcuts() {
       return;
     }
 
-    // 2. Ctrl + 1..6 / Cmd + 1..6 -> Switch Views
-    if (isCmdOrCtrl && e.key >= "1" && e.key <= "6") {
+    // 2. Ctrl + 1..9 / Cmd + 1..9 -> Dynamically switch to N-th sidebar view
+    if (isCmdOrCtrl && e.key >= "1" && e.key <= "9") {
       const idx = parseInt(e.key, 10) - 1;
-      if (VIEW_MAP[idx]) {
+      const currentNavButtons = document.querySelectorAll(
+        "#sidebar .sidebar-nav .nav-btn",
+      );
+      const targetBtn = currentNavButtons[idx];
+      if (targetBtn && targetBtn.dataset.view) {
         e.preventDefault();
-        switchView(VIEW_MAP[idx]);
+        switchView(targetBtn.dataset.view);
         return;
       }
     }

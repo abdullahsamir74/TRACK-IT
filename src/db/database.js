@@ -54,6 +54,7 @@ class DatabaseManager {
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         description TEXT DEFAULT '',
+        notes TEXT DEFAULT '',
         project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
         calendar_event_id TEXT,
         calendar_name TEXT,
@@ -125,6 +126,13 @@ class DatabaseManager {
     `;
 
     this.db.exec(schema);
+
+    // Safe migration: ensure 'notes' column exists on tasks table for existing databases
+    try {
+      this.db.exec("ALTER TABLE tasks ADD COLUMN notes TEXT DEFAULT ''");
+    } catch (err) {
+      // Column already exists, safe to ignore
+    }
   }
 
   /**
@@ -162,10 +170,10 @@ class DatabaseManager {
 
       const insertTask = this.db.prepare(`
         INSERT OR IGNORE INTO tasks (
-          id, name, description, project_id, calendar_event_id, calendar_name, calendar_color,
+          id, name, description, notes, project_id, calendar_event_id, calendar_name, calendar_color,
           status, priority, estimate_minutes, manual_tracked_minutes, completed_at, due_date,
           sort_order, deleted_at, created_at, updated_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
 
       const insertTimeEntry = this.db.prepare(`
@@ -215,6 +223,7 @@ class DatabaseManager {
               id,
               t.name || "Task",
               t.description || "",
+              t.notes || t.description || "",
               t.projectId || null,
               t.calendarEventId || null,
               t.calendarName || null,

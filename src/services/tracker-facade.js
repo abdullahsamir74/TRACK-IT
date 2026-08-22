@@ -24,6 +24,10 @@ class TrackerFacade {
     return this.repo.saveTask(task);
   }
 
+  saveTaskNotes(taskId, notes) {
+    return this.repo.saveTaskNotes(taskId, notes);
+  }
+
   deleteTask(taskId) {
     return this.repo.deleteTask(taskId);
   }

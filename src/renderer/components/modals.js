@@ -42,6 +42,7 @@ export function initModals() {
   bindOverlayClose("global-target-modal-overlay", "btn-global-target-close", "btn-global-target-cancel");
   bindOverlayClose("log-time-modal-overlay", "btn-log-time-close", "btn-log-time-cancel");
   bindOverlayClose("edit-time-entry-modal-overlay", "btn-edit-time-entry-close", "btn-edit-entry-cancel");
+  bindOverlayClose("task-notes-modal-overlay", "btn-task-notes-close", "btn-task-notes-cancel");
 
   // Form submissions
   document
@@ -59,6 +60,9 @@ export function initModals() {
   document
     .getElementById("form-edit-time-entry")
     ?.addEventListener("submit", handleEditTimeEntry);
+  document
+    .getElementById("form-task-notes")
+    ?.addEventListener("submit", handleSaveTaskNotes);
 
   const formGlobalTarget = document.getElementById("form-global-target");
   if (formGlobalTarget) {
@@ -95,6 +99,8 @@ export function openAddTaskModal(prefilledDate) {
   document.getElementById("task-name").value = "";
   document.getElementById("task-estimate").value = "";
   document.getElementById("task-priority").value = "medium";
+  const notesEl = document.getElementById("task-notes");
+  if (notesEl) notesEl.value = "";
   syncPriorityPills("task", "medium");
   attachPickersToInputs();
   document.getElementById("modal-overlay").style.display = "flex";
@@ -133,10 +139,14 @@ export function openEditTaskModal(task) {
   const dateInput = document.getElementById("edit-task-date");
   const timeInput = document.getElementById("edit-task-time");
   const estimateInput = document.getElementById("edit-task-estimate");
+  const notesInput = document.getElementById("edit-task-notes");
   const calendarNotice = document.getElementById("edit-task-calendar-notice");
 
   nameInput.value = task.name || "";
   estimateInput.value = task.estimate || "";
+  if (notesInput) {
+    notesInput.value = task.notes || task.description || "";
+  }
 
   const priorityInput = document.getElementById("edit-task-priority");
   if (priorityInput) {
@@ -180,6 +190,8 @@ export function openEditTaskModal(task) {
     if (nameInput && !nameInput.disabled) {
       nameInput.focus();
       nameInput.select();
+    } else if (notesInput) {
+      notesInput.focus();
     }
   }, 50);
 }
@@ -308,6 +320,52 @@ export async function openGlobalTargetModal() {
   }, 50);
 }
 
+// ---- Task Notes Modal ----
+export function openTaskNotesModal(taskOrId) {
+  const overlay = document.getElementById("task-notes-modal-overlay");
+  if (!overlay) return;
+
+  const id = typeof taskOrId === "object" ? taskOrId.id : taskOrId;
+  const task = trackedTasks[id] || (typeof taskOrId === "object" ? taskOrId : {});
+  const taskName = task.name || (typeof taskOrId === "object" ? taskOrId.name : "Task");
+  const taskNotes = task.notes || task.description || (typeof taskOrId === "object" ? taskOrId.notes : "") || "";
+
+  document.getElementById("task-notes-id").value = id;
+  const subtitleEl = document.getElementById("task-notes-modal-subtitle");
+  if (subtitleEl) {
+    subtitleEl.textContent = `Notes for "${taskName}"`;
+  }
+
+  const contentEl = document.getElementById("task-notes-content");
+  if (contentEl) {
+    contentEl.value = taskNotes;
+  }
+
+  overlay.style.display = "flex";
+
+  setTimeout(() => {
+    if (contentEl) {
+      contentEl.focus();
+      contentEl.setSelectionRange(contentEl.value.length, contentEl.value.length);
+    }
+  }, 50);
+}
+
+async function handleSaveTaskNotes(e) {
+  e.preventDefault();
+  const taskId = document.getElementById("task-notes-id")?.value;
+  const notesContent = document.getElementById("task-notes-content")?.value || "";
+
+  if (!taskId) return;
+
+  await window.tracker.saveTaskNotes(taskId, notesContent);
+  setTrackedTasks(await window.tracker.getTasks());
+
+  closeModals();
+  showToast("Task notes saved! 📝", "success");
+  renderCurrentView();
+}
+
 // ---- Close All Modals ----
 export function closeModals() {
   closeCustomPickers();
@@ -320,6 +378,9 @@ export function closeModals() {
 
   const editSessionModal = document.getElementById("edit-time-entry-modal-overlay");
   if (editSessionModal) editSessionModal.style.display = "none";
+
+  const taskNotesModal = document.getElementById("task-notes-modal-overlay");
+  if (taskNotesModal) taskNotesModal.style.display = "none";
 
   const globalOverlay = document.getElementById("global-target-modal-overlay");
   if (globalOverlay) globalOverlay.style.display = "none";
@@ -356,6 +417,7 @@ async function handleAddTask(e) {
   );
   const estimate = isNaN(parsedEst) || parsedEst <= 0 ? 60 : parsedEst;
   const priority = document.getElementById("task-priority").value;
+  const notes = document.getElementById("task-notes")?.value.trim() || "";
 
   if (!name || !date || !time) return;
 
@@ -370,6 +432,8 @@ async function handleAddTask(e) {
     end: endDate.toISOString(),
     estimateMinutes: estimate,
     priority,
+    notes,
+    description: notes,
     isManual: true,
     createdAt: new Date().toISOString(),
   };
@@ -417,6 +481,7 @@ async function handleEditTask(e) {
   );
   const estimate = isNaN(parsedEst) || parsedEst <= 0 ? null : parsedEst;
   const priority = document.getElementById("edit-task-priority").value;
+  const notes = document.getElementById("edit-task-notes")?.value.trim() || "";
 
   if (isManual) {
     if (!name || !date || !time) return;
@@ -431,6 +496,8 @@ async function handleEditTask(e) {
       end: endDate.toISOString(),
       estimateMinutes: estimate,
       priority,
+      notes,
+      description: notes,
       isManual: true,
       updatedAt: new Date().toISOString(),
     };
@@ -441,6 +508,8 @@ async function handleEditTask(e) {
       id,
       estimateMinutes: estimate,
       priority,
+      notes,
+      description: notes,
       updatedAt: new Date().toISOString(),
     };
     await window.tracker.saveTask(task);

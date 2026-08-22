@@ -368,3 +368,73 @@
     transform: scale(1);
   }
 }
+
+/* --- Timer Task Notes Card --- */
+.timer-task-notes-card {
+  width: 100%;
+  background: var(--bg-card);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin: 16px 0 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.timer-task-notes-card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(192, 132, 252, 0.3);
+}
+
+.timer-task-notes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.timer-task-notes-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #c084fc;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.btn-timer-edit-notes {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-family: var(--font-family);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all var(--transition-fast);
+}
+
+.btn-timer-edit-notes:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.timer-task-notes-body {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  max-height: 120px;
+  overflow-y: auto;
+  word-break: break-word;
+  white-space: pre-wrap;
+}

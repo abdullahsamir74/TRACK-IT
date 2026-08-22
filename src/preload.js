@@ -32,6 +32,7 @@ contextBridge.exposeInMainWorld("tracker", {
   // Tasks
   getTasks: () => invokeTracker("getTasks"),
   saveTask: (task) => invokeTracker("saveTask", task),
+  saveTaskNotes: (taskId, notes) => invokeTracker("saveTaskNotes", taskId, notes),
   deleteTask: (taskId) => invokeTracker("deleteTask", taskId),
   setEstimate: (taskId, minutes) =>
     invokeTracker("setEstimate", taskId, minutes),

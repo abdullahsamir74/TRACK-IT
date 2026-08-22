@@ -176,6 +176,22 @@
   background: var(--bg-hover);
   color: var(--text-primary);
 }
+.task-badge.task-notes-badge {
+  background: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.task-action-btn.has-notes {
+  color: #c084fc;
+}
+.task-action-btn.has-notes:hover {
+  background: rgba(168, 85, 247, 0.15);
+  color: #d8b4fe;
+}
 
 .task-project-badge {
   font-size: 10px;

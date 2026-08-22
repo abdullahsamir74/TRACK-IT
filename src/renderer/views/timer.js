@@ -20,6 +20,7 @@ import {
 import { initDragAndDrop } from "../components/drag-drop.js";
 import { playTimerStopSound, playAlarmSound } from "../sounds.js";
 import { resetEstimateAlert } from "../app.js";
+import { openTaskNotesModal } from "../components/modals.js";
 
 let timerMode = "stopwatch"; // "stopwatch" | "pomodoro"
 let pomodoroFocusMins = 25;
@@ -179,6 +180,40 @@ export function initTimerControls() {
       exitFullscreenTimer();
     });
   }
+
+  // Click handler for timer edit notes button
+  const editNotesBtn = document.getElementById("btn-timer-edit-notes");
+  if (editNotesBtn) {
+    editNotesBtn.addEventListener("click", () => {
+      if (selectedTimerTask) {
+        openTaskNotesModal(selectedTimerTask);
+      }
+    });
+  }
+}
+
+/**
+ * Update the notes card on the timer view
+ */
+export function updateTimerNotesDisplay() {
+  const notesCard = document.getElementById("timer-task-notes-card");
+  const notesBody = document.getElementById("timer-task-notes-body");
+  if (!notesCard || !notesBody) return;
+
+  if (!selectedTimerTask) {
+    notesCard.style.display = "none";
+    return;
+  }
+
+  const taskObj = trackedTasks[selectedTimerTask.id] || {};
+  const notes = (taskObj.notes || taskObj.description || "").trim();
+
+  if (notes) {
+    notesCard.style.display = "flex";
+    notesBody.innerHTML = escapeHtml(notes).replace(/\n/g, "<br>");
+  } else {
+    notesCard.style.display = "none";
+  }
 }
 
 /**
@@ -231,6 +266,9 @@ export async function startTimerForTask() {
   } else {
     document.getElementById("timer-estimate-bar").style.display = "none";
   }
+
+  // Update notes display
+  updateTimerNotesDisplay();
 
   // Automatically trigger fullscreen mode when timer starts
   enterFullscreenTimer();
@@ -506,6 +544,9 @@ export async function renderTimerView() {
     refreshIdleTimerDisplay();
   }
 
+  // Update task notes card
+  updateTimerNotesDisplay();
+
   // Task selector
   renderTimerTaskList();
 }
@@ -595,6 +636,8 @@ function renderTimerTaskList() {
         .querySelectorAll(".timer-task-option")
         .forEach((o) => o.classList.remove("selected"));
       opt.classList.add("selected");
+
+      updateTimerNotesDisplay();
 
       window.tracker.getTimerState().then((tState) => {
         if (!tState || !tState.running) {

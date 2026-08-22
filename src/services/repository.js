@@ -27,14 +27,16 @@ class Repository {
     const tasksMap = {};
 
     for (const r of rows) {
+      const isManual = Boolean(!r.calendar_event_id || (r.id && r.id.startsWith("manual-")));
       tasksMap[r.id] = {
         id: r.id,
         name: r.name,
         description: r.description || "",
+        notes: r.notes !== null && r.notes !== undefined ? r.notes : (r.description || ""),
         projectId: r.project_id || null,
         calendarEventId: r.calendar_event_id || null,
-        calendarName: r.calendar_name || null,
-        calendarColor: r.calendar_color || null,
+        calendarName: r.calendar_name || (isManual ? "Manual" : null),
+        calendarColor: r.calendar_color || (isManual ? "#38bdf8" : null),
         completed: r.status === "completed",
         status: r.status || "todo",
         priority: r.priority || "medium",
@@ -45,6 +47,7 @@ class Repository {
         due: r.due_date || null,
         start: r.due_date || null,
         sortOrder: r.sort_order || 0,
+        isManual: isManual,
         createdAt: r.created_at,
         updatedAt: r.updated_at,
       };
@@ -61,7 +64,8 @@ class Repository {
     const existing = this.db.prepare("SELECT * FROM tasks WHERE id = ?").get(id);
 
     const name = task.name !== undefined ? task.name : existing ? existing.name : "Untitled Task";
-    const description = task.description !== undefined ? task.description : existing ? existing.description : "";
+    const notes = task.notes !== undefined ? task.notes : task.description !== undefined ? task.description : existing ? (existing.notes || existing.description || "") : "";
+    const description = task.description !== undefined ? task.description : notes;
     const projectId = task.projectId !== undefined ? task.projectId : existing ? existing.project_id : null;
     const calendarEventId = task.calendarEventId !== undefined ? task.calendarEventId : existing ? existing.calendar_event_id : null;
     const calendarName = task.calendarName !== undefined ? task.calendarName : existing ? existing.calendar_name : null;
@@ -93,13 +97,14 @@ class Repository {
 
     const upsertStmt = this.db.prepare(`
       INSERT INTO tasks (
-        id, name, description, project_id, calendar_event_id, calendar_name, calendar_color,
+        id, name, description, notes, project_id, calendar_event_id, calendar_name, calendar_color,
         status, priority, estimate_minutes, manual_tracked_minutes, completed_at, due_date,
         sort_order, deleted_at, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         name = excluded.name,
         description = excluded.description,
+        notes = excluded.notes,
         project_id = excluded.project_id,
         calendar_event_id = COALESCE(excluded.calendar_event_id, tasks.calendar_event_id),
         calendar_name = COALESCE(excluded.calendar_name, tasks.calendar_name),
@@ -119,6 +124,7 @@ class Repository {
       id,
       name,
       description,
+      notes,
       projectId,
       calendarEventId,
       calendarName,
@@ -135,6 +141,17 @@ class Repository {
     );
 
     return this.getTasks()[id];
+  }
+
+  saveTaskNotes(taskId, notes) {
+    const now = new Date().toISOString();
+    const task = this.db.prepare("SELECT * FROM tasks WHERE id = ?").get(taskId);
+    const noteText = typeof notes === "string" ? notes : "";
+    if (!task) {
+      return this.saveTask({ id: taskId, notes: noteText });
+    }
+    this.db.prepare("UPDATE tasks SET notes = ?, updated_at = ? WHERE id = ?").run(noteText, now, taskId);
+    return this.getTasks()[taskId];
   }
 
   deleteTask(taskId) {
@@ -678,16 +695,21 @@ class Repository {
       if (Array.isArray(tasks)) {
         const stmt = this.db.prepare(`
           INSERT OR REPLACE INTO tasks (
-            id, name, description, project_id, calendar_event_id, calendar_name, calendar_color,
+            id, name, description, notes, project_id, calendar_event_id, calendar_name, calendar_color,
             status, priority, estimate_minutes, manual_tracked_minutes, completed_at, due_date,
             sort_order, deleted_at, created_at, updated_at
           ) VALUES (
-            @id, @name, @description, @project_id, @calendar_event_id, @calendar_name, @calendar_color,
+            @id, @name, @description, @notes, @project_id, @calendar_event_id, @calendar_name, @calendar_color,
             @status, @priority, @estimate_minutes, @manual_tracked_minutes, @completed_at, @due_date,
             @sort_order, @deleted_at, @created_at, @updated_at
           )
         `);
-        tasks.forEach((t) => stmt.run(t));
+        tasks.forEach((t) =>
+          stmt.run({
+            ...t,
+            notes: t.notes !== undefined && t.notes !== null ? t.notes : (t.description || ""),
+          }),
+        );
       }
 
       if (Array.isArray(timeEntries)) {

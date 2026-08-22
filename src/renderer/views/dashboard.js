@@ -144,12 +144,12 @@ export async function renderDashboard() {
   if (!taskListEl) return;
 
   if (todayEvents.length === 0) {
-    const recentEvents = calendarEvents.slice(0, 10);
+    const recentEvents = allEvents.slice(0, 10);
     if (recentEvents.length > 0) {
       taskListEl.innerHTML = "";
       const header = document.createElement("div");
       header.className = "schedule-date-header";
-      header.textContent = "Recent Events";
+      header.textContent = "Upcoming & Recent Events";
       taskListEl.appendChild(header);
       recentEvents.forEach((event) => {
         taskListEl.appendChild(createTaskItem(event, false, timerState));

@@ -512,12 +512,46 @@
   box-shadow: var(--shadow-sm);
 }
 
-[data-theme="light"] .btn-accent-gradient {
-  background: linear-gradient(135deg, #4f46e5, #3b82f6);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
-}
-
 [data-theme="light"] .btn-accent-gradient:hover {
   box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
+}
+
+/* --- Task Notes Light Mode Overrides --- */
+[data-theme="light"] .task-badge.task-notes-badge {
+  background: rgba(147, 51, 234, 0.08);
+  border-color: rgba(147, 51, 234, 0.25);
+  color: #7e22ce;
+}
+
+[data-theme="light"] .task-action-btn.has-notes {
+  color: #7e22ce;
+}
+
+[data-theme="light"] .task-action-btn.has-notes:hover {
+  background: rgba(147, 51, 234, 0.12);
+  color: #6b21a8;
+}
+
+[data-theme="light"] .timer-task-notes-card {
+  background: #ffffff;
+  border-color: #e4e4e7;
+}
+
+[data-theme="light"] .timer-task-notes-card:hover {
+  border-color: #c4b5fd;
+}
+
+[data-theme="light"] .timer-task-notes-title {
+  color: #7e22ce;
+}
+
+[data-theme="light"] .btn-timer-edit-notes {
+  background: #f4f4f5;
+  border-color: #e4e4e7;
+  color: #52525b;
+}
+
+[data-theme="light"] .btn-timer-edit-notes:hover {
+  background: #e4e4e7;
+  color: #09090b;
 }

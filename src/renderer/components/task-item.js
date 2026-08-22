@@ -11,7 +11,11 @@ import {
   setSelectedTimerTask,
 } from "../state.js";
 import { switchView, renderCurrentView } from "../state.js";
-import { openEstimateModal, openEditTaskModal } from "./modals.js";
+import {
+  openEstimateModal,
+  openEditTaskModal,
+  openTaskNotesModal,
+} from "./modals.js";
 import { showConfirmDialog } from "./confirm-dialog.js";
 
 /**
@@ -21,6 +25,8 @@ import { showConfirmDialog } from "./confirm-dialog.js";
 export function createTaskItem(event, draggable = false, timerState = null) {
   const task = trackedTasks[event.id] || {};
   const isCompleted = task.completed || false;
+  const notes = task.notes || task.description || event.description || "";
+  const hasNotes = Boolean(notes && notes.trim().length > 0);
 
   const item = document.createElement("div");
   item.className = `task-item${isCompleted ? " completed" : ""}`;
@@ -57,6 +63,18 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     priorityBadge = `<span class="task-badge priority-${p}">${label}</span>`;
   }
 
+  const notesBadge = hasNotes
+    ? `<span class="task-badge task-notes-badge" title="${escapeHtml(notes)}">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        Note
+      </span>`
+    : "";  const isManual = Boolean(
+    event.isManual ||
+    task.isManual ||
+    !task.calendarEventId ||
+    (event.id && String(event.id).startsWith("manual-"))
+  );
+
   item.innerHTML = `
     ${
       draggable
@@ -77,14 +95,23 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     </div>
     ${projectBadge}
     ${priorityBadge}
+    ${notesBadge}
     ${estimate ? `<span class="task-badge estimate">${formatDuration(estimate)}</span>` : ""}
     ${tracked > 0 ? `<span class="task-badge tracked">${formatDuration(tracked)} tracked</span>` : ""}
     <div class="task-actions">
+      <button class="task-action-btn ${hasNotes ? "has-notes" : ""}" title="${hasNotes ? "View/Edit notes" : "Add notes"}" data-action="notes" data-task-id="${event.id}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+      </button>
       <button class="task-action-btn" title="Set estimate" data-action="estimate" data-task-id="${event.id}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       </button>
-      <button class="task-action-btn" title="Edit task" data-action="edit" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}" data-task-start="${event.start || ""}" data-task-estimate="${estimate || ""}" data-task-priority="${task.priority || "medium"}" data-task-manual="${event.isManual || false}">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <button class="task-action-btn" title="Edit task" data-action="edit" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}" data-task-start="${event.start || ""}" data-task-estimate="${estimate || ""}" data-task-priority="${task.priority || "medium"}" data-task-manual="${isManual}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       </button>
       <button class="task-action-btn task-action-btn-danger" title="Delete task" data-action="delete" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -114,6 +141,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
         id: taskId,
         name: taskName,
         start: event.start,
+        notes: notes,
       });
       await window.tracker.markTaskComplete(taskId);
     }
@@ -128,7 +156,13 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     btn.addEventListener("click", async (e) => {
       e.stopPropagation();
       const action = btn.dataset.action;
-      if (action === "estimate") {
+      if (action === "notes") {
+        openTaskNotesModal({
+          id: event.id,
+          name: event.summary,
+          notes: notes,
+        });
+      } else if (action === "estimate") {
         openEstimateModal(btn.dataset.taskId, estimate);
       } else if (action === "edit") {
         openEditTaskModal({
@@ -138,8 +172,10 @@ export function createTaskItem(event, draggable = false, timerState = null) {
           estimate: btn.dataset.taskEstimate
             ? parseInt(btn.dataset.taskEstimate)
             : null,
-          isManual: btn.dataset.taskManual === "true",
+          isManual: btn.dataset.taskManual === "true" || isManual,
           priority: btn.dataset.taskPriority || "medium",
+          notes: notes,
+          description: notes,
         });
       } else if (action === "delete") {
         const taskName = btn.dataset.taskName || "this task";

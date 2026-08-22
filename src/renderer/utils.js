@@ -73,23 +73,32 @@ export function getCombinedEvents(calendarEvents, trackedTasks) {
   // Filter out any calendar events that have been deleted in trackedTasks
   const filteredCalendarEvents = (calendarEvents || []).filter((item) => {
     const task = trackedTasks[item.id];
-    return !task || !task.deleted;
+    return !task || (!task.deleted && !task.deletedAt);
   });
 
   const allEvents = [...filteredCalendarEvents];
 
   Object.values(trackedTasks || {}).forEach((task) => {
-    if (task.isManual && !task.deleted) {
+    const isManual = Boolean(
+      task.isManual ||
+      !task.calendarEventId ||
+      (task.id && String(task.id).startsWith("manual-"))
+    );
+    const isDeleted = Boolean(task.deleted || task.deletedAt);
+    
+    if (isManual && !isDeleted) {
       const exists = allEvents.some((item) => item.id === task.id);
       if (!exists) {
         allEvents.push({
           id: task.id,
           summary: task.name || "Untitled Task",
-          start: task.start || new Date().toISOString(),
+          description: task.notes || task.description || "",
+          notes: task.notes || task.description || "",
+          start: task.start || task.due || new Date().toISOString(),
           end: task.end || null,
           durationMinutes: task.estimateMinutes || 60,
-          calendarColor: "#38bdf8",
-          calendarName: "Manual",
+          calendarColor: task.calendarColor || "#38bdf8",
+          calendarName: task.calendarName || "Manual",
           isManual: true,
         });
       }

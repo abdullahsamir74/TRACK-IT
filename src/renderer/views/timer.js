@@ -36,7 +36,7 @@ function updatePomodoroPhaseBadge() {
   phaseBadge.className = "pomodoro-phase-badge";
 
   if (pomodoroPhase === "focus") {
-    phaseBadge.textContent = "FOCUS SESSION";
+    phaseBadge.textContent = `FOCUS SESSION (${pomodoroBlockCount}/4)`;
   } else if (pomodoroPhase === "shortBreak") {
     phaseBadge.classList.add("phase-break-short");
     phaseBadge.textContent = `SHORT BREAK (${pomodoroBreakMins}M)`;
@@ -75,7 +75,11 @@ export function initTimerControls() {
       }
 
       window.tracker.getTimerState().then((state) => {
-        updateTimerDisplay(state);
+        if (state && state.running) {
+          updateTimerDisplay(state);
+        } else {
+          refreshIdleTimerDisplay();
+        }
       });
     });
   });
@@ -88,8 +92,13 @@ export function initTimerControls() {
       btn.classList.add("active");
       pomodoroFocusMins = parseInt(btn.dataset.focus, 10);
       pomodoroBreakMins = parseInt(btn.dataset.break, 10);
+      updatePomodoroPhaseBadge();
       window.tracker.getTimerState().then((state) => {
-        updateTimerDisplay(state);
+        if (state && state.running) {
+          updateTimerDisplay(state);
+        } else {
+          refreshIdleTimerDisplay();
+        }
       });
     });
   });
@@ -105,7 +114,7 @@ export function initTimerControls() {
       timerState.taskId !== selectedTimerTask.id
     ) {
       await window.tracker.stopTimer();
-      startTimerForTask();
+      startTimerForTask(true);
       return;
     }
 
@@ -122,7 +131,7 @@ export function initTimerControls() {
       enterFullscreenTimer();
     } else {
       // Start new
-      startTimerForTask();
+      startTimerForTask(false);
     }
   });
 
@@ -130,11 +139,24 @@ export function initTimerControls() {
     const session = await window.tracker.stopTimer();
     if (session) {
       // Play stop sound and reset estimate alert
-      playTimerStopSound();
+      const soundEnabled =
+        localStorage.getItem("tracker-sounds-enabled") !== "false";
+      if (soundEnabled) {
+        playTimerStopSound();
+      }
       resetEstimateAlert();
 
+      // Reset pomodoro cycle
+      pomodoroPhase = "focus";
+      pomodoroBlockCount = 1;
+      pomodoroPhaseFired = false;
+      updatePomodoroPhaseBadge();
+
       // Reset display
-      document.getElementById("timer-display").textContent = "00:00:00";
+      document.getElementById("timer-display").textContent =
+        timerMode === "pomodoro"
+          ? `${String(pomodoroFocusMins).padStart(2, "0")}:00`
+          : "00:00:00";
       document.getElementById("timer-task-name").textContent =
         "No task selected";
       document.getElementById("timer-play-icon").style.display = "";
@@ -143,7 +165,11 @@ export function initTimerControls() {
 
       // Reset ring
       const ring = document.querySelector(".timer-ring-progress");
-      if (ring) ring.style.strokeDashoffset = "565.48";
+      if (ring) {
+        ring.style.strokeDashoffset =
+          timerMode === "pomodoro" ? "0" : "565.48";
+        ring.style.stroke = "var(--text-primary)";
+      }
 
       // Reset estimate bar
       document.getElementById("timer-estimate-bar").style.display = "none";
@@ -151,6 +177,9 @@ export function initTimerControls() {
 
       // Clear selected timer task
       setSelectedTimerTask(null);
+
+      // Exit fullscreen if active
+      exitFullscreenTimer();
 
       // Refresh
       setTrackedTasks(await window.tracker.getTasks());
@@ -219,18 +248,37 @@ export function updateTimerNotesDisplay() {
 /**
  * Start the timer for the currently selected task.
  */
-export async function startTimerForTask() {
-  if (!selectedTimerTask) return;
+export async function startTimerForTask(isNewTask = false) {
+  if (isNewTask) {
+    pomodoroPhase = "focus";
+    pomodoroBlockCount = 1;
+  }
 
-  // Reset Pomodoro session state cleanly for new task
-  pomodoroPhase = "focus";
+  if (!selectedTimerTask) {
+    setSelectedTimerTask({
+      id: null,
+      name:
+        timerMode === "pomodoro"
+          ? pomodoroPhase === "focus"
+            ? "Pomodoro Focus"
+            : pomodoroPhase === "shortBreak"
+              ? "Short Break"
+              : "Long Break"
+          : "General Focus",
+      estimate: null,
+      totalEstimate: null,
+    });
+  }
+
   pomodoroPhaseFired = false;
   updatePomodoroPhaseBadge();
 
   // Reset the estimate-reached alert so it can fire for this new session
   resetEstimateAlert();
 
-  const taskObj = trackedTasks[selectedTimerTask.id] || {};
+  const taskObj = selectedTimerTask.id
+    ? trackedTasks[selectedTimerTask.id] || {}
+    : {};
   const totalEst =
     selectedTimerTask.totalEstimate ||
     selectedTimerTask.estimate ||
@@ -246,20 +294,25 @@ export async function startTimerForTask() {
   selectedTimerTask.estimate = remainingEst;
   selectedTimerTask.totalEstimate = totalEst;
 
+  let displayName = selectedTimerTask.name || "Focus Session";
+  if (timerMode === "pomodoro" && pomodoroPhase !== "focus" && !selectedTimerTask.id) {
+    displayName =
+      pomodoroPhase === "shortBreak" ? "Short Break" : "Long Break";
+  }
+
   await window.tracker.startTimer(
     selectedTimerTask.id,
-    selectedTimerTask.name,
+    displayName,
     remainingEst,
   );
 
-  document.getElementById("timer-task-name").textContent =
-    selectedTimerTask.name;
+  document.getElementById("timer-task-name").textContent = displayName;
   document.getElementById("timer-play-icon").style.display = "none";
   document.getElementById("timer-pause-icon").style.display = "";
   document.getElementById("btn-timer-stop").disabled = false;
 
-  // Show estimate bar if there's an estimate
-  if (remainingEst !== null && remainingEst > 0) {
+  // Show estimate bar if there's an estimate and mode is stopwatch
+  if (remainingEst !== null && remainingEst > 0 && timerMode !== "pomodoro") {
     document.getElementById("timer-estimate-bar").style.display = "block";
     document.getElementById("timer-estimate-label").textContent =
       `Est: ${formatDuration(remainingEst)}`;
@@ -283,17 +336,7 @@ export function updateTimerDisplay(state) {
 
   if (timerMode === "pomodoro") {
     let targetMins = pomodoroFocusMins;
-    if (pomodoroPhase === "focus") {
-      const taskEst = selectedTimerTask ? selectedTimerTask.estimate : null;
-      if (
-        taskEst !== null &&
-        typeof taskEst === "number" &&
-        taskEst > 0 &&
-        taskEst < pomodoroFocusMins
-      ) {
-        targetMins = taskEst;
-      }
-    } else if (pomodoroPhase === "shortBreak") {
+    if (pomodoroPhase === "shortBreak") {
       targetMins = pomodoroBreakMins;
     } else if (pomodoroPhase === "longBreak") {
       targetMins = 15;
@@ -326,18 +369,29 @@ export function updateTimerDisplay(state) {
     // Check phase completion
     if (remainingMs <= 0 && state.running && !pomodoroPhaseFired) {
       pomodoroPhaseFired = true;
-      playAlarmSound();
+      const soundEnabled =
+        localStorage.getItem("tracker-sounds-enabled") !== "false";
+      if (soundEnabled) {
+        playAlarmSound();
+      }
 
-      // Advance phase internally
+      // Advance phase internally through 4-block cycle
       if (pomodoroPhase === "focus") {
-        pomodoroPhase = "shortBreak";
+        if (pomodoroBlockCount >= 4) {
+          pomodoroPhase = "longBreak";
+          pomodoroBlockCount = 1;
+        } else {
+          pomodoroPhase = "shortBreak";
+          pomodoroBlockCount++;
+        }
       } else {
         pomodoroPhase = "focus";
       }
 
       updatePomodoroPhaseBadge();
+      exitFullscreenTimer();
 
-      // Stop timer and await manual Start from user
+      // Stop timer and await manual Start from user for next phase
       window.tracker.stopTimer().then(async () => {
         const tasks = await window.tracker.getTasks();
         setTrackedTasks(tasks);
@@ -355,7 +409,8 @@ export function updateTimerDisplay(state) {
     }
   } else {
     // Stopwatch Mode (Standard open-ended count-up)
-    document.getElementById("timer-display").textContent = state.elapsedFormatted;
+    document.getElementById("timer-display").textContent =
+      state.elapsedFormatted;
 
     const progress = state.progress || 0;
     const offset = circumference * (1 - Math.min(progress, 1));
@@ -381,7 +436,8 @@ export function updateTimerDisplay(state) {
   // Update estimate bar
   if (state.estimateMinutes && timerMode !== "pomodoro") {
     const fill = document.getElementById("timer-estimate-fill");
-    if (fill) fill.style.width = `${Math.min((state.progress || 0) * 100, 100)}%`;
+    if (fill)
+      fill.style.width = `${Math.min((state.progress || 0) * 100, 100)}%`;
   }
 
   // Update dashboard timer
@@ -424,7 +480,12 @@ export function enterFullscreenTimer() {
         const nameEl = document.getElementById("fullscreen-task-name");
         const dispEl = document.getElementById("fullscreen-timer-display");
         if (nameEl) nameEl.textContent = state.taskName || "Untitled Task";
-        if (dispEl) dispEl.textContent = state.elapsedFormatted || "00:00:00";
+        if (dispEl) {
+          dispEl.textContent =
+            timerMode === "pomodoro"
+              ? document.getElementById("timer-display").textContent
+              : state.elapsedFormatted || "00:00:00";
+        }
         overlay.style.display = "flex";
 
         if (!document.fullscreenElement) {
@@ -458,17 +519,7 @@ function refreshIdleTimerDisplay() {
   const ring = document.querySelector(".timer-ring-progress");
   if (timerMode === "pomodoro") {
     let targetMins = pomodoroFocusMins;
-    if (pomodoroPhase === "focus") {
-      const taskEst = selectedTimerTask ? selectedTimerTask.estimate : null;
-      if (
-        taskEst !== null &&
-        typeof taskEst === "number" &&
-        taskEst > 0 &&
-        taskEst < pomodoroFocusMins
-      ) {
-        targetMins = taskEst;
-      }
-    } else if (pomodoroPhase === "shortBreak") {
+    if (pomodoroPhase === "shortBreak") {
       targetMins = pomodoroBreakMins;
     } else if (pomodoroPhase === "longBreak") {
       targetMins = 15;
@@ -625,7 +676,7 @@ function renderTimerTaskList() {
         totalEstimate: totalEst,
       });
       document.getElementById("timer-task-name").textContent = task.name;
-      if (displayEst) {
+      if (displayEst && timerMode !== "pomodoro") {
         document.getElementById("timer-estimate-bar").style.display = "block";
         document.getElementById("timer-estimate-label").textContent =
           `Est: ${formatDuration(displayEst)}`;
@@ -641,6 +692,9 @@ function renderTimerTaskList() {
 
       window.tracker.getTimerState().then((tState) => {
         if (!tState || !tState.running) {
+          pomodoroPhase = "focus";
+          pomodoroBlockCount = 1;
+          updatePomodoroPhaseBadge();
           refreshIdleTimerDisplay();
         }
       });

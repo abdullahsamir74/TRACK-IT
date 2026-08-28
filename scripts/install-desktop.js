@@ -25,8 +25,8 @@ try {
 
   // Use direct electron executable if available, otherwise node cli
   const execCommand = fs.existsSync(electronDistBinary)
-    ? `${electronDistBinary} ${projectDir}`
-    : `${nodeBinary} ${electronCli} ${projectDir}`;
+    ? `${electronDistBinary} ${projectDir} --no-sandbox`
+    : `${nodeBinary} ${electronCli} ${projectDir} --no-sandbox`;
 
   const iconSource = path.join(projectDir, "src", "renderer", "icon.png");
 

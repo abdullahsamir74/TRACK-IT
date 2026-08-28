@@ -112,6 +112,7 @@ Control your workspace efficiently without leaving the keyboard:
 ### Prerequisites
 
 - **Linux OS** with **GNOME Desktop Environment** (for GNOME Calendar integration)
+- **C/C++ Build Tools**: `sudo apt install -y build-essential` (required for native modules like `better-sqlite3`)
 - **Node.js** `>= v20.0.0` (v24 LTS recommended)
 - **npm** `>= v10.0.0`
 

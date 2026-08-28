@@ -12,6 +12,7 @@ class TimerService {
       elapsedMs: 0,
     };
     this._interval = null;
+    this._onTick = null;
   }
 
   _calculateElapsedMs() {
@@ -39,6 +40,10 @@ class TimerService {
       this._interval = null;
     }
 
+    if (typeof onTick === "function") {
+      this._onTick = onTick;
+    }
+
     const est =
       typeof estimateMinutes === "number" &&
       !isNaN(estimateMinutes) &&
@@ -61,8 +66,8 @@ class TimerService {
     this._interval = setInterval(() => {
       if (!this._state.paused) {
         this._state.elapsedMs = this._calculateElapsedMs();
-        if (typeof onTick === "function") {
-          onTick(this.getState());
+        if (typeof this._onTick === "function") {
+          this._onTick(this.getState());
         }
       }
     }, 1000);
@@ -86,6 +91,10 @@ class TimerService {
    * Resume the timer
    */
   resume(onTick) {
+    if (typeof onTick === "function") {
+      this._onTick = onTick;
+    }
+
     if (this._state.running && this._state.paused) {
       const pauseDuration = Date.now() - (this._state.pausedTime || Date.now());
       this._state.totalPausedMs += pauseDuration;
@@ -98,8 +107,8 @@ class TimerService {
       this._interval = setInterval(() => {
         if (!this._state.paused) {
           this._state.elapsedMs = this._calculateElapsedMs();
-          if (typeof onTick === "function") {
-            onTick(this.getState());
+          if (typeof this._onTick === "function") {
+            this._onTick(this.getState());
           }
         }
       }, 1000);

@@ -138,16 +138,26 @@ class TrackerFacade {
   }
 
   // --- Timer ---
-  startTimer(taskId, taskName, estimateMinutes) {
-    return this.timer.start(taskId, taskName, estimateMinutes);
+  startTimer(taskId, taskName, estimateMinutes, onTick) {
+    // If another timer is running for a different task, stop and save it first
+    if (this.timer.isRunning()) {
+      const state = this.timer.getState();
+      if (state.taskId !== taskId) {
+        const session = this.timer.stop();
+        if (session) {
+          this.repo.saveSession(session);
+        }
+      }
+    }
+    return this.timer.start(taskId, taskName, estimateMinutes, onTick);
   }
 
   pauseTimer() {
     return this.timer.pause();
   }
 
-  resumeTimer() {
-    return this.timer.resume();
+  resumeTimer(onTick) {
+    return this.timer.resume(onTick);
   }
 
   stopTimer() {

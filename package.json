@@ -5,8 +5,8 @@
   "description": "TRACK IT — Time & Task Progress Tracker integrates with GNOME Calendar",
   "main": "src/main.js",
   "scripts": {
-    "start": "electron .",
-    "dev": "electron . --dev",
+    "start": "electron . --no-sandbox",
+    "dev": "electron . --dev --no-sandbox",
     "install-desktop": "node scripts/install-desktop.js"
   },
   "author": "Abdullah",

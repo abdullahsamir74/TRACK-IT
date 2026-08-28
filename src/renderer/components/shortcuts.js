@@ -21,16 +21,8 @@ function isInputElement(el) {
 
 /** Check if any modal overlay is currently open */
 function isAnyModalOpen() {
-  const overlays = [
-    "modal-overlay",
-    "edit-task-modal-overlay",
-    "estimate-modal-overlay",
-    "global-target-modal-overlay",
-  ];
-  return overlays.some((id) => {
-    const el = document.getElementById(id);
-    return el && el.style.display === "flex";
-  });
+  const openModal = document.querySelector('.modal-overlay:not([style*="display: none"])');
+  return !!openModal && openModal.style.display === "flex";
 }
 
 /** Initialize global keyboard shortcuts listener */

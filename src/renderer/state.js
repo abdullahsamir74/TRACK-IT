@@ -2,6 +2,8 @@
    STATE — Shared application state & data
    ======================================== */
 
+import { updateAppBadge } from "./badge.js";
+
 class Store {
   constructor() {
     this.state = {
@@ -46,6 +48,10 @@ class Store {
     projectOrder = this.state.projectOrder;
     weeklyTargets = this.state.weeklyTargets;
     taskSortMode = this.state.taskSortMode;
+
+    updateAppBadge().catch((err) =>
+      console.error("Error updating app badge from state:", err),
+    );
 
     this.notify();
   }

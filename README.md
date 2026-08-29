@@ -73,6 +73,12 @@ All your data is stored **100% locally** in a high-performance SQLite database o
 - **Yearly Contribution Heatmap**: GitHub-style activity grid highlighting your focus intensity throughout the year.
 - **Live Streak Badge**: Live streak badge in the sidebar tracking consecutive active days with logged focus time.
 
+### 🔔 Real-Time App Icon & Dock Task Counter
+- **Dynamic Task Counter**: Real-time counter of today's pending tasks directly on the application icon, native GNOME/Ubuntu dock, titlebar, and sidebar navigation.
+- **Instant Reactive Updates**: Badge count automatically increments when tasks are added, and decrements when tasks are completed, deleted, or rescheduled.
+- **Multi-WM Linux Support**: Combines native `setBadgeCount` dock badges with dynamic high-DPI canvas icon overlays and window title updates for seamless visibility across GNOME, KDE, Wayland, and X11.
+- **Configurable Preferences**: Customize badge behavior in Settings (*Pending Tasks Today*, *All Tasks Today*, or *Disabled*).
+
 ### 🎨 Design & Custom UI
 - **Glassmorphism Design System**: Modern translucent backdrops, glowing accents, and smooth transitions.
 - **Custom Popover Pickers**: Handcrafted date and time pickers featuring digital clock displays, month navigation, 12-hour/minute selector grids, stepper controls, and quick presets (`Now`, `+15m`, `+30m`, `+1h`).

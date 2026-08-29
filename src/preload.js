@@ -5,11 +5,12 @@ const invokeTracker = (methodName, ...args) =>
   ipcRenderer.invoke("service-invoke", "tracker", methodName, ...args);
 
 contextBridge.exposeInMainWorld("tracker", {
-  // Window controls
+  // Window controls & App Badge
   minimize: () => ipcRenderer.send("window-minimize"),
   maximize: () => ipcRenderer.send("window-maximize"),
   close: () => ipcRenderer.send("window-close"),
   isMaximized: () => ipcRenderer.invoke("window-is-maximized"),
+  setBadgeCount: (data) => ipcRenderer.invoke("app-set-badge", data),
   onMaximizedChange: (callback) => {
     ipcRenderer.removeAllListeners("window-maximized-change");
     ipcRenderer.on("window-maximized-change", (event, isMaximized) =>

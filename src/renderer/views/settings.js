@@ -3,6 +3,7 @@
    ======================================== */
 
 import { applyTheme } from "../app.js";
+import { updateAppBadge } from "../badge.js";
 import {
   trackedTasks,
   customProjects,
@@ -42,6 +43,18 @@ export function initSettings() {
     soundToggle.addEventListener("change", () => {
       localStorage.setItem("tracker-sounds-enabled", soundToggle.checked ? "true" : "false");
       showToast(soundToggle.checked ? "Sound effects enabled" : "Sound effects muted", "info");
+    });
+  }
+
+  // Badge mode select
+  const badgeSelect = document.getElementById("settings-badge-select");
+  if (badgeSelect) {
+    const savedBadgeMode = localStorage.getItem("tracker-badge-mode") || "pending";
+    badgeSelect.value = savedBadgeMode;
+    badgeSelect.addEventListener("change", async () => {
+      localStorage.setItem("tracker-badge-mode", badgeSelect.value);
+      await updateAppBadge();
+      showToast("App icon badge preference updated! 🔔", "success");
     });
   }
 
@@ -188,5 +201,10 @@ export async function renderSettings() {
   const themeSelect = document.getElementById("settings-theme-select");
   if (themeSelect) {
     themeSelect.value = document.documentElement.getAttribute("data-theme") || "dark";
+  }
+
+  const badgeSelect = document.getElementById("settings-badge-select");
+  if (badgeSelect) {
+    badgeSelect.value = localStorage.getItem("tracker-badge-mode") || "pending";
   }
 }

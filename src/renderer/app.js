@@ -38,6 +38,9 @@ import {
 // ---- Sounds ----
 import { playAlarmSound } from "./sounds.js";
 
+// ---- Badging & Notifications ----
+import { initBadgeEngine, updateAppBadge } from "./badge.js";
+
 let estimateAlertFired = false;
 let currentAlarm = null;
 
@@ -125,10 +128,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   initProjects();
   initHabits();
   initSettings();
+  initBadgeEngine();
 
   // Load data & render
   await loadData();
   renderCurrentView();
+  updateAppBadge();
 
   // Listen for live calendar updates
   window.tracker.onCalendarUpdated((events) => {

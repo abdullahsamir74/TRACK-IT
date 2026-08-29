@@ -21,10 +21,12 @@ let repository = null;
 let analyticsService = null;
 let calendarService = null;
 let timerService = null;
+let defaultAppIcon = null;
 
 function createWindow() {
   const iconPath = path.join(__dirname, "renderer", "icon.png");
-  const appIcon = nativeImage.createFromPath(iconPath);
+  defaultAppIcon = nativeImage.createFromPath(iconPath);
+  const appIcon = defaultAppIcon;
 
   mainWindow = new BrowserWindow({
     title: "TRACK IT",
@@ -172,6 +174,41 @@ function registerIpcHandlers(serviceManager) {
   ipcMain.handle("dialog-open-file", async (event, options) => {
     if (!mainWindow) return null;
     return await dialog.showOpenDialog(mainWindow, options);
+  });
+
+  // Set badge count, window icon, and title
+  ipcMain.handle("app-set-badge", async (event, { count, iconDataUrl } = {}) => {
+    const numCount = typeof count === "number" && !isNaN(count) ? count : 0;
+
+    // 1. Native dock/launcher badge count (GNOME Dash to Dock, Ubuntu Dock, Unity, macOS)
+    if (typeof app.setBadgeCount === "function") {
+      try {
+        app.setBadgeCount(numCount);
+      } catch (err) {
+        console.warn("setBadgeCount failed:", err);
+      }
+    }
+
+    // 2. Window Icon with dynamic canvas overlay & Window Title
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      try {
+        if (numCount > 0 && iconDataUrl) {
+          const badgedImg = nativeImage.createFromDataURL(iconDataUrl);
+          if (!badgedImg.isEmpty()) {
+            mainWindow.setIcon(badgedImg);
+          }
+        } else if (defaultAppIcon && !defaultAppIcon.isEmpty()) {
+          mainWindow.setIcon(defaultAppIcon);
+        }
+
+        const title = numCount > 0 ? `(${numCount}) TRACK IT` : "TRACK IT";
+        mainWindow.setTitle(title);
+      } catch (err) {
+        console.warn("Error updating window icon or title:", err);
+      }
+    }
+
+    return true;
   });
 
   ipcMain.handle(

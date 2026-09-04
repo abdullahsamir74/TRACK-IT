@@ -104,6 +104,7 @@ class DatabaseManager {
         habit_id TEXT NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
         date TEXT NOT NULL, -- YYYY-MM-DD
         completed INTEGER DEFAULT 1,
+        status TEXT DEFAULT 'success', -- 'success', 'fail'
         created_at TEXT NOT NULL,
         UNIQUE(habit_id, date)
       );
@@ -130,6 +131,14 @@ class DatabaseManager {
     // Safe migration: ensure 'notes' column exists on tasks table for existing databases
     try {
       this.db.exec("ALTER TABLE tasks ADD COLUMN notes TEXT DEFAULT ''");
+    } catch (err) {
+      // Column already exists, safe to ignore
+    }
+
+    // Safe migration: ensure 'status' column exists on habit_logs table for existing databases
+    try {
+      this.db.exec("ALTER TABLE habit_logs ADD COLUMN status TEXT DEFAULT 'success'");
+      this.db.exec("UPDATE habit_logs SET status = 'success' WHERE status IS NULL OR status = ''");
     } catch (err) {
       // Column already exists, safe to ignore
     }
@@ -188,8 +197,8 @@ class DatabaseManager {
       `);
 
       const insertHabitLog = this.db.prepare(`
-        INSERT OR IGNORE INTO habit_logs (id, habit_id, date, completed, created_at)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT OR IGNORE INTO habit_logs (id, habit_id, date, completed, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
       `);
 
       const setSetting = this.db.prepare(`
@@ -279,13 +288,16 @@ class DatabaseManager {
             );
 
             if (h.history && typeof h.history === "object") {
-              for (const [dateStr, isDone] of Object.entries(h.history)) {
-                if (isDone) {
+              for (const [dateStr, val] of Object.entries(h.history)) {
+                if (val) {
+                  const status = typeof val === "string" ? val : (val === true || val === 1 ? "success" : "fail");
+                  const completed = status === "success" ? 1 : 0;
                   insertHabitLog.run(
                     `hl_${id}_${dateStr}`,
                     id,
                     dateStr,
-                    1,
+                    completed,
+                    status,
                     now
                   );
                 }

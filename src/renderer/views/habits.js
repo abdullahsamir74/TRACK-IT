@@ -149,8 +149,11 @@ function calculateStreak(habit, year, month) {
   let tempDate = new Date(startDate);
   let streak = 0;
 
-  const isSuccess = (d) =>
-    habit.history && habit.history[getLocalDateString(d)] === "success";
+  const isSuccess = (d) => {
+    if (!habit.history) return false;
+    const val = habit.history[getLocalDateString(d)];
+    return val === "success" || val === true || val === 1;
+  };
 
   // If starting today, check if today is success. If not, check yesterday.
   // If yesterday is success, start walking back from yesterday. If neither, streak is 0.
@@ -227,14 +230,17 @@ export async function renderHabitsView() {
   const numDays = new Date(selectedYear, selectedMonth + 1, 0).getDate();
 
   habitList.forEach((habit) => {
+    habit.history = habit.history || {};
+
     // Stats calculations
     let successCount = 0;
     let failCount = 0;
 
     for (let day = 1; day <= numDays; day++) {
       const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-      if (habit.history[dateStr] === "success") successCount++;
-      if (habit.history[dateStr] === "fail") failCount++;
+      const val = habit.history[dateStr];
+      if (val === "success" || val === true || val === 1) successCount++;
+      if (val === "fail" || val === false || val === 0) failCount++;
     }
 
     const completionRate =
@@ -327,7 +333,13 @@ export async function renderHabitsView() {
     // Build day circles
     for (let day = 1; day <= numDays; day++) {
       const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-      const status = habit.history[dateStr] || "unset";
+      const rawVal = habit.history[dateStr];
+      let status = "unset";
+      if (rawVal === "success" || rawVal === true || rawVal === 1) {
+        status = "success";
+      } else if (rawVal === "fail" || rawVal === false || rawVal === 0) {
+        status = "fail";
+      }
 
       const circle = document.createElement("div");
       circle.className = "habit-day-circle";
@@ -361,6 +373,14 @@ export async function renderHabitsView() {
           newStatus = "unset";
         }
 
+        // Optimistic UI update
+        circle.classList.remove("state-success", "state-fail");
+        if (newStatus === "success") {
+          circle.classList.add("state-success");
+        } else if (newStatus === "fail") {
+          circle.classList.add("state-fail");
+        }
+
         if (newStatus === "unset") {
           delete habit.history[dateStr];
         } else {
@@ -388,6 +408,7 @@ export async function renderHabitsView() {
         onConfirm: async () => {
           await window.tracker.deleteHabit(habit.id);
           setHabits(await window.tracker.getHabits());
+          renderCurrentView();
         },
       });
     });

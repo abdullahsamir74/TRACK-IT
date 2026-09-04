@@ -529,14 +529,15 @@ class Repository {
 
   getHabits() {
     const habits = this.db.prepare("SELECT * FROM habits WHERE archived = 0 ORDER BY sort_order ASC, created_at ASC").all();
-    const habitLogs = this.db.prepare("SELECT * FROM habit_logs WHERE completed = 1").all();
+    const habitLogs = this.db.prepare("SELECT * FROM habit_logs").all();
 
     const historyMap = {};
     for (const log of habitLogs) {
       if (!historyMap[log.habit_id]) {
         historyMap[log.habit_id] = {};
       }
-      historyMap[log.habit_id][log.date] = true;
+      const status = log.status || (log.completed ? "success" : "fail");
+      historyMap[log.habit_id][log.date] = status;
     }
 
     const resultMap = {};
@@ -583,24 +584,42 @@ class Repository {
 
     // Save history logs if provided
     if (habit.history && typeof habit.history === "object") {
-      const insertLog = this.db.prepare(`
-        INSERT OR REPLACE INTO habit_logs (id, habit_id, date, completed, created_at)
-        VALUES (?, ?, ?, 1, ?)
+      const existingLogs = this.db.prepare("SELECT date FROM habit_logs WHERE habit_id = ?").all(id);
+      const existingDates = new Set(existingLogs.map((l) => l.date));
+      const incomingEntries = Object.entries(habit.history);
+      const incomingKeys = new Set(incomingEntries.filter(([_, val]) => !!val && val !== "unset").map(([d]) => d));
+
+      const insertOrUpdateLog = this.db.prepare(`
+        INSERT INTO habit_logs (id, habit_id, date, completed, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(habit_id, date) DO UPDATE SET
+          completed = excluded.completed,
+          status = excluded.status
       `);
       const deleteLog = this.db.prepare(`
         DELETE FROM habit_logs WHERE habit_id = ? AND date = ?
       `);
 
-      const logTx = this.db.transaction((hMap) => {
-        for (const [dateStr, isDone] of Object.entries(hMap)) {
-          if (isDone) {
-            insertLog.run(`hl_${id}_${dateStr}`, id, dateStr, now);
-          } else {
+      const logTx = this.db.transaction(() => {
+        // Delete any existing dates that are no longer in habit.history or set to unset/falsy
+        for (const oldDate of existingDates) {
+          if (!incomingKeys.has(oldDate)) {
+            deleteLog.run(id, oldDate);
+          }
+        }
+
+        // Insert or update incoming entries
+        for (const [dateStr, val] of incomingEntries) {
+          if (!val || val === "unset") {
             deleteLog.run(id, dateStr);
+          } else {
+            const status = typeof val === "string" ? val : (val === true || val === 1 ? "success" : "fail");
+            const completed = status === "success" ? 1 : 0;
+            insertOrUpdateLog.run(`hl_${id}_${dateStr}`, id, dateStr, completed, status, now);
           }
         }
       });
-      logTx(habit.history);
+      logTx();
     }
 
     return this.getHabits()[id];
@@ -733,10 +752,24 @@ class Repository {
 
       if (Array.isArray(habitLogs)) {
         const stmt = this.db.prepare(`
-          INSERT OR REPLACE INTO habit_logs (id, habit_id, date, completed, created_at)
-          VALUES (@id, @habit_id, @date, @completed, @created_at)
+          INSERT INTO habit_logs (id, habit_id, date, completed, status, created_at)
+          VALUES (@id, @habit_id, @date, @completed, @status, @created_at)
+          ON CONFLICT(habit_id, date) DO UPDATE SET
+            completed = excluded.completed,
+            status = excluded.status
         `);
-        habitLogs.forEach((hl) => stmt.run(hl));
+        habitLogs.forEach((hl) => {
+          const status = hl.status || (hl.completed ? "success" : "fail");
+          const completed = hl.completed !== undefined ? (hl.completed ? 1 : 0) : (status === "success" ? 1 : 0);
+          stmt.run({
+            id: hl.id || `hl_${hl.habit_id}_${hl.date}`,
+            habit_id: hl.habit_id,
+            date: hl.date,
+            completed,
+            status,
+            created_at: hl.created_at || new Date().toISOString(),
+          });
+        });
       }
 
       if (Array.isArray(settings)) {

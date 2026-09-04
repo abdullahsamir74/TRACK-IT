@@ -37,10 +37,56 @@ class TrackerFacade {
   }
 
   markTaskComplete(taskId) {
+    const timerState = this.timer ? this.timer.getState() : null;
+    if (this.timer && this.timer.isRunning() && timerState && timerState.taskId === taskId) {
+      const session = this.timer.stop();
+      if (session) {
+        this.repo.saveSession(session);
+      }
+    } else {
+      // No active timer on this task — check if task has an estimate to auto-log offline progress
+      const tasks = this.repo.getTasks();
+      const task = tasks[taskId];
+      if (task) {
+        const estimateMin = task.estimateMinutes || 0;
+        if (estimateMin > 0) {
+          const existingTracked = task.totalTrackedMinutes || 0;
+          if (existingTracked < estimateMin) {
+            const durationToAdd = Math.round((estimateMin - existingTracked) * 10) / 10;
+            const durationMs = Math.round(durationToAdd * 60000);
+            const now = new Date();
+            const taskDate = task.start ? new Date(task.start) : now;
+            const isScheduledToday =
+              taskDate.getFullYear() === now.getFullYear() &&
+              taskDate.getMonth() === now.getMonth() &&
+              taskDate.getDate() === now.getDate();
+            const sessionDate = isScheduledToday && !isNaN(taskDate.getTime()) ? taskDate : now;
+            const startTime = sessionDate.toISOString();
+            const endTime = new Date(sessionDate.getTime() + durationMs).toISOString();
+
+            this.repo.saveSession({
+              id: `session_comp_${taskId}_${Date.now()}`,
+              taskId,
+              projectId: task.projectId || null,
+              taskName: task.name || taskId,
+              startTime,
+              endTime,
+              durationMinutes: durationToAdd,
+              durationMs,
+              entryType: "manual",
+              notes: "Completed offline with estimated duration",
+              completionSession: true,
+            });
+          }
+        }
+      }
+    }
+
     return this.repo.markTaskComplete(taskId);
   }
 
   markTaskIncomplete(taskId) {
+    this.repo.deleteCompletionSession(taskId);
     return this.repo.markTaskIncomplete(taskId);
   }
 

@@ -132,16 +132,21 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     const taskId = checkbox.dataset.taskId;
     const taskName = checkbox.dataset.taskName;
 
+    // Optimistic UI toggle
+    checkbox.classList.toggle("checked");
+    item.classList.toggle("completed");
+
     if (isCompleted) {
       await window.tracker.markTaskIncomplete(taskId);
     } else {
-      // Save the task name and start date first so the completion session
-      // can reference the correct day (not today)
+      // Save the task name, start date, notes, and estimate first so the completion session
+      // can reference the correct estimate and day
       await window.tracker.saveTask({
         id: taskId,
         name: taskName,
         start: event.start,
         notes: notes,
+        estimateMinutes: estimate,
       });
       await window.tracker.markTaskComplete(taskId);
     }

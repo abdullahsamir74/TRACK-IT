@@ -65,6 +65,10 @@ export async function renderDashboard() {
 
   const todayStr = getLocalDateString();
 
+  // Get tracking data first to ensure fresh tasks and state
+  const tasks = await window.tracker.getTasks();
+  setTrackedTasks(tasks || {});
+
   // Combine calendar events and manual tasks
   const allEvents = getCombinedEvents(calendarEvents, trackedTasks);
 
@@ -74,9 +78,6 @@ export async function renderDashboard() {
     return eventDate === todayStr;
   });
 
-  // Get tracking data
-  const tasks = await window.tracker.getTasks();
-  setTrackedTasks(tasks || {});
   const sessions = await window.tracker.getAllSessions();
   const todaySessions = (sessions || []).filter((s) => {
     return getLocalDateString(s.startTime) === todayStr;
@@ -99,12 +100,19 @@ export async function renderDashboard() {
   const completedCountEl = document.getElementById("stat-completed-count");
   if (completedCountEl) completedCountEl.textContent = completedTodayCount;
 
-  const estimatedTotal = todayEvents.reduce(
-    (sum, e) => sum + (trackedTasks[e.id]?.estimateMinutes || e.durationMinutes || 0),
-    0,
+  // Estimated total remaining for uncompleted tasks
+  const pendingTodayEvents = todayEvents.filter(
+    (e) => !trackedTasks[e.id]?.completed,
   );
+  const estimatedRemaining = pendingTodayEvents.reduce((sum, e) => {
+    const task = trackedTasks[e.id];
+    const est = task?.estimateMinutes || e.durationMinutes || 0;
+    const tracked = task?.totalTrackedMinutes || 0;
+    const remaining = Math.max(0, est - tracked);
+    return sum + (est > 0 ? (tracked > 0 ? remaining : est) : 0);
+  }, 0);
   const estTimeEl = document.getElementById("stat-estimated-time");
-  if (estTimeEl) estTimeEl.textContent = formatDuration(estimatedTotal);
+  if (estTimeEl) estTimeEl.textContent = formatDuration(estimatedRemaining);
 
   // Active timer banner
   const timerState = await window.tracker.getTimerState();

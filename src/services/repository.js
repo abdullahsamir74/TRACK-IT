@@ -410,6 +410,19 @@ class Repository {
     return result.changes > 0;
   }
 
+  /**
+   * Delete auto-generated completion session(s) for a task.
+   */
+  deleteCompletionSession(taskId) {
+    if (!taskId) return false;
+    const stmt = this.db.prepare(`
+      DELETE FROM time_entries 
+      WHERE task_id = ? AND id LIKE 'session_comp_%'
+    `);
+    const result = stmt.run(taskId);
+    return result.changes > 0;
+  }
+
   // ==========================================
   // PROJECTS
   // ==========================================

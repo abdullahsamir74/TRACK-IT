@@ -36,14 +36,14 @@ class TrackerFacade {
     return this.repo.setEstimate(taskId, minutes);
   }
 
-  markTaskComplete(taskId) {
+  markTaskComplete(taskId, autoLogEstimate = true) {
     const timerState = this.timer ? this.timer.getState() : null;
     if (this.timer && this.timer.isRunning() && timerState && timerState.taskId === taskId) {
       const session = this.timer.stop();
       if (session) {
         this.repo.saveSession(session);
       }
-    } else {
+    } else if (autoLogEstimate) {
       // No active timer on this task — check if task has an estimate to auto-log offline progress
       const tasks = this.repo.getTasks();
       const task = tasks[taskId];

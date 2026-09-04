@@ -37,7 +37,8 @@ contextBridge.exposeInMainWorld("tracker", {
   deleteTask: (taskId) => invokeTracker("deleteTask", taskId),
   setEstimate: (taskId, minutes) =>
     invokeTracker("setEstimate", taskId, minutes),
-  markTaskComplete: (taskId) => invokeTracker("markTaskComplete", taskId),
+  markTaskComplete: (taskId, autoLogEstimate = true) =>
+    invokeTracker("markTaskComplete", taskId, autoLogEstimate),
   markTaskIncomplete: (taskId) => invokeTracker("markTaskIncomplete", taskId),
   saveTaskOrder: (orderedIds) => invokeTracker("saveTaskOrder", orderedIds),
   getTaskOrder: () => invokeTracker("getTaskOrder"),

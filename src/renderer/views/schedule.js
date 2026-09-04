@@ -2,7 +2,7 @@
    VIEW — Schedule
    ======================================== */
 
-import { calendarEvents, trackedTasks, taskOrder, taskSortMode, setTaskSortMode } from "../state.js";
+import { calendarEvents, trackedTasks, setTrackedTasks, taskOrder, taskSortMode, setTaskSortMode } from "../state.js";
 import { createTaskItem } from "../components/task-item.js";
 import { openAddTaskModal } from "../components/modals.js";
 import { initDragAndDrop } from "../components/drag-drop.js";
@@ -12,6 +12,9 @@ import { getLocalDateString, getCombinedEvents } from "../utils.js";
  * Render the schedule view (filters + event list).
  */
 export async function renderSchedule() {
+  const tasks = await window.tracker.getTasks();
+  setTrackedTasks(tasks || {});
+
   const taskListEl = document.getElementById("schedule-task-list");
   const filterBtns = document.querySelectorAll(".filter-btn");
 

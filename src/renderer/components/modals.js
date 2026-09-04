@@ -3,6 +3,7 @@
    ======================================== */
 
 import {
+  calendarEvents,
   trackedTasks,
   customProjects,
   setTrackedTasks,
@@ -11,7 +12,7 @@ import {
   renderCurrentView,
   loadData,
 } from "../state.js";
-import { getLocalDateString, getLocalTimeString } from "../utils.js";
+import { getLocalDateString, getLocalTimeString, getCombinedEvents } from "../utils.js";
 import {
   closeCustomPickers,
   attachPickersToInputs,
@@ -196,7 +197,7 @@ export function openEditTaskModal(task) {
   }, 50);
 }
 
-// ---- Log Past / Manual Time Modal (NEW) ----
+// ---- Log Past / Manual Time Modal ----
 export function openLogTimeModal(prefilledTaskId = null) {
   const overlay = document.getElementById("log-time-modal-overlay");
   if (!overlay) return;
@@ -207,24 +208,45 @@ export function openLogTimeModal(prefilledTaskId = null) {
   const durInput = document.getElementById("log-time-duration");
   const projSelect = document.getElementById("log-time-project");
   const notesInput = document.getElementById("log-time-notes");
+  const markCompleteCheckbox = document.getElementById("log-time-mark-complete");
+
+  const allEvents = getCombinedEvents(calendarEvents, trackedTasks);
 
   // Populate task dropdown
   if (taskSelect) {
     taskSelect.innerHTML = `<option value="">-- Choose Existing Task or Type Name Below --</option>`;
-    Object.values(trackedTasks).forEach((t) => {
+    allEvents.forEach((t) => {
+      const taskObj = trackedTasks[t.id];
+      const isDone = taskObj ? taskObj.completed : false;
       const opt = document.createElement("option");
       opt.value = t.id;
-      opt.textContent = t.name + (t.completed ? " (Completed)" : "");
+      opt.textContent = (t.summary || t.name) + (isDone ? " (Completed)" : "");
       if (prefilledTaskId && t.id === prefilledTaskId) opt.selected = true;
       taskSelect.appendChild(opt);
     });
 
     taskSelect.onchange = () => {
       const selectedId = taskSelect.value;
-      if (selectedId && trackedTasks[selectedId]) {
-        nameInput.value = trackedTasks[selectedId].name;
-        if (trackedTasks[selectedId].projectId) {
-          projSelect.value = trackedTasks[selectedId].projectId;
+      if (selectedId) {
+        const selectedEvent = allEvents.find((e) => e.id === selectedId);
+        const selectedTask = trackedTasks[selectedId];
+        if (selectedEvent) {
+          nameInput.value = selectedEvent.summary || selectedEvent.name || "";
+          if (selectedEvent.durationMinutes) {
+            durInput.value = String(selectedEvent.durationMinutes);
+          }
+        } else if (selectedTask) {
+          nameInput.value = selectedTask.name || "";
+        }
+        if (selectedTask && selectedTask.projectId) {
+          projSelect.value = selectedTask.projectId;
+        }
+        if (markCompleteCheckbox) {
+          markCompleteCheckbox.checked = true;
+        }
+      } else {
+        if (markCompleteCheckbox) {
+          markCompleteCheckbox.checked = false;
         }
       }
     };
@@ -241,17 +263,30 @@ export function openLogTimeModal(prefilledTaskId = null) {
     });
   }
 
-  if (prefilledTaskId && trackedTasks[prefilledTaskId]) {
-    nameInput.value = trackedTasks[prefilledTaskId].name;
-    if (trackedTasks[prefilledTaskId].projectId) {
-      projSelect.value = trackedTasks[prefilledTaskId].projectId;
+  if (prefilledTaskId) {
+    const selectedEvent = allEvents.find((e) => e.id === prefilledTaskId);
+    const selectedTask = trackedTasks[prefilledTaskId];
+    nameInput.value = selectedEvent?.summary || selectedTask?.name || "";
+    if (selectedEvent && selectedEvent.durationMinutes) {
+      durInput.value = String(selectedEvent.durationMinutes);
+    }
+    if (selectedTask && selectedTask.projectId) {
+      projSelect.value = selectedTask.projectId;
+    }
+    if (markCompleteCheckbox) {
+      markCompleteCheckbox.checked = true;
     }
   } else {
     nameInput.value = "";
+    if (markCompleteCheckbox) {
+      markCompleteCheckbox.checked = false;
+    }
   }
 
   dateInput.value = getLocalDateString();
-  durInput.value = "30";
+  if (!prefilledTaskId) {
+    durInput.value = "30";
+  }
   notesInput.value = "";
 
   overlay.style.display = "flex";
@@ -531,6 +566,8 @@ async function handleLogTime(e) {
   const projectId = document.getElementById("log-time-project").value || null;
   const notes = document.getElementById("log-time-notes").value.trim();
 
+  const markComplete = document.getElementById("log-time-mark-complete")?.checked;
+
   if (!taskName || !dateVal || isNaN(durationVal) || durationVal <= 0) return;
 
   const start = new Date(`${dateVal}T12:00:00`);
@@ -548,6 +585,24 @@ async function handleLogTime(e) {
   };
 
   await window.tracker.saveSession(session);
+
+  if (taskId) {
+    const existingTask = trackedTasks[taskId];
+    if (markComplete) {
+      await window.tracker.saveTask({
+        id: taskId,
+        name: taskName,
+        projectId: projectId || (existingTask ? existingTask.projectId : null),
+        start: existingTask ? existingTask.start : start.toISOString(),
+        notes: existingTask ? existingTask.notes : notes,
+        estimateMinutes: existingTask ? existingTask.estimateMinutes : null,
+      });
+      await window.tracker.markTaskComplete(taskId, false);
+    } else if (!markComplete && existingTask?.completed) {
+      await window.tracker.markTaskIncomplete(taskId);
+    }
+  }
+
   await loadData();
 
   closeModals();

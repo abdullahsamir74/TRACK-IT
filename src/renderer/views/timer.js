@@ -11,6 +11,7 @@ import {
 import {
   calendarEvents,
   trackedTasks,
+  customProjects,
   setTrackedTasks,
   selectedTimerTask,
   setSelectedTimerTask,
@@ -44,6 +45,17 @@ function updatePomodoroPhaseBadge() {
     phaseBadge.classList.add("phase-break-long");
     phaseBadge.textContent = "LONG BREAK (15M)";
   }
+}
+
+function formatTimerTaskName(taskId, rawName) {
+  if (!rawName) return "No task selected";
+  if (!taskId) return rawName;
+  const taskObj = trackedTasks[taskId];
+  if (taskObj && taskObj.projectId && customProjects[taskObj.projectId]) {
+    const proj = customProjects[taskObj.projectId];
+    return `${proj.name} · ${rawName}`;
+  }
+  return rawName;
 }
 
 /**
@@ -306,7 +318,8 @@ export async function startTimerForTask(isNewTask = false) {
     remainingEst,
   );
 
-  document.getElementById("timer-task-name").textContent = displayName;
+  document.getElementById("timer-task-name").textContent =
+    formatTimerTaskName(selectedTimerTask.id, displayName);
   document.getElementById("timer-play-icon").style.display = "none";
   document.getElementById("timer-pause-icon").style.display = "";
   document.getElementById("btn-timer-stop").disabled = false;
@@ -556,7 +569,7 @@ export async function renderTimerView() {
   if (timerState.running) {
     document.getElementById("btn-timer-stop").disabled = false;
     document.getElementById("timer-task-name").textContent =
-      timerState.taskName;
+      formatTimerTaskName(timerState.taskId, timerState.taskName);
     document.getElementById("timer-display").textContent =
       timerState.elapsedFormatted;
 
@@ -587,7 +600,7 @@ export async function renderTimerView() {
       setSelectedTimerTask(null);
     }
     document.getElementById("timer-task-name").textContent = selectedTimerTask
-      ? selectedTimerTask.name
+      ? formatTimerTaskName(selectedTimerTask.id, selectedTimerTask.name)
       : "No task selected";
     document.getElementById("timer-play-icon").style.display = "";
     document.getElementById("timer-pause-icon").style.display = "none";
@@ -657,6 +670,10 @@ function renderTimerTaskList() {
         ? Math.max(0, totalEst - tracked)
         : null;
     const displayEst = remainingEst !== null ? remainingEst : totalEst;
+    const proj = taskObj.projectId ? customProjects[taskObj.projectId] : null;
+    const projectBadge = proj
+      ? `<span class="task-project-badge" style="color: ${proj.color}; border-color: ${proj.color}40; background: ${proj.color}15; font-size: 10px; padding: 1px 6px;">${escapeHtml(proj.name)}</span>`
+      : "";
 
     const opt = document.createElement("div");
     opt.className = `timer-task-option${selectedTimerTask?.id === task.id ? " selected" : ""}`;
@@ -666,6 +683,7 @@ function renderTimerTaskList() {
     opt.innerHTML = `
       <div class="task-color-dot" style="background: ${task.calendarColor || "#38bdf8"}; height: 24px;"></div>
       <span style="flex:1; text-align:left;">${escapeHtml(task.name)}</span>
+      ${projectBadge}
       ${displayEst ? `<span class="task-badge estimate">${formatDuration(displayEst)}${tracked > 0 ? " left" : ""}</span>` : ""}
     `;
     opt.addEventListener("click", () => {
@@ -675,7 +693,8 @@ function renderTimerTaskList() {
         estimate: displayEst,
         totalEstimate: totalEst,
       });
-      document.getElementById("timer-task-name").textContent = task.name;
+      document.getElementById("timer-task-name").textContent =
+        formatTimerTaskName(task.id, task.name);
       if (displayEst && timerMode !== "pomodoro") {
         document.getElementById("timer-estimate-bar").style.display = "block";
         document.getElementById("timer-estimate-label").textContent =

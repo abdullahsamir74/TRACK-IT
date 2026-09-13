@@ -46,6 +46,7 @@ class Repository {
         completedAt: r.completed_at || null,
         due: r.due_date || null,
         start: r.due_date || null,
+        isAllDay: Boolean(r.is_all_day),
         sortOrder: r.sort_order || 0,
         isManual: isManual,
         createdAt: r.created_at,
@@ -92,6 +93,7 @@ class Repository {
     }
 
     const dueDate = task.due !== undefined ? task.due : task.start !== undefined ? task.start : existing ? existing.due_date : null;
+    const isAllDay = task.isAllDay !== undefined ? (task.isAllDay ? 1 : 0) : existing && existing.is_all_day !== undefined ? existing.is_all_day : 0;
     const sortOrder = task.sortOrder !== undefined ? task.sortOrder : existing ? existing.sort_order : 0;
     const createdAt = existing ? existing.created_at : task.createdAt || now;
 
@@ -99,8 +101,8 @@ class Repository {
       INSERT INTO tasks (
         id, name, description, notes, project_id, calendar_event_id, calendar_name, calendar_color,
         status, priority, estimate_minutes, manual_tracked_minutes, completed_at, due_date,
-        sort_order, deleted_at, created_at, updated_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)
+        is_all_day, sort_order, deleted_at, created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         name = excluded.name,
         description = excluded.description,
@@ -115,6 +117,7 @@ class Repository {
         manual_tracked_minutes = excluded.manual_tracked_minutes,
         completed_at = excluded.completed_at,
         due_date = excluded.due_date,
+        is_all_day = excluded.is_all_day,
         sort_order = excluded.sort_order,
         deleted_at = NULL,
         updated_at = excluded.updated_at
@@ -135,6 +138,7 @@ class Repository {
       manualTrackedMinutes,
       completedAt,
       dueDate,
+      isAllDay,
       sortOrder,
       createdAt,
       now

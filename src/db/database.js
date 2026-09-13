@@ -65,6 +65,7 @@ class DatabaseManager {
         manual_tracked_minutes INTEGER DEFAULT 0,
         completed_at TEXT DEFAULT NULL,
         due_date TEXT DEFAULT NULL,
+        is_all_day INTEGER DEFAULT 0,
         sort_order INTEGER DEFAULT 0,
         deleted_at TEXT DEFAULT NULL,
         created_at TEXT NOT NULL,
@@ -131,6 +132,13 @@ class DatabaseManager {
     // Safe migration: ensure 'notes' column exists on tasks table for existing databases
     try {
       this.db.exec("ALTER TABLE tasks ADD COLUMN notes TEXT DEFAULT ''");
+    } catch (err) {
+      // Column already exists, safe to ignore
+    }
+
+    // Safe migration: ensure 'is_all_day' column exists on tasks table for existing databases
+    try {
+      this.db.exec("ALTER TABLE tasks ADD COLUMN is_all_day INTEGER DEFAULT 0");
     } catch (err) {
       // Column already exists, safe to ignore
     }

@@ -100,6 +100,7 @@ export function getCombinedEvents(calendarEvents, trackedTasks) {
           calendarColor: task.calendarColor || "#38bdf8",
           calendarName: task.calendarName || "Manual",
           isManual: true,
+          isAllDay: Boolean(task.isAllDay),
         });
       }
     }

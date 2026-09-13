@@ -31,9 +31,15 @@ function buildTaskMap() {
     map[dateKey].push({ event: item, task });
   });
 
-  // Sort each day's tasks by start time
+  // Sort each day's tasks: all-day first, then by start time
   for (const key of Object.keys(map)) {
-    map[key].sort((a, b) => new Date(a.event.start) - new Date(b.event.start));
+    map[key].sort((a, b) => {
+      const aAllDay = Boolean(a.task?.isAllDay || a.event?.isAllDay);
+      const bAllDay = Boolean(b.task?.isAllDay || b.event?.isAllDay);
+      if (aAllDay && !bAllDay) return -1;
+      if (!aAllDay && bAllDay) return 1;
+      return new Date(a.event.start) - new Date(b.event.start);
+    });
   }
 
   return map;
@@ -175,7 +181,8 @@ function createDayCell(dayNum, dateStr, taskMap, todayStr, isOtherMonth) {
       preview.appendChild(nameEl);
 
       // Short time
-      const timeStr = formatShortTime(dt.event.start);
+      const isAllDay = Boolean(dt.task?.isAllDay || dt.event?.isAllDay);
+      const timeStr = isAllDay ? "All Day" : formatShortTime(dt.event.start);
       if (timeStr) {
         const timeEl = document.createElement("span");
         timeEl.className = "cal-task-time";

@@ -32,14 +32,17 @@ export function createTaskItem(event, draggable = false, timerState = null) {
   item.className = `task-item${isCompleted ? " completed" : ""}`;
   item.dataset.taskId = event.id;
 
+  const isAllDay = Boolean(task.isAllDay || event.isAllDay);
   const startTime = new Date(event.start);
-  const timeStr = !isNaN(startTime.getTime())
-    ? startTime.toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      })
-    : "";
+  const timeStr = isAllDay
+    ? "All Day"
+    : !isNaN(startTime.getTime())
+      ? startTime.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+      : "";
   const estimate = task.estimateMinutes || event.durationMinutes || null;
   const tracked = task.totalTrackedMinutes || 0;
 
@@ -88,8 +91,11 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     <div class="task-info">
       <div class="task-name">${escapeHtml(event.summary)}</div>
       <div class="task-meta">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        ${timeStr}
+        ${
+          isAllDay
+            ? `<span class="all-day-tag">All Day</span>`
+            : `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${timeStr}`
+        }
         ${event.calendarName ? ` · ${escapeHtml(event.calendarName)}` : ""}
       </div>
     </div>
@@ -110,7 +116,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
       <button class="task-action-btn" title="Set estimate" data-action="estimate" data-task-id="${event.id}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       </button>
-      <button class="task-action-btn" title="Edit task" data-action="edit" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}" data-task-start="${event.start || ""}" data-task-estimate="${estimate || ""}" data-task-priority="${task.priority || "medium"}" data-task-manual="${isManual}">
+      <button class="task-action-btn" title="Edit task" data-action="edit" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}" data-task-start="${event.start || ""}" data-task-estimate="${estimate || ""}" data-task-priority="${task.priority || "medium"}" data-task-manual="${isManual}" data-task-all-day="${isAllDay ? "true" : "false"}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       </button>
       <button class="task-action-btn task-action-btn-danger" title="Delete task" data-action="delete" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}">
@@ -178,7 +184,9 @@ export function createTaskItem(event, draggable = false, timerState = null) {
             ? parseInt(btn.dataset.taskEstimate)
             : null,
           isManual: btn.dataset.taskManual === "true" || isManual,
+          isAllDay: btn.dataset.taskAllDay === "true" || isAllDay,
           priority: btn.dataset.taskPriority || "medium",
+          projectId: (trackedTasks[btn.dataset.taskId] && trackedTasks[btn.dataset.taskId].projectId) || task.projectId || null,
           notes: notes,
           description: notes,
         });

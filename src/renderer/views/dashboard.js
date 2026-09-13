@@ -10,6 +10,7 @@ import {
 import {
   calendarEvents,
   trackedTasks,
+  customProjects,
   setTrackedTasks,
   setCalendarEvents,
   taskOrder,
@@ -120,8 +121,13 @@ export async function renderDashboard() {
   if (activeTimerEl) {
     if (timerState && timerState.running) {
       activeTimerEl.style.display = "flex";
+      const task = timerState.taskId ? trackedTasks[timerState.taskId] : null;
+      const proj = task?.projectId ? customProjects[task.projectId] : null;
+      const displayTask = proj
+        ? `${proj.name} · ${timerState.taskName}`
+        : timerState.taskName;
       document.getElementById("dashboard-timer-task").textContent =
-        timerState.taskName;
+        displayTask;
       document.getElementById("dashboard-timer-display").textContent =
         timerState.elapsedFormatted;
 
@@ -191,7 +197,13 @@ export async function renderDashboard() {
         todayEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
       }
     } else if (taskSortMode === "date") {
-      todayEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
+      todayEvents.sort((a, b) => {
+        const aAllDay = Boolean(trackedTasks[a.id]?.isAllDay || a.isAllDay);
+        const bAllDay = Boolean(trackedTasks[b.id]?.isAllDay || b.isAllDay);
+        if (aAllDay && !bAllDay) return -1;
+        if (!aAllDay && bAllDay) return 1;
+        return new Date(a.start) - new Date(b.start);
+      });
     } else if (taskSortMode === "priority") {
       const priorityMap = { high: 3, medium: 2, low: 1 };
       todayEvents.sort((a, b) => {

@@ -110,6 +110,20 @@
   opacity: 0.6;
   flex-shrink: 0;
 }
+.all-day-tag {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  line-height: 1.2;
+}
 
 /* --- Task Actions --- */
 .task-actions {

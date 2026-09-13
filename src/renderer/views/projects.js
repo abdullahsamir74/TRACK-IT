@@ -2,7 +2,7 @@
    VIEW — Projects
    ======================================== */
 
-import { escapeHtml, getCombinedEvents } from "../utils.js";
+import { escapeHtml, getCombinedEvents, formatDuration } from "../utils.js";
 import {
   calendarEvents,
   trackedTasks,
@@ -18,6 +18,7 @@ import { createTaskItem } from "../components/task-item.js";
 import {
   initProjectModal,
   openEditProjectModal,
+  openAddTaskModal,
 } from "../components/modals.js";
 import { showConfirmDialog } from "../components/confirm-dialog.js";
 
@@ -142,6 +143,14 @@ export async function renderProjects() {
       card.dataset.projectId = project.id;
       card.style.borderLeftColor = project.color || "#38bdf8";
 
+      let projectTrackedMinutes = 0;
+      Object.values(trackedTasks).forEach((t) => {
+        if (t.projectId === project.id) {
+          projectTrackedMinutes += t.totalTrackedMinutes || 0;
+        }
+      });
+      projectTrackedMinutes = Math.round(projectTrackedMinutes * 10) / 10;
+
       card.innerHTML = `
         <div class="project-card-header" style="cursor: pointer;">
           <div class="project-card-top-row">
@@ -161,8 +170,17 @@ export async function renderProjects() {
               <div class="project-color-dot" style="background: ${project.color};"></div>
               <span class="project-title">${escapeHtml(project.name)}</span>
             </div>
-            <span class="project-task-count">${projectTasks[project.id].length} tasks</span>
+            <div style="display: flex; align-items: center; gap: 6px; margin-left: auto;">
+              ${projectTrackedMinutes > 0 ? `<span class="task-badge tracked" style="font-size: 11px;">${formatDuration(projectTrackedMinutes)} tracked</span>` : ""}
+              <span class="project-task-count">${projectTasks[project.id].length} tasks</span>
+            </div>
             <div class="project-card-actions">
+              <button class="btn-add-task-to-project" data-project-id="${project.id}" title="Add task to ${escapeHtml(project.name)}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"/>
+                  <line x1="5" y1="12" x2="19" y2="12"/>
+                </svg>
+              </button>
               <button class="btn-edit-project" data-project-id="${project.id}" title="Edit project">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -210,6 +228,7 @@ export async function renderProjects() {
         .querySelector(".project-card-header")
         .addEventListener("click", (e) => {
           if (
+            e.target.closest(".btn-add-task-to-project") ||
             e.target.closest(".btn-delete-project") ||
             e.target.closest(".btn-edit-project") ||
             e.target.closest(".project-drag-handle")
@@ -218,6 +237,14 @@ export async function renderProjects() {
           const expanded = card.classList.toggle("expanded");
           expandedProjects[project.id] = expanded;
         });
+
+      const btnAddTask = card.querySelector(".btn-add-task-to-project");
+      if (btnAddTask) {
+        btnAddTask.addEventListener("click", (e) => {
+          e.stopPropagation();
+          openAddTaskModal(null, project.id);
+        });
+      }
 
       card.querySelector(".btn-edit-project").addEventListener("click", (e) => {
         e.stopPropagation();

@@ -50,11 +50,13 @@ class AnalyticsService {
       SELECT 
         te.*,
         t.name as task_name_joined,
+        t.project_id as task_project_id,
+        COALESCE(te.project_id, t.project_id) as effective_project_id,
         p.name as project_name_joined,
         p.color as project_color_joined
       FROM time_entries te
       LEFT JOIN tasks t ON te.task_id = t.id
-      LEFT JOIN projects p ON te.project_id = p.id
+      LEFT JOIN projects p ON COALESCE(te.project_id, t.project_id) = p.id
       WHERE te.start_time >= ? AND te.start_time <= ?
       ORDER BY te.start_time ASC
     `;
@@ -85,26 +87,75 @@ class AnalyticsService {
       }
     }
 
-    // Task stats breakdown
-    const taskStatsMap = {};
+    // Tracked Progress stats breakdown (Project Title if assigned, Task Name if unassigned)
+    const progressStatsMap = {};
     for (const entry of filteredEntries) {
-      const name = entry.task_name || entry.task_name_joined || "Unknown Task";
-      if (!taskStatsMap[name]) {
-        taskStatsMap[name] = {
-          taskId: entry.task_id,
-          taskName: name,
+      const projId = entry.effective_project_id;
+      const projName = entry.project_name_joined;
+      const rawTaskName = entry.task_name || entry.task_name_joined || "Unknown Task";
+      const duration = entry.duration_minutes || 0;
+
+      let key;
+      let displayName;
+      let isProject = false;
+      let color = null;
+
+      if (projId && projName) {
+        key = `proj_${projId}`;
+        displayName = projName;
+        isProject = true;
+        color = entry.project_color_joined || "#38bdf8";
+      } else {
+        key = `task_${entry.task_id || rawTaskName}`;
+        displayName = rawTaskName;
+        isProject = false;
+        color = null;
+      }
+
+      if (!progressStatsMap[key]) {
+        progressStatsMap[key] = {
+          id: key,
+          name: displayName,
+          taskName: displayName, // Backward compatibility
+          isProject,
+          projectId: isProject ? projId : null,
+          color,
           totalMinutes: 0,
           sessionsCount: 0,
-          projectName: entry.project_name_joined || null,
-          projectColor: entry.project_color_joined || null,
+          tasks: {},
         };
       }
-      taskStatsMap[name].totalMinutes += entry.duration_minutes || 0;
-      taskStatsMap[name].sessionsCount += 1;
+
+      progressStatsMap[key].totalMinutes += duration;
+      progressStatsMap[key].sessionsCount += 1;
+
+      // Keep tasks progress inside the project itself
+      if (isProject) {
+        const subTaskKey = entry.task_id || rawTaskName;
+        if (!progressStatsMap[key].tasks[subTaskKey]) {
+          progressStatsMap[key].tasks[subTaskKey] = {
+            taskId: entry.task_id,
+            taskName: rawTaskName,
+            totalMinutes: 0,
+            sessionsCount: 0,
+          };
+        }
+        progressStatsMap[key].tasks[subTaskKey].totalMinutes += duration;
+        progressStatsMap[key].tasks[subTaskKey].sessionsCount += 1;
+      }
     }
 
-    const taskStats = Object.values(taskStatsMap)
-      .map((t) => ({ ...t, totalMinutes: Math.round(t.totalMinutes * 10) / 10 }))
+    const taskStats = Object.values(progressStatsMap)
+      .map((item) => ({
+        ...item,
+        totalMinutes: Math.round(item.totalMinutes * 10) / 10,
+        subTasks: Object.values(item.tasks || {})
+          .map((st) => ({
+            ...st,
+            totalMinutes: Math.round(st.totalMinutes * 10) / 10,
+          }))
+          .sort((a, b) => b.totalMinutes - a.totalMinutes),
+      }))
       .sort((a, b) => b.totalMinutes - a.totalMinutes);
 
     // Project breakdown

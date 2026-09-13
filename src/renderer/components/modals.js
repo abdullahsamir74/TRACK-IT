@@ -83,6 +83,45 @@ export function initModals() {
   setupDurationPresets("task");
   setupDurationPresets("edit-task");
 
+  // All Day checkbox toggles
+  const taskAllDay = document.getElementById("task-all-day");
+  const taskTime = document.getElementById("task-time");
+  const taskTimeWrapper = document.getElementById("task-time-wrapper");
+  if (taskAllDay && taskTime && taskTimeWrapper) {
+    taskAllDay.addEventListener("change", () => {
+      if (taskAllDay.checked) {
+        taskTime.required = false;
+        taskTime.disabled = true;
+        taskTimeWrapper.style.opacity = "0.4";
+        taskTimeWrapper.style.pointerEvents = "none";
+      } else {
+        taskTime.required = true;
+        taskTime.disabled = false;
+        taskTimeWrapper.style.opacity = "1";
+        taskTimeWrapper.style.pointerEvents = "auto";
+      }
+    });
+  }
+
+  const editTaskAllDay = document.getElementById("edit-task-all-day");
+  const editTaskTime = document.getElementById("edit-task-time");
+  const editTaskTimeWrapper = document.getElementById("edit-task-time-wrapper");
+  if (editTaskAllDay && editTaskTime && editTaskTimeWrapper) {
+    editTaskAllDay.addEventListener("change", () => {
+      if (editTaskAllDay.checked) {
+        editTaskTime.required = false;
+        editTaskTime.disabled = true;
+        editTaskTimeWrapper.style.opacity = "0.4";
+        editTaskTimeWrapper.style.pointerEvents = "none";
+      } else {
+        editTaskTime.required = true;
+        editTaskTime.disabled = false;
+        editTaskTimeWrapper.style.opacity = "1";
+        editTaskTimeWrapper.style.pointerEvents = "auto";
+      }
+    });
+  }
+
   // Global ESC key listener to close active modal windows
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" || e.key === "Esc" || e.keyCode === 27) {
@@ -92,7 +131,7 @@ export function initModals() {
 }
 
 // ---- Add Task Modal ----
-export function openAddTaskModal(prefilledDate) {
+export function openAddTaskModal(prefilledDate, prefilledProjectId = null) {
   const today = getLocalDateString();
   const currentTime = getLocalTimeString();
   document.getElementById("task-date").value = prefilledDate || today;
@@ -100,8 +139,40 @@ export function openAddTaskModal(prefilledDate) {
   document.getElementById("task-name").value = "";
   document.getElementById("task-estimate").value = "";
   document.getElementById("task-priority").value = "medium";
+
+  const allDayCb = document.getElementById("task-all-day");
+  const taskTimeInput = document.getElementById("task-time");
+  const taskTimeWrap = document.getElementById("task-time-wrapper");
+  if (allDayCb) allDayCb.checked = false;
+  if (taskTimeInput) {
+    taskTimeInput.required = true;
+    taskTimeInput.disabled = false;
+  }
+  if (taskTimeWrap) {
+    taskTimeWrap.style.opacity = "1";
+    taskTimeWrap.style.pointerEvents = "auto";
+  }
+
   const notesEl = document.getElementById("task-notes");
   if (notesEl) notesEl.value = "";
+
+  const projSelect = document.getElementById("task-project");
+  if (projSelect) {
+    projSelect.innerHTML = `<option value="">No Project (Unassigned)</option>`;
+    Object.values(customProjects).forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.name;
+      if (prefilledProjectId && p.id === prefilledProjectId) {
+        opt.selected = true;
+      }
+      projSelect.appendChild(opt);
+    });
+    if (!prefilledProjectId) {
+      projSelect.value = "";
+    }
+  }
+
   syncPriorityPills("task", "medium");
   attachPickersToInputs();
   document.getElementById("modal-overlay").style.display = "flex";
@@ -155,6 +226,21 @@ export function openEditTaskModal(task) {
     syncPriorityPills("edit-task", task.priority || "medium");
   }
 
+  const projSelect = document.getElementById("edit-task-project");
+  if (projSelect) {
+    projSelect.innerHTML = `<option value="">No Project (Unassigned)</option>`;
+    Object.values(customProjects).forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.name;
+      if (task.projectId && p.id === task.projectId) {
+        opt.selected = true;
+      }
+      projSelect.appendChild(opt);
+    });
+    projSelect.value = task.projectId || "";
+  }
+
   if (task.start) {
     const d = new Date(task.start);
     if (!isNaN(d.getTime())) {
@@ -172,15 +258,34 @@ export function openEditTaskModal(task) {
     timeInput.value = "";
   }
 
+  const isAllDay = Boolean(task.isAllDay);
+  const allDayCb = document.getElementById("edit-task-all-day");
+  const timeWrap = document.getElementById("edit-task-time-wrapper");
+
+  if (allDayCb) {
+    allDayCb.checked = isAllDay;
+    allDayCb.disabled = !task.isManual;
+  }
+
   if (task.isManual) {
     nameInput.disabled = false;
     dateInput.disabled = false;
-    timeInput.disabled = false;
+    timeInput.disabled = isAllDay;
+    timeInput.required = !isAllDay;
+    if (timeWrap) {
+      timeWrap.style.opacity = isAllDay ? "0.4" : "1";
+      timeWrap.style.pointerEvents = isAllDay ? "none" : "auto";
+    }
     calendarNotice.style.display = "none";
   } else {
     nameInput.disabled = true;
     dateInput.disabled = true;
     timeInput.disabled = true;
+    timeInput.required = false;
+    if (timeWrap) {
+      timeWrap.style.opacity = "0.4";
+      timeWrap.style.pointerEvents = "none";
+    }
     calendarNotice.style.display = "block";
   }
 
@@ -446,19 +551,26 @@ async function handleAddTask(e) {
   const name = document.getElementById("task-name").value.trim();
   const date = document.getElementById("task-date").value;
   const time = document.getElementById("task-time").value;
+  const isAllDay = Boolean(document.getElementById("task-all-day")?.checked);
   const parsedEst = parseInt(
     document.getElementById("task-estimate").value,
     10,
   );
-  const estimate = isNaN(parsedEst) || parsedEst <= 0 ? 60 : parsedEst;
+  const estimate = isNaN(parsedEst) || parsedEst <= 0 ? (isAllDay ? null : 60) : parsedEst;
   const priority = document.getElementById("task-priority").value;
+  const projectId = document.getElementById("task-project")?.value || null;
   const notes = document.getElementById("task-notes")?.value.trim() || "";
 
-  if (!name || !date || !time) return;
+  if (!name || !date) return;
+  if (!isAllDay && !time) return;
 
-  const startDate = new Date(`${date}T${time}`);
+  const startDate = isAllDay
+    ? new Date(`${date}T00:00:00`)
+    : new Date(`${date}T${time}`);
   if (isNaN(startDate.getTime())) return;
-  const endDate = new Date(startDate.getTime() + estimate * 60000);
+  const endDate = isAllDay
+    ? new Date(`${date}T23:59:59.999`)
+    : new Date(startDate.getTime() + (estimate || 60) * 60000);
 
   const task = {
     id: `manual-${Date.now()}`,
@@ -467,9 +579,11 @@ async function handleAddTask(e) {
     end: endDate.toISOString(),
     estimateMinutes: estimate,
     priority,
+    projectId,
     notes,
     description: notes,
     isManual: true,
+    isAllDay,
     createdAt: new Date().toISOString(),
   };
 
@@ -510,19 +624,27 @@ async function handleEditTask(e) {
   const name = document.getElementById("edit-task-name").value.trim();
   const date = document.getElementById("edit-task-date").value;
   const time = document.getElementById("edit-task-time").value;
+  const isAllDay = Boolean(document.getElementById("edit-task-all-day")?.checked);
   const parsedEst = parseInt(
     document.getElementById("edit-task-estimate").value,
     10,
   );
   const estimate = isNaN(parsedEst) || parsedEst <= 0 ? null : parsedEst;
   const priority = document.getElementById("edit-task-priority").value;
+  const projectId = document.getElementById("edit-task-project")?.value || null;
   const notes = document.getElementById("edit-task-notes")?.value.trim() || "";
 
   if (isManual) {
-    if (!name || !date || !time) return;
-    const startDate = new Date(`${date}T${time}`);
+    if (!name || !date) return;
+    if (!isAllDay && !time) return;
+
+    const startDate = isAllDay
+      ? new Date(`${date}T00:00:00`)
+      : new Date(`${date}T${time}`);
     if (isNaN(startDate.getTime())) return;
-    const endDate = new Date(startDate.getTime() + (estimate || 60) * 60000);
+    const endDate = isAllDay
+      ? new Date(`${date}T23:59:59.999`)
+      : new Date(startDate.getTime() + (estimate || 60) * 60000);
 
     const task = {
       id,
@@ -531,9 +653,11 @@ async function handleEditTask(e) {
       end: endDate.toISOString(),
       estimateMinutes: estimate,
       priority,
+      projectId,
       notes,
       description: notes,
       isManual: true,
+      isAllDay,
       updatedAt: new Date().toISOString(),
     };
 
@@ -543,6 +667,7 @@ async function handleEditTask(e) {
       id,
       estimateMinutes: estimate,
       priority,
+      projectId,
       notes,
       description: notes,
       updatedAt: new Date().toISOString(),

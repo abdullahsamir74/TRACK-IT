@@ -67,8 +67,17 @@ async function renderScheduleList(filter) {
     allItems = allItems.filter((e) => new Date(e.start) < now);
   }
 
-  // Sort chronologically by default
-  allItems.sort((a, b) => new Date(a.start) - new Date(b.start));
+  // Sort chronologically by default, placing all-day tasks first within each day
+  allItems.sort((a, b) => {
+    const dateA = getLocalDateString(a.start);
+    const dateB = getLocalDateString(b.start);
+    if (dateA !== dateB) return new Date(a.start) - new Date(b.start);
+    const aAllDay = Boolean(trackedTasks[a.id]?.isAllDay || a.isAllDay);
+    const bAllDay = Boolean(trackedTasks[b.id]?.isAllDay || b.isAllDay);
+    if (aAllDay && !bAllDay) return -1;
+    if (!aAllDay && bAllDay) return 1;
+    return new Date(a.start) - new Date(b.start);
+  });
 
   if (allItems.length === 0) {
     taskListEl.innerHTML = `
@@ -112,7 +121,13 @@ async function renderScheduleList(filter) {
     }
   } else if (taskSortMode === "date") {
     for (const dateKey of Object.keys(groups)) {
-      groups[dateKey].sort((a, b) => new Date(a.start) - new Date(b.start));
+      groups[dateKey].sort((a, b) => {
+        const aAllDay = Boolean(trackedTasks[a.id]?.isAllDay || a.isAllDay);
+        const bAllDay = Boolean(trackedTasks[b.id]?.isAllDay || b.isAllDay);
+        if (aAllDay && !bAllDay) return -1;
+        if (!aAllDay && bAllDay) return 1;
+        return new Date(a.start) - new Date(b.start);
+      });
     }
   } else if (taskSortMode === "priority") {
     const priorityMap = { high: 3, medium: 2, low: 1 };

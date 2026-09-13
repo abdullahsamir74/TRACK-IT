@@ -256,7 +256,8 @@
 }
 
 .btn-delete-project,
-.btn-edit-project {
+.btn-edit-project,
+.btn-add-task-to-project {
   background: none;
   border: none;
   cursor: pointer;
@@ -273,8 +274,13 @@
   opacity: 0.6;
 }
 .project-card-header:hover .btn-delete-project,
-.project-card-header:hover .btn-edit-project {
+.project-card-header:hover .btn-edit-project,
+.project-card-header:hover .btn-add-task-to-project {
   opacity: 1;
+}
+.btn-add-task-to-project:hover {
+  color: var(--accent-primary, #38bdf8) !important;
+  background: rgba(56, 189, 248, 0.1);
 }
 .btn-delete-project:hover {
   color: var(--accent-pink) !important;

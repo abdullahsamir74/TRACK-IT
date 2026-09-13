@@ -443,7 +443,7 @@ function renderChart(dailyData) {
 }
 
 /**
- * Render the top-tasks list in analytics.
+ * Render the tracked progress list in analytics.
  */
 function renderTopTasks(taskStats) {
   const listEl = document.getElementById("top-tasks-list");
@@ -458,19 +458,51 @@ function renderTopTasks(taskStats) {
   const maxMinutes = taskStats[0]?.totalMinutes || 1;
 
   listEl.innerHTML = "";
-  taskStats.slice(0, 5).forEach((task) => {
-    const item = document.createElement("div");
-    item.className = "top-task-item";
-    const barWidth = Math.round((task.totalMinutes / maxMinutes) * 100);
-    item.innerHTML = `
-      <div style="flex:1; min-width:0;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span class="top-task-name">${escapeHtml(task.taskName || "Unknown")}</span>
-          <span class="top-task-time">${formatDuration(task.totalMinutes)}</span>
+  taskStats.slice(0, 8).forEach((item) => {
+    const el = document.createElement("div");
+    el.className = "top-task-item";
+    const barWidth = Math.round((item.totalMinutes / maxMinutes) * 100);
+    const displayName = escapeHtml(item.name || item.taskName || "Unknown");
+    const barColor = item.color
+      ? `linear-gradient(90deg, ${item.color}, ${item.color}bb)`
+      : `linear-gradient(90deg, #38bdf8, #0284c7)`;
+
+    const tagBadge = item.isProject
+      ? `<span class="top-progress-badge project" style="color: ${item.color || '#38bdf8'}; border-color: ${item.color || '#38bdf8'}40; background: ${item.color || '#38bdf8'}15;">Project</span>`
+      : `<span class="top-progress-badge task">Task</span>`;
+
+    let subtasksHtml = "";
+    if (item.isProject && item.subTasks && item.subTasks.length > 0) {
+      subtasksHtml = `
+        <div class="top-project-subtasks">
+          ${item.subTasks
+            .map(
+              (st) => `
+            <div class="top-project-subtask-row">
+              <span class="subtask-name" title="${escapeHtml(st.taskName)}">↳ ${escapeHtml(st.taskName)}</span>
+              <span class="subtask-time">${formatDuration(st.totalMinutes)}</span>
+            </div>
+          `
+            )
+            .join("")}
         </div>
-        <div class="top-task-bar" style="width: ${barWidth}%;"></div>
+      `;
+    }
+
+    el.innerHTML = `
+      <div style="flex:1; min-width:0;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap: 8px;">
+          <div style="display:flex; align-items:center; gap: 6px; min-width:0; overflow:hidden;">
+            ${item.color ? `<div class="top-task-dot" style="background: ${item.color};"></div>` : ""}
+            <span class="top-task-name" title="${displayName}">${displayName}</span>
+            ${tagBadge}
+          </div>
+          <span class="top-task-time" style="${item.color ? `color: ${item.color};` : ""}">${formatDuration(item.totalMinutes)}</span>
+        </div>
+        <div class="top-task-bar" style="width: ${barWidth}%; background: ${barColor};"></div>
+        ${subtasksHtml}
       </div>
     `;
-    listEl.appendChild(item);
+    listEl.appendChild(el);
   });
 }

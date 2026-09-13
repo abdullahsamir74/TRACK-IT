@@ -22,7 +22,7 @@
         </div>
       </div>
       <div class="form-row">
-        <div class="form-group">
+        <div class="form-group" style="flex: 1;">
           <label for="task-date">Date</label>
           <div class="input-wrapper">
             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -34,9 +34,15 @@
             <input type="date" id="task-date" required />
           </div>
         </div>
-        <div class="form-group">
-          <label for="task-time">Time</label>
-          <div class="input-wrapper">
+        <div class="form-group" id="task-time-group" style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label for="task-time" style="margin-bottom: 0;">Time</label>
+            <label class="all-day-checkbox-label" style="display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 500; color: var(--text-secondary); cursor: pointer; user-select: none;">
+              <input type="checkbox" id="task-all-day" style="cursor: pointer; accent-color: var(--accent-primary, #38bdf8); width: 13px; height: 13px;" />
+              <span>All Day</span>
+            </label>
+          </div>
+          <div class="input-wrapper" id="task-time-wrapper">
             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
@@ -44,6 +50,12 @@
             <input type="time" id="task-time" required />
           </div>
         </div>
+      </div>
+      <div class="form-group">
+        <label for="task-project">Project (Optional)</label>
+        <select id="task-project" class="select-input">
+          <option value="">No Project (Unassigned)</option>
+        </select>
       </div>
       <div class="form-group">
         <label for="task-priority">Priority</label>
@@ -130,7 +142,7 @@
         <small id="edit-task-calendar-notice" style="display: none; color: var(--text-muted); font-size: 11px; margin-top: 6px;">Calendar task: Name, date, and time are sync'd from GNOME Calendar.</small>
       </div>
       <div class="form-row" id="edit-task-time-row">
-        <div class="form-group">
+        <div class="form-group" style="flex: 1;">
           <label for="edit-task-date">Date</label>
           <div class="input-wrapper">
             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -142,9 +154,15 @@
             <input type="date" id="edit-task-date" required />
           </div>
         </div>
-        <div class="form-group">
-          <label for="edit-task-time">Time</label>
-          <div class="input-wrapper">
+        <div class="form-group" id="edit-task-time-group" style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label for="edit-task-time" style="margin-bottom: 0;">Time</label>
+            <label class="all-day-checkbox-label" style="display: flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 500; color: var(--text-secondary); cursor: pointer; user-select: none;">
+              <input type="checkbox" id="edit-task-all-day" style="cursor: pointer; accent-color: var(--accent-primary, #38bdf8); width: 13px; height: 13px;" />
+              <span>All Day</span>
+            </label>
+          </div>
+          <div class="input-wrapper" id="edit-task-time-wrapper">
             <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
@@ -152,6 +170,12 @@
             <input type="time" id="edit-task-time" required />
           </div>
         </div>
+      </div>
+      <div class="form-group">
+        <label for="edit-task-project">Project (Optional)</label>
+        <select id="edit-task-project" class="select-input">
+          <option value="">No Project (Unassigned)</option>
+        </select>
       </div>
       <div class="form-group">
         <label for="edit-task-priority">Priority</label>

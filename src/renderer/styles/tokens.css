@@ -60,8 +60,10 @@
   --shadow-glow: 0 0 16px rgba(255, 255, 255, 0.08);
 
   /* Scrollbars */
-  --scrollbar-thumb: #27272a;
-  --scrollbar-thumb-hover: #3f3f46;
+  --scrollbar-track: rgba(255, 255, 255, 0.04);
+  --scrollbar-thumb: #3f3f46;
+  --scrollbar-thumb-hover: #52525b;
+  --scrollbar-thumb-active: #71717a;
 
   /* Spacing Scale */
   --space-xs: 4px;
@@ -149,6 +151,8 @@
   --shadow-glow: 0 0 16px rgba(79, 70, 229, 0.12);
 
   /* Scrollbars */
-  --scrollbar-thumb: #d4d4d8;
-  --scrollbar-thumb-hover: #a1a1aa;
+  --scrollbar-track: rgba(0, 0, 0, 0.04);
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #94a3b8;
+  --scrollbar-thumb-active: #64748b;
 }

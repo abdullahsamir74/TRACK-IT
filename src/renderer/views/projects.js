@@ -26,6 +26,34 @@ import { showConfirmDialog } from "../components/confirm-dialog.js";
  */
 export function initProjects() {
   initProjectModal();
+
+  // Enable smooth horizontal wheel scrolling across Kanban columns
+  const board = document.getElementById("projects-list-stack");
+  if (board) {
+    board.addEventListener(
+      "wheel",
+      (e) => {
+        // Skip if touchpad is already emitting horizontal delta
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+
+        // If hovering over a column's task list that can scroll vertically, preserve vertical scrolling
+        const colBody = e.target.closest(".kanban-column-body");
+        if (colBody && colBody.scrollHeight > colBody.clientHeight) {
+          const atTop = colBody.scrollTop <= 0 && e.deltaY < 0;
+          const atBottom =
+            colBody.scrollTop + colBody.clientHeight >=
+              colBody.scrollHeight - 1 && e.deltaY > 0;
+          if (!atTop && !atBottom) return;
+        }
+
+        if (e.deltaY !== 0) {
+          e.preventDefault();
+          board.scrollLeft += e.deltaY;
+        }
+      },
+      { passive: false },
+    );
+  }
 }
 
 /**

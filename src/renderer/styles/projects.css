@@ -97,15 +97,22 @@
   overflow-y: hidden;
   align-items: stretch;
   min-height: 50px;
-  scrollbar-width: thin;
 }
 
 .kanban-unassigned-scroll::-webkit-scrollbar {
-  height: 4px;
+  height: 5px;
+}
+.kanban-unassigned-scroll::-webkit-scrollbar-track {
+  background: transparent;
 }
 .kanban-unassigned-scroll::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: 4px;
+  background: var(--scrollbar-thumb, #3f3f46);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+.kanban-unassigned-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, #52525b);
 }
 
 .kanban-unassigned-scroll .task-item {
@@ -138,21 +145,33 @@
   padding-bottom: var(--space-md);
   padding-right: var(--space-md);
   scroll-behavior: smooth;
-  scrollbar-width: thin;
 }
 
+/* Horizontal scrollbar for browsing projects */
 .kanban-columns::-webkit-scrollbar {
-  height: 6px;
+  height: 8px;
 }
 .kanban-columns::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--scrollbar-track, rgba(255, 255, 255, 0.04));
+  border-radius: 9999px;
+  margin: 0 var(--space-sm);
 }
 .kanban-columns::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: 6px;
+  background: var(--scrollbar-thumb, #3f3f46);
+  border-radius: 9999px;
+  border: 1.5px solid transparent;
+  background-clip: content-box;
+  transition: background var(--transition-fast);
 }
 .kanban-columns::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover);
+  background: var(--scrollbar-thumb-hover, #52525b);
+  border: 1.5px solid transparent;
+  background-clip: content-box;
+}
+.kanban-columns::-webkit-scrollbar-thumb:active {
+  background: var(--accent-blue, #38bdf8);
+  border: 1px solid transparent;
+  background-clip: content-box;
 }
 
 /* --- Kanban Column --- */
@@ -387,15 +406,22 @@
   overflow-x: hidden;
   padding: var(--space-sm);
   min-height: 0;
-  scrollbar-width: thin;
 }
 
 .kanban-column-body::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
+}
+.kanban-column-body::-webkit-scrollbar-track {
+  background: transparent;
 }
 .kanban-column-body::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: 4px;
+  background: var(--scrollbar-thumb, #3f3f46);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: content-box;
+}
+.kanban-column-body::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover, #52525b);
 }
 
 .kanban-task-list {

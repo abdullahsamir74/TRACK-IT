@@ -614,3 +614,18 @@
   background: #f4f4f5;
   border-color: #d4d4d8;
 }
+
+/* Kanban Horizontal Scrollbar (Light Theme) */
+[data-theme="light"] .kanban-columns::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+}
+[data-theme="light"] .kanban-columns::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+[data-theme="light"] .kanban-columns::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+[data-theme="light"] .kanban-columns::-webkit-scrollbar-thumb:active {
+  background: var(--accent-primary, #4f46e5);
+}
+

@@ -189,7 +189,13 @@
 .view.active {
   display: block;
 }
-#view-projects.active,
+#view-projects.active {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  height: 100%;
+}
 #view-analytics.active {
   display: flex;
   flex-direction: column;

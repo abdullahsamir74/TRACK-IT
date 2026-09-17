@@ -1,355 +1,579 @@
 /* ========================================
-   PROJECTS — Compact Cards Grid Layout
+   PROJECTS — Kanban Board Layout
    ======================================== */
 
-/* --- Projects Container --- */
-.projects-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-md);
-  flex: 1;
-  min-height: 0;
-  align-items: stretch;
-}
-
-/* --- Full-Width Collapsible Unassigned Tasks Pool Panel --- */
-.projects-unassigned-pool {
+/* --- Compact Unassigned Tasks Drawer --- */
+.kanban-unassigned-drawer {
   width: 100%;
-  display: flex;
-  flex-direction: column;
+  flex-shrink: 0;
   border-radius: var(--radius-md);
-  border: 1px dashed var(--border-input);
-  background: var(--bg-card);
-  flex-shrink: 0;
-  transition:
-    background var(--transition-fast),
-    border-color var(--transition-fast);
-}
-
-.projects-unassigned-pool .pool-header {
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid transparent;
-  user-select: none;
-  transition: border-color var(--transition-fast);
-}
-
-.projects-unassigned-pool.expanded .pool-header {
-  border-bottom-color: var(--bg-glass-border);
-}
-
-.pool-title-group {
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.pool-title-group h3 {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0;
-}
-
-.projects-unassigned-pool .project-chevron {
-  transition: transform var(--transition-fast);
-}
-
-.projects-unassigned-pool.expanded .project-chevron {
-  transform: rotate(90deg);
-}
-
-.pool-body {
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  padding: 0 14px;
-  transition:
-    max-height var(--transition-slow) ease,
-    opacity var(--transition-fast) ease,
-    padding var(--transition-fast) ease;
-}
-
-.projects-unassigned-pool.expanded .pool-body {
-  max-height: 400px;
-  opacity: 1;
-  padding: 10px 14px 14px 14px;
-}
-
-.pool-dropzone {
-  display: flex;
-  flex-direction: row;
-  gap: var(--space-sm);
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 2px 0;
-  align-items: center;
-  min-height: 40px;
-}
-
-.pool-dropzone.drag-over {
-  background: var(--bg-hover);
-  border-color: var(--text-primary);
-}
-
-/* Pool Task Chips */
-.pool-dropzone .task-item {
-  min-width: 280px;
-  max-width: 360px;
-  flex-shrink: 0;
-  margin: 0;
-  padding: var(--space-sm) var(--space-md);
-}
-
-/* --- Modern Project Cards List --- */
-.projects-grid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-sm);
-  overflow-y: auto;
-  flex: 1;
-  min-height: 0;
-  padding-right: 4px;
-  padding-bottom: var(--space-md);
-}
-
-/* --- Compact Project Card --- */
-.project-card {
-  background: var(--bg-card);
   border: 1px solid var(--bg-glass-border);
-  border-left-width: 4px;
-  border-left-style: solid;
-  border-left-color: #38bdf8;
-  border-radius: var(--radius-md);
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow-sm);
+  background: var(--bg-card);
+  margin-bottom: var(--space-md);
   transition:
-    transform var(--transition-fast),
     background var(--transition-fast),
     border-color var(--transition-fast),
     box-shadow var(--transition-fast);
 }
 
-.project-card:hover {
-  transform: translateY(-2px);
+.kanban-unassigned-drawer:hover {
   border-color: var(--bg-hover);
-  box-shadow: var(--shadow-md);
 }
 
-.project-card.drag-over {
-  background: var(--bg-hover) !important;
-  border-color: var(--text-primary) !important;
-  box-shadow: var(--shadow-glow);
-}
-
-.project-card.dragging {
-  opacity: 0.8;
-  box-shadow: var(--shadow-lg);
-  border-color: var(--text-primary);
-  transition: none !important;
-}
-
-.project-card-header {
-  padding: 10px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  border-bottom: 1px solid transparent;
-  user-select: none;
-  transition:
-    padding var(--transition-fast),
-    border-color var(--transition-fast);
-}
-
-.project-card.expanded .project-card-header {
-  padding: 14px 16px 12px 16px;
-  border-bottom-color: var(--bg-glass-border);
-}
-
-.project-card-top-row {
+.kanban-unassigned-header {
+  padding: 8px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--transition-fast);
+}
+
+.kanban-unassigned-drawer.expanded .kanban-unassigned-header {
+  border-bottom-color: var(--bg-glass-border);
+}
+
+.kanban-unassigned-title-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.kanban-unassigned-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+.kanban-unassigned-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.kanban-unassigned-drawer .badge {
+  font-size: 10px;
+  padding: 0 6px;
+  height: 18px;
+  min-width: 18px;
+}
+
+.kanban-unassigned-chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: transform var(--transition-fast);
+}
+
+.kanban-unassigned-drawer.expanded .kanban-unassigned-chevron {
+  transform: rotate(180deg);
+}
+
+.kanban-unassigned-body {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height var(--transition-slow) ease,
+    opacity var(--transition-fast) ease;
+}
+
+.kanban-unassigned-drawer.expanded .kanban-unassigned-body {
+  max-height: 280px;
+  opacity: 1;
+}
+
+.kanban-unassigned-scroll {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-sm);
+  padding: 10px 14px 14px 14px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  align-items: stretch;
+  min-height: 50px;
+  scrollbar-width: thin;
+}
+
+.kanban-unassigned-scroll::-webkit-scrollbar {
+  height: 4px;
+}
+.kanban-unassigned-scroll::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+.kanban-unassigned-scroll .task-item {
+  min-width: 260px;
+  max-width: 320px;
+  flex-shrink: 0;
+  margin: 0;
+  cursor: grab;
+}
+
+.kanban-unassigned-scroll.drag-over {
+  background: rgba(56, 189, 248, 0.04);
+  border-radius: var(--radius-sm);
+}
+
+/* --- Kanban Board Container --- */
+.kanban-board {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.kanban-columns {
+  display: flex;
+  gap: var(--space-md);
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: var(--space-md);
+  padding-right: var(--space-md);
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+}
+
+.kanban-columns::-webkit-scrollbar {
+  height: 6px;
+}
+.kanban-columns::-webkit-scrollbar-track {
+  background: transparent;
+}
+.kanban-columns::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 6px;
+}
+.kanban-columns::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* --- Kanban Column --- */
+.kanban-column {
+  min-width: 280px;
+  max-width: 280px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-card);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.kanban-column::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--column-color, #38bdf8);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.kanban-column:hover {
+  border-color: var(--bg-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.kanban-column.drag-over {
+  border-color: var(--accent-blue) !important;
+  box-shadow: var(--shadow-glow), 0 0 20px rgba(56, 189, 248, 0.1);
+}
+
+.kanban-column.dragging {
+  opacity: 0.7;
+  box-shadow: var(--shadow-lg);
+  transition: none !important;
+  z-index: 100;
+}
+
+/* --- Column Header --- */
+.kanban-column-header {
+  padding: 14px 14px 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid var(--bg-glass-border);
+  user-select: none;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.kanban-header-top-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
 }
 
-.project-drag-handle {
+.kanban-column-drag-handle {
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
   cursor: grab;
-  padding: 4px;
-  opacity: 0.4;
+  padding: 2px;
+  opacity: 0;
   transition: opacity var(--transition-fast);
+  flex-shrink: 0;
 }
-.project-card-header:hover .project-drag-handle {
-  opacity: 1;
+.kanban-column:hover .kanban-column-drag-handle {
+  opacity: 0.5;
 }
-.project-drag-handle:active {
+.kanban-column-drag-handle:hover {
+  opacity: 1 !important;
+}
+.kanban-column-drag-handle:active {
   cursor: grabbing;
 }
 
-.project-card-info {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
+.kanban-column-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.kanban-column-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
   flex: 1;
   min-width: 0;
-}
-.project-title {
-  font-weight: 600;
-  font-size: 15px;
-  color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  letter-spacing: -0.01em;
 }
-.project-color-dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.project-task-count {
-  font-size: 11px;
+
+.kanban-column-count {
+  font-size: 10px;
+  font-weight: 600;
   color: var(--text-muted);
   background: var(--bg-hover);
   border: 1px solid var(--bg-glass-border);
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-weight: 500;
+  padding: 1px 7px;
+  border-radius: 10px;
   flex-shrink: 0;
 }
 
+.kanban-column-actions {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  flex-shrink: 0;
+}
+.kanban-column:hover .kanban-column-actions {
+  opacity: 1;
+}
 
-/* --- Empty Project Drop Target --- */
-.project-drop-target {
+.kanban-column-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 4px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
+  transition:
+    color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.kanban-column-actions .btn-add-task-to-project:hover {
+  color: var(--accent-blue);
+  background: rgba(56, 189, 248, 0.1);
+}
+.kanban-column-actions .btn-edit-project:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+.kanban-column-actions .btn-delete-project:hover {
+  color: var(--accent-pink);
+  background: rgba(244, 63, 94, 0.1);
+}
+
+/* --- Column Stats Row --- */
+.kanban-column-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.kanban-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-weight: 500;
+}
+
+.kanban-stat-item svg {
+  opacity: 0.6;
+}
+
+.kanban-stat-separator {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--text-muted);
+  opacity: 0.4;
+}
+
+/* --- Progress Bar --- */
+.kanban-progress-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--bg-hover);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 2px;
+}
+
+.kanban-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--column-color, #38bdf8);
+  transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  min-width: 0;
+  position: relative;
+}
+
+.kanban-progress-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 6px;
+  height: 100%;
+  background: inherit;
+  filter: brightness(1.3);
+  border-radius: 0 3px 3px 0;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.kanban-column:hover .kanban-progress-fill::after {
+  opacity: 1;
+}
+
+/* --- Column Body (Scrollable Task List) --- */
+.kanban-column-body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--space-sm);
+  min-height: 0;
+  scrollbar-width: thin;
+}
+
+.kanban-column-body::-webkit-scrollbar {
+  width: 4px;
+}
+.kanban-column-body::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+.kanban-task-list {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
-  padding: 12px;
+  min-height: 60px;
+}
+
+/* Task items inside Kanban columns */
+.kanban-column .task-item {
+  padding: 10px 12px;
+  cursor: grab;
+  border-radius: var(--radius-sm);
+  gap: var(--space-sm);
+  transition:
+    transform 0.15s ease,
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.kanban-column .task-item:hover {
+  transform: translateX(0) translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+}
+
+.kanban-column .task-item .task-actions {
+  display: none !important;
+}
+.kanban-column .task-item .drag-handle {
+  display: none !important;
+}
+.kanban-column .task-item .task-project-badge {
+  display: none !important;
+}
+
+.kanban-column .task-item.dragging {
+  opacity: 0.3 !important;
+  cursor: grabbing !important;
+}
+
+/* Unassigned pool task drag states */
+.kanban-unassigned-scroll .task-item.dragging {
+  opacity: 0.3 !important;
+  cursor: grabbing !important;
+}
+.kanban-unassigned-scroll .task-item .task-actions {
+  display: none !important;
+}
+.kanban-unassigned-scroll .task-item .drag-handle {
+  display: none !important;
+}
+.kanban-unassigned-scroll .task-item .task-project-badge {
+  display: none !important;
+}
+
+/* --- Column Footer / Empty State --- */
+.kanban-column-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 20px 12px;
   border: 1.5px dashed var(--bg-glass-border);
   border-radius: var(--radius-sm);
   color: var(--text-muted);
   font-size: 12px;
   font-weight: 500;
   transition: all 0.2s ease;
-  user-select: none;
+  text-align: center;
+  opacity: 0.7;
 }
-.project-card:hover .project-drop-target,
-.project-task-list.drag-over .project-drop-target {
-  border-color: rgba(56, 189, 248, 0.5);
+
+.kanban-column:hover .kanban-column-empty {
+  opacity: 1;
+  border-color: rgba(56, 189, 248, 0.3);
   color: var(--text-secondary);
-  background: rgba(56, 189, 248, 0.04);
 }
 
-/* --- Action Buttons --- */
-.project-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 2px;
+.kanban-column.drag-over .kanban-column-empty {
+  border-color: var(--accent-blue);
+  background: rgba(56, 189, 248, 0.06);
+  color: var(--accent-blue);
 }
 
-.btn-delete-project,
-.btn-edit-project,
-.btn-add-task-to-project {
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition:
-    opacity var(--transition-fast),
-    color var(--transition-fast),
-    background var(--transition-fast);
-  color: var(--text-muted);
-  padding: 4px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.6;
-}
-.project-card-header:hover .btn-delete-project,
-.project-card-header:hover .btn-edit-project,
-.project-card-header:hover .btn-add-task-to-project {
-  opacity: 1;
-}
-.btn-add-task-to-project:hover {
-  color: var(--accent-primary, #38bdf8) !important;
-  background: rgba(56, 189, 248, 0.1);
-}
-.btn-delete-project:hover {
-  color: var(--accent-pink) !important;
-  background: rgba(244, 63, 94, 0.1);
-}
-.btn-edit-project:hover {
-  color: var(--text-primary) !important;
-  background: var(--bg-hover);
-}
-
-/* --- Chevron Indicator --- */
-.project-chevron {
-  transition: transform var(--transition-fast);
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 4px;
-}
-.project-card.expanded .project-chevron {
-  transform: rotate(90deg);
-}
-
-/* --- Card Body (Expandable Accordion) --- */
-.project-card-body {
-  max-height: 0;
-  overflow: hidden;
-  padding: 0 var(--space-md);
-  opacity: 0;
-  border-top: 1px solid transparent;
-  transition:
-    max-height var(--transition-slow) ease,
-    opacity var(--transition-fast) ease,
-    padding var(--transition-fast) ease,
-    border-color var(--transition-fast) ease;
-}
-.project-card.expanded .project-card-body {
-  max-height: 1000px;
-  opacity: 1;
-  padding: var(--space-sm) var(--space-md) var(--space-md) var(--space-md);
-  border-top-color: var(--bg-glass-border);
-}
-
-.project-task-list {
+/* --- Board Empty State (no projects) --- */
+.kanban-empty-state {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: var(--space-sm);
-  min-height: 30px;
+  padding: var(--space-2xl);
+  color: var(--text-muted);
+  text-align: center;
+  flex: 1;
+  height: 100%;
 }
 
-/* --- Dragging Tasks --- */
-.project-card .task-item,
-.projects-unassigned-pool .task-item {
-  cursor: grab;
+.kanban-empty-state p {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
 }
-.project-card .task-item.dragging,
-.projects-unassigned-pool .task-item.dragging {
-  cursor: grabbing !important;
-  opacity: 0.3 !important;
+
+.kanban-empty-state span {
+  font-size: 12px;
 }
-.project-card .task-item .task-actions,
-.projects-unassigned-pool .task-item .task-actions {
-  display: none !important;
+
+/* --- Unassigned Empty --- */
+.kanban-unassigned-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 6px 0;
+  font-size: 12px;
+  color: var(--text-muted);
 }
-.project-card .task-item .drag-handle,
-.projects-unassigned-pool .task-item .drag-handle {
-  display: none !important;
+
+/* --- Column Drag Placeholder --- */
+.kanban-column.drag-placeholder {
+  background: var(--bg-hover);
+  border: 2px dashed var(--bg-glass-border);
+  box-shadow: none;
+  pointer-events: none;
+  opacity: 0.5;
 }
-.project-card .task-item .task-project-badge,
-.pool-dropzone .task-item .task-project-badge {
-  display: none !important;
+.kanban-column.drag-placeholder::before {
+  display: none;
 }
+
+/* --- Task entrance animation --- */
+@keyframes kanbanTaskIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.kanban-column .task-item {
+  animation: kanbanTaskIn 0.2s ease both;
+}
+
+.kanban-column .task-item:nth-child(1) { animation-delay: 0s; }
+.kanban-column .task-item:nth-child(2) { animation-delay: 0.03s; }
+.kanban-column .task-item:nth-child(3) { animation-delay: 0.06s; }
+.kanban-column .task-item:nth-child(4) { animation-delay: 0.09s; }
+.kanban-column .task-item:nth-child(5) { animation-delay: 0.12s; }
+
+/* --- Column entrance animation --- */
+@keyframes kanbanColumnIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.kanban-column {
+  animation: kanbanColumnIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.kanban-column:nth-child(1) { animation-delay: 0s; }
+.kanban-column:nth-child(2) { animation-delay: 0.05s; }
+.kanban-column:nth-child(3) { animation-delay: 0.1s; }
+.kanban-column:nth-child(4) { animation-delay: 0.15s; }
+.kanban-column:nth-child(5) { animation-delay: 0.2s; }
+.kanban-column:nth-child(6) { animation-delay: 0.25s; }
+.kanban-column:nth-child(7) { animation-delay: 0.3s; }
+.kanban-column:nth-child(8) { animation-delay: 0.35s; }

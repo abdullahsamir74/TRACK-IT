@@ -555,3 +555,62 @@
   background: #e4e4e7;
   color: #09090b;
 }
+
+/* ============================================================
+   PROJECTS KANBAN — Light Mode Overrides
+   ============================================================ */
+[data-theme="light"] .kanban-unassigned-drawer {
+  background: #ffffff;
+  border-color: #e4e4e7;
+}
+
+[data-theme="light"] .kanban-unassigned-drawer:hover {
+  border-color: #d4d4d8;
+}
+
+[data-theme="light"] .kanban-column {
+  background: #ffffff;
+  border-color: #e4e4e7;
+}
+
+[data-theme="light"] .kanban-column:hover {
+  border-color: #d4d4d8;
+  box-shadow: var(--shadow-md);
+}
+
+[data-theme="light"] .kanban-column.drag-over {
+  border-color: var(--accent-blue) !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+[data-theme="light"] .kanban-column-header {
+  border-bottom-color: #e4e4e7;
+}
+
+[data-theme="light"] .kanban-progress-bar {
+  background: #e4e4e7;
+}
+
+[data-theme="light"] .kanban-column-count {
+  background: #f4f4f5;
+  border-color: #e4e4e7;
+  color: #52525b;
+}
+
+[data-theme="light"] .kanban-column-empty {
+  border-color: #d4d4d8;
+}
+
+[data-theme="light"] .kanban-column:hover .kanban-column-empty {
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+[data-theme="light"] .kanban-column.drag-over .kanban-column-empty {
+  border-color: var(--accent-blue);
+  background: rgba(37, 99, 235, 0.04);
+}
+
+[data-theme="light"] .kanban-column.drag-placeholder {
+  background: #f4f4f5;
+  border-color: #d4d4d8;
+}

@@ -78,6 +78,8 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     (event.id && String(event.id).startsWith("manual-"))
   );
 
+  const taskTitle = (event.summary || task.name || "Untitled Task").trim();
+
   item.innerHTML = `
     ${
       draggable
@@ -87,9 +89,9 @@ export function createTaskItem(event, draggable = false, timerState = null) {
         : ""
     }
     <div class="task-color-dot" style="background: ${event.calendarColor || "#38bdf8"};"></div>
-    <button class="task-checkbox ${isCompleted ? "checked" : ""}" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}"></button>
+    <button class="task-checkbox ${isCompleted ? "checked" : ""}" data-task-id="${event.id}" data-task-name="${escapeHtml(taskTitle)}"></button>
     <div class="task-info">
-      <div class="task-name">${escapeHtml(event.summary)}</div>
+      <div class="task-name" title="${escapeHtml(taskTitle)}">${escapeHtml(taskTitle)}</div>
       <div class="task-meta">
         ${
           isAllDay
@@ -99,11 +101,13 @@ export function createTaskItem(event, draggable = false, timerState = null) {
         ${event.calendarName ? ` · ${escapeHtml(event.calendarName)}` : ""}
       </div>
     </div>
-    ${projectBadge}
-    ${priorityBadge}
-    ${notesBadge}
-    ${estimate ? `<span class="task-badge estimate">${formatDuration(estimate)}</span>` : ""}
-    ${tracked > 0 ? `<span class="task-badge tracked">${formatDuration(tracked)} tracked</span>` : ""}
+    <div class="task-badges">
+      ${projectBadge}
+      ${priorityBadge}
+      ${notesBadge}
+      ${estimate ? `<span class="task-badge estimate">${formatDuration(estimate)}</span>` : ""}
+      ${tracked > 0 ? `<span class="task-badge tracked">${formatDuration(tracked)} tracked</span>` : ""}
+    </div>
     <div class="task-actions">
       <button class="task-action-btn ${hasNotes ? "has-notes" : ""}" title="${hasNotes ? "View/Edit notes" : "Add notes"}" data-action="notes" data-task-id="${event.id}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -116,13 +120,13 @@ export function createTaskItem(event, draggable = false, timerState = null) {
       <button class="task-action-btn" title="Set estimate" data-action="estimate" data-task-id="${event.id}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       </button>
-      <button class="task-action-btn" title="Edit task" data-action="edit" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}" data-task-start="${event.start || ""}" data-task-estimate="${estimate || ""}" data-task-priority="${task.priority || "medium"}" data-task-manual="${isManual}" data-task-all-day="${isAllDay ? "true" : "false"}">
+      <button class="task-action-btn" title="Edit task" data-action="edit" data-task-id="${event.id}" data-task-name="${escapeHtml(taskTitle)}" data-task-start="${event.start || ""}" data-task-estimate="${estimate || ""}" data-task-priority="${task.priority || "medium"}" data-task-manual="${isManual}" data-task-all-day="${isAllDay ? "true" : "false"}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       </button>
-      <button class="task-action-btn task-action-btn-danger" title="Delete task" data-action="delete" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}">
+      <button class="task-action-btn task-action-btn-danger" title="Delete task" data-action="delete" data-task-id="${event.id}" data-task-name="${escapeHtml(taskTitle)}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       </button>
-      <button class="task-action-btn ${isCompleted ? "disabled" : ""}" title="${isCompleted ? "Task completed" : isCurrentTaskTiming ? "Pause timer" : "Start timer"}" data-action="start-timer" data-task-id="${event.id}" data-task-name="${escapeHtml(event.summary)}" data-estimate="${estimate || ""}" ${isCompleted ? "disabled" : ""}>
+      <button class="task-action-btn ${isCompleted ? "disabled" : ""}" title="${isCompleted ? "Task completed" : isCurrentTaskTiming ? "Pause timer" : "Start timer"}" data-action="start-timer" data-task-id="${event.id}" data-task-name="${escapeHtml(taskTitle)}" data-estimate="${estimate || ""}" ${isCompleted ? "disabled" : ""}>
         ${
           isCurrentTaskTiming
             ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>`
@@ -170,7 +174,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
       if (action === "notes") {
         openTaskNotesModal({
           id: event.id,
-          name: event.summary,
+          name: taskTitle,
           notes: notes,
         });
       } else if (action === "estimate") {
@@ -191,10 +195,10 @@ export function createTaskItem(event, draggable = false, timerState = null) {
           description: notes,
         });
       } else if (action === "delete") {
-        const taskName = btn.dataset.taskName || "this task";
+        const delName = btn.dataset.taskName || "this task";
         showConfirmDialog({
           title: "Delete Task?",
-          message: `Are you sure you want to delete "<strong>${taskName}</strong>"? This will hide it from your schedule and lists, but its tracked progress and history will be preserved in Analytics.`,
+          message: `Are you sure you want to delete "<strong>${delName}</strong>"? This will hide it from your schedule and lists, but its tracked progress and history will be preserved in Analytics.`,
           confirmText: "Delete Task",
           onConfirm: async () => {
             await window.tracker.deleteTask(btn.dataset.taskId);
@@ -240,6 +244,39 @@ export function createTaskItem(event, draggable = false, timerState = null) {
           startTimerForTask();
         }
       }
+    });
+  });
+
+  // Make note badge directly clickable to view/edit notes (especially useful in Kanban)
+  const notesBadgeEl = item.querySelector(".task-notes-badge");
+  if (notesBadgeEl) {
+    notesBadgeEl.style.cursor = "pointer";
+    notesBadgeEl.addEventListener("click", (e) => {
+      e.stopPropagation();
+      openTaskNotesModal({
+        id: event.id,
+        name: taskTitle,
+        notes: notes,
+      });
+    });
+  }
+
+  // Double-click to edit task
+  item.addEventListener("dblclick", (e) => {
+    if (e.target.closest(".task-checkbox, .task-action-btn, .task-notes-badge, .drag-handle")) {
+      return;
+    }
+    openEditTaskModal({
+      id: event.id,
+      name: taskTitle,
+      start: event.start || task.start || task.due || "",
+      estimate: estimate,
+      isManual: isManual,
+      isAllDay: isAllDay,
+      priority: task.priority || "medium",
+      projectId: (trackedTasks[event.id] && trackedTasks[event.id].projectId) || task.projectId || null,
+      notes: notes,
+      description: notes,
     });
   });
 

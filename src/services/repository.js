@@ -147,12 +147,12 @@ class Repository {
     return this.getTasks()[id];
   }
 
-  saveTaskNotes(taskId, notes) {
+  saveTaskNotes(taskId, notes, taskName = null) {
     const now = new Date().toISOString();
     const task = this.db.prepare("SELECT * FROM tasks WHERE id = ?").get(taskId);
     const noteText = typeof notes === "string" ? notes : "";
     if (!task) {
-      return this.saveTask({ id: taskId, notes: noteText });
+      return this.saveTask({ id: taskId, notes: noteText, name: taskName || "Untitled Task" });
     }
     this.db.prepare("UPDATE tasks SET notes = ?, updated_at = ? WHERE id = ?").run(noteText, now, taskId);
     return this.getTasks()[taskId];

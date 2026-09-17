@@ -470,7 +470,11 @@ export function openTaskNotesModal(taskOrId) {
   const taskName = task.name || (typeof taskOrId === "object" ? taskOrId.name : "Task");
   const taskNotes = task.notes || task.description || (typeof taskOrId === "object" ? taskOrId.notes : "") || "";
 
-  document.getElementById("task-notes-id").value = id;
+  const idInput = document.getElementById("task-notes-id");
+  if (idInput) {
+    idInput.value = id;
+    idInput.dataset.taskName = taskName;
+  }
   const subtitleEl = document.getElementById("task-notes-modal-subtitle");
   if (subtitleEl) {
     subtitleEl.textContent = `Notes for "${taskName}"`;
@@ -493,12 +497,14 @@ export function openTaskNotesModal(taskOrId) {
 
 async function handleSaveTaskNotes(e) {
   e.preventDefault();
-  const taskId = document.getElementById("task-notes-id")?.value;
+  const idInput = document.getElementById("task-notes-id");
+  const taskId = idInput?.value;
+  const taskName = idInput?.dataset?.taskName || "";
   const notesContent = document.getElementById("task-notes-content")?.value || "";
 
   if (!taskId) return;
 
-  await window.tracker.saveTaskNotes(taskId, notesContent);
+  await window.tracker.saveTaskNotes(taskId, notesContent, taskName);
   setTrackedTasks(await window.tracker.getTasks());
 
   closeModals();

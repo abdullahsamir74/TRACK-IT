@@ -110,9 +110,6 @@ export function setHabits(val) {
 export function setAllSessions(val) {
   storeInstance.updateState({ allSessions: val || [] });
 }
-export function setCurrentView(val) {
-  storeInstance.updateState({ currentView: val });
-}
 export function setSelectedTimerTask(val) {
   storeInstance.updateState({ selectedTimerTask: val });
 }
@@ -132,7 +129,6 @@ export function setTaskSortMode(val) {
   storeInstance.updateState({ taskSortMode: val || "manual" });
 }
 
-export const subscribeToState = (listener) => storeInstance.subscribe(listener);
 
 // ---- View registry ----
 let viewRenderers = {};

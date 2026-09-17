@@ -12,7 +12,6 @@ import {
   setTrackedTasks,
   setCustomProjects,
   setProjectOrder,
-  setExpandedProjects,
 } from "../state.js";
 import { createTaskItem } from "../components/task-item.js";
 import {

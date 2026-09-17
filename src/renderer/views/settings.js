@@ -5,14 +5,6 @@
 import { applyTheme } from "../app.js";
 import { updateAppBadge } from "../badge.js";
 import {
-  trackedTasks,
-  customProjects,
-  habits,
-  allSessions,
-  setTrackedTasks,
-  setCustomProjects,
-  setHabits,
-  setAllSessions,
   renderCurrentView,
   loadData,
 } from "../state.js";

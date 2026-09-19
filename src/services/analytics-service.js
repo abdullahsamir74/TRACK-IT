@@ -92,7 +92,7 @@ class AnalyticsService {
     for (const entry of filteredEntries) {
       const projId = entry.effective_project_id;
       const projName = entry.project_name_joined;
-      const rawTaskName = entry.task_name || entry.task_name_joined || "Unknown Task";
+      const rawTaskName = (entry.task_name || entry.task_name_joined || "Unknown Task").trim() || "Unknown Task";
       const duration = entry.duration_minutes || 0;
 
       let key;
@@ -106,7 +106,7 @@ class AnalyticsService {
         isProject = true;
         color = entry.project_color_joined || "#38bdf8";
       } else {
-        key = `task_${entry.task_id || rawTaskName}`;
+        key = `task_${rawTaskName.toLowerCase()}`;
         displayName = rawTaskName;
         isProject = false;
         color = null;
@@ -124,6 +124,13 @@ class AnalyticsService {
           sessionsCount: 0,
           tasks: {},
         };
+      } else if (
+        !isProject &&
+        progressStatsMap[key].name === progressStatsMap[key].name.toLowerCase() &&
+        displayName !== displayName.toLowerCase()
+      ) {
+        progressStatsMap[key].name = displayName;
+        progressStatsMap[key].taskName = displayName;
       }
 
       progressStatsMap[key].totalMinutes += duration;
@@ -131,7 +138,7 @@ class AnalyticsService {
 
       // Keep tasks progress inside the project itself
       if (isProject) {
-        const subTaskKey = entry.task_id || rawTaskName;
+        const subTaskKey = rawTaskName.toLowerCase();
         if (!progressStatsMap[key].tasks[subTaskKey]) {
           progressStatsMap[key].tasks[subTaskKey] = {
             taskId: entry.task_id,
@@ -139,6 +146,12 @@ class AnalyticsService {
             totalMinutes: 0,
             sessionsCount: 0,
           };
+        } else if (
+          progressStatsMap[key].tasks[subTaskKey].taskName ===
+            progressStatsMap[key].tasks[subTaskKey].taskName.toLowerCase() &&
+          rawTaskName !== rawTaskName.toLowerCase()
+        ) {
+          progressStatsMap[key].tasks[subTaskKey].taskName = rawTaskName;
         }
         progressStatsMap[key].tasks[subTaskKey].totalMinutes += duration;
         progressStatsMap[key].tasks[subTaskKey].sessionsCount += 1;

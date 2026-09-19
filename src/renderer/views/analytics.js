@@ -59,6 +59,14 @@ export async function renderAnalytics() {
             )
           : 0;
       completionRateEl.textContent = `${rate}%`;
+      const completionCardEl = document.querySelector(
+        ".analytics-stat.stat-completion",
+      );
+      const titleText = `${analytics.completedCount || 0} of ${analytics.totalTaskCount || 0} tasks completed`;
+      completionRateEl.title = titleText;
+      if (completionCardEl) {
+        completionCardEl.title = titleText;
+      }
     }
 
     const avgDailyEl = document.getElementById("analytics-avg-daily");

@@ -191,10 +191,34 @@ class AnalyticsService {
       .map((p) => ({ ...p, totalMinutes: Math.round(p.totalMinutes * 10) / 10 }))
       .sort((a, b) => b.totalMinutes - a.totalMinutes);
 
-    // Completion stats for active tasks
-    const activeTasks = this.db.prepare("SELECT status FROM tasks WHERE deleted_at IS NULL").all();
-    const completedCount = activeTasks.filter((t) => t.status === "completed").length;
-    const totalTaskCount = activeTasks.length;
+    // Completion stats for tasks scoped to the selected date range (week, month, year)
+    const periodTasks = this.db.prepare(`
+      SELECT id, status, completed_at, created_at, due_date
+      FROM tasks
+      WHERE deleted_at IS NULL
+        AND (
+          (due_date >= ? AND due_date <= ?)
+          OR (created_at >= ? AND created_at <= ?)
+          OR (completed_at >= ? AND completed_at <= ?)
+          OR id IN (
+            SELECT DISTINCT task_id 
+            FROM time_entries 
+            WHERE start_time >= ? AND start_time <= ? AND task_id IS NOT NULL
+          )
+        )
+    `).all(startIso, endIso, startIso, endIso, startIso, endIso, startIso, endIso);
+
+    const completedCount = periodTasks.filter((t) => {
+      if (t.status !== "completed") return false;
+      if (t.completed_at) {
+        return (
+          (t.completed_at >= startIso && t.completed_at <= endIso) ||
+          (t.due_date && t.due_date >= startIso && t.due_date <= endIso && t.completed_at <= endIso)
+        );
+      }
+      return true;
+    }).length;
+    const totalTaskCount = periodTasks.length;
 
     // 365-day Activity Heatmap
     const yearAgo = new Date(now);

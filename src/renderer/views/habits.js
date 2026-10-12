@@ -5,6 +5,7 @@
 import { escapeHtml, getLocalDateString } from "../utils.js";
 import { getState, setHabits, renderCurrentView } from "../state.js";
 import { showConfirmDialog } from "../components/confirm-dialog.js";
+import { MONTH_NAMES } from "../constants.js";
 
 // Selected calendar view state (defaults to current year/month)
 let selectedYear = new Date().getFullYear();
@@ -191,21 +192,7 @@ export async function renderHabitsView() {
   setHabits(habitsData || {});
 
   // Update Month Navigation title
-  const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-  monthLabel.textContent = `${monthNames[selectedMonth]} ${selectedYear}`;
+  monthLabel.textContent = `${MONTH_NAMES[selectedMonth]} ${selectedYear}`;
 
   container.innerHTML = "";
 
@@ -285,12 +272,12 @@ export async function renderHabitsView() {
           </div>
           
           <div class="habit-badges-grid">
-            <div class="habit-badge-item success" title="Success days in ${monthNames[selectedMonth]}">
+            <div class="habit-badge-item success" title="Success days in ${MONTH_NAMES[selectedMonth]}">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-bottom: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
               <span class="habit-badge-val">${successCount}</span>
               <span class="habit-badge-lbl">Done</span>
             </div>
-            <div class="habit-badge-item failure" title="Failed days in ${monthNames[selectedMonth]}">
+            <div class="habit-badge-item failure" title="Failed days in ${MONTH_NAMES[selectedMonth]}">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-bottom: 2px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               <span class="habit-badge-val">${failCount}</span>
               <span class="habit-badge-lbl">Failed</span>
@@ -305,7 +292,7 @@ export async function renderHabitsView() {
       </div>
 
       <div class="habit-card-calendar">
-        <div class="habit-calendar-title">${monthNames[selectedMonth]} Progress</div>
+        <div class="habit-calendar-title">${MONTH_NAMES[selectedMonth]} Progress</div>
         <div class="habit-days-grid">
           <!-- Calendar cells are dynamically appended -->
         </div>

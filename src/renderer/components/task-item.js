@@ -2,7 +2,7 @@
    COMPONENT — Task Item Element
    ======================================== */
 
-import { formatDuration, escapeHtml } from "../utils.js";
+import { formatDuration, escapeHtml, sanitizeColor } from "../utils.js";
 import {
   getState,
   setTrackedTasks,
@@ -51,8 +51,9 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     !timerState.paused;
 
   const project = task.projectId ? getState().customProjects[task.projectId] : null;
+  const safeProjectColor = project ? sanitizeColor(project.color, "#38bdf8") : null;
   const projectBadge = project
-    ? `<span class="task-project-badge" style="color: ${project.color}; border-color: ${project.color};">${escapeHtml(project.name)}</span>`
+    ? `<span class="task-project-badge" style="color: ${safeProjectColor}; border-color: ${safeProjectColor};">${escapeHtml(project.name)}</span>`
     : "";
 
   let priorityBadge = "";
@@ -86,7 +87,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     </div>`
         : ""
     }
-    <div class="task-color-dot" style="background: ${event.calendarColor || "#38bdf8"};"></div>
+    <div class="task-color-dot" style="background: ${sanitizeColor(event.calendarColor, "#38bdf8")};"></div>
     <button class="task-checkbox ${isCompleted ? "checked" : ""}" data-task-id="${event.id}" data-task-name="${escapeHtml(taskTitle)}"></button>
     <div class="task-info">
       <div class="task-name" title="${escapeHtml(taskTitle)}">${escapeHtml(taskTitle)}</div>

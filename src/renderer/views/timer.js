@@ -7,6 +7,7 @@ import {
   escapeHtml,
   getLocalDateString,
   getCombinedEvents,
+  sanitizeColor,
 } from "../utils.js";
 import {
   getState,
@@ -678,7 +679,7 @@ function renderTimerTaskList() {
     opt.setAttribute("role", "button");
     opt.setAttribute("tabindex", "0");
     opt.innerHTML = `
-      <div class="task-color-dot" style="background: ${task.calendarColor || "#38bdf8"}; height: 24px;"></div>
+      <div class="task-color-dot" style="background: ${sanitizeColor(task.calendarColor, "#38bdf8")}; height: 24px;"></div>
       <span style="flex:1; text-align:left;">${escapeHtml(task.name)}</span>
       ${projectBadge}
       ${displayEst ? `<span class="task-badge estimate">${formatDuration(displayEst)}${tracked > 0 ? " left" : ""}</span>` : ""}

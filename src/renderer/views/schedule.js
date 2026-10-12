@@ -7,6 +7,7 @@ import { createTaskItem } from "../components/task-item.js";
 import { openAddTaskModal } from "../components/modals.js";
 import { initDragAndDrop } from "../components/drag-drop.js";
 import { getLocalDateString, getCombinedEvents } from "../utils.js";
+import { sortEvents } from "../constants.js";
 
 /**
  * Render the schedule view (filters + event list).
@@ -109,47 +110,8 @@ async function renderScheduleList(filter) {
   });
 
   // Sort inside each date group based on state.taskSortMode
-  if (state.taskSortMode === "manual") {
-    if (state.taskOrder.length > 0) {
-      const orderMap = {};
-      state.taskOrder.forEach((id, i) => (orderMap[id] = i));
-      for (const dateKey of Object.keys(groups)) {
-        groups[dateKey].sort((a, b) => {
-          const oa = orderMap[a.id] !== undefined ? orderMap[a.id] : 99999;
-          const ob = orderMap[b.id] !== undefined ? orderMap[b.id] : 99999;
-          if (oa !== ob) return oa - ob;
-          return new Date(a.start) - new Date(b.start);
-        });
-      }
-    } else {
-      for (const dateKey of Object.keys(groups)) {
-        groups[dateKey].sort((a, b) => new Date(a.start) - new Date(b.start));
-      }
-    }
-  } else if (state.taskSortMode === "date") {
-    for (const dateKey of Object.keys(groups)) {
-      groups[dateKey].sort((a, b) => {
-        const aAllDay = Boolean(state.trackedTasks[a.id]?.isAllDay || a.isAllDay);
-        const bAllDay = Boolean(state.trackedTasks[b.id]?.isAllDay || b.isAllDay);
-        if (aAllDay && !bAllDay) return -1;
-        if (!aAllDay && bAllDay) return 1;
-        return new Date(a.start) - new Date(b.start);
-      });
-    }
-  } else if (state.taskSortMode === "priority") {
-    const priorityMap = { high: 3, medium: 2, low: 1 };
-    for (const dateKey of Object.keys(groups)) {
-      groups[dateKey].sort((a, b) => {
-        const taskA = state.trackedTasks[a.id] || {};
-        const taskB = state.trackedTasks[b.id] || {};
-        const pa = priorityMap[taskA.priority] || 0;
-        const pb = priorityMap[taskB.priority] || 0;
-        if (pa !== pb) {
-          return pb - pa;
-        }
-        return new Date(a.start) - new Date(b.start);
-      });
-    }
+  for (const dateKey of Object.keys(groups)) {
+    sortEvents(groups[dateKey], state);
   }
 
   taskListEl.innerHTML = "";

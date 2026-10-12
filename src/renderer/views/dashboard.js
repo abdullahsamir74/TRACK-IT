@@ -18,6 +18,7 @@ import {
 import { createTaskItem } from "../components/task-item.js";
 import { initDragAndDrop } from "../components/drag-drop.js";
 import { openAddTaskModal, openLogTimeModal } from "../components/modals.js";
+import { sortEvents } from "../constants.js";
 
 let dashboardInitialized = false;
 
@@ -180,40 +181,7 @@ export async function renderDashboard() {
     taskListEl.innerHTML = "";
 
     // Sort todayEvents based on state.taskSortMode
-    if (state.taskSortMode === "manual") {
-      if (state.taskOrder && state.taskOrder.length > 0) {
-        const orderMap = {};
-        state.taskOrder.forEach((id, i) => (orderMap[id] = i));
-        todayEvents.sort((a, b) => {
-          const oa = orderMap[a.id] !== undefined ? orderMap[a.id] : 99999;
-          const ob = orderMap[b.id] !== undefined ? orderMap[b.id] : 99999;
-          if (oa !== ob) return oa - ob;
-          return new Date(a.start) - new Date(b.start);
-        });
-      } else {
-        todayEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
-      }
-    } else if (state.taskSortMode === "date") {
-      todayEvents.sort((a, b) => {
-        const aAllDay = Boolean(state.trackedTasks[a.id]?.isAllDay || a.isAllDay);
-        const bAllDay = Boolean(state.trackedTasks[b.id]?.isAllDay || b.isAllDay);
-        if (aAllDay && !bAllDay) return -1;
-        if (!aAllDay && bAllDay) return 1;
-        return new Date(a.start) - new Date(b.start);
-      });
-    } else if (state.taskSortMode === "priority") {
-      const priorityMap = { high: 3, medium: 2, low: 1 };
-      todayEvents.sort((a, b) => {
-        const taskA = state.trackedTasks[a.id] || {};
-        const taskB = state.trackedTasks[b.id] || {};
-        const pa = priorityMap[taskA.priority] || 0;
-        const pb = priorityMap[taskB.priority] || 0;
-        if (pa !== pb) {
-          return pb - pa;
-        }
-        return new Date(a.start) - new Date(b.start);
-      });
-    }
+    sortEvents(todayEvents, state);
 
     const isDraggable = state.taskSortMode === "manual";
     todayEvents.forEach((event) => {

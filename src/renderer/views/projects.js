@@ -2,7 +2,7 @@
    VIEW — Projects (Kanban Board)
    ======================================== */
 
-import { escapeHtml, getCombinedEvents, formatDuration } from "../utils.js";
+import { escapeHtml, getCombinedEvents, formatDuration, sanitizeColor } from "../utils.js";
 import {
   getState,
   setTrackedTasks,
@@ -200,7 +200,7 @@ function createKanbanColumn(project, activeTasks, allTaskStats, timerState) {
   const column = document.createElement("div");
   column.className = "kanban-column";
   column.dataset.projectId = project.id;
-  column.style.setProperty("--column-color", project.color || "#38bdf8");
+  column.style.setProperty("--column-color", sanitizeColor(project.color, "#38bdf8"));
 
   // Calculate stats
   let projectTrackedMinutes = 0;
@@ -251,7 +251,7 @@ function createKanbanColumn(project, activeTasks, allTaskStats, timerState) {
             <circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/>
           </svg>
         </div>
-        <div class="kanban-column-color-dot" style="background: ${project.color}; color: ${project.color};"></div>
+        <div class="kanban-column-color-dot" style="background: ${sanitizeColor(project.color, "#38bdf8")}; color: ${sanitizeColor(project.color, "#38bdf8")};"></div>
         <span class="kanban-column-title">${escapeHtml(project.name)}</span>
         <span class="kanban-column-count">${activeTasks.length}</span>
         <div class="kanban-column-actions">

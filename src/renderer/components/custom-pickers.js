@@ -3,13 +3,7 @@
    ======================================== */
 
 import { getLocalDateString, getLocalTimeString } from "../utils.js";
-
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
-];
-
-const WEEKDAY_NAMES = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+import { MONTH_NAMES, WEEKDAY_NAMES } from "../constants.js";
 
 let activePopover = null;
 let activeAnchor = null;

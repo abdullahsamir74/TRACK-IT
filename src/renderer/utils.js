@@ -31,6 +31,27 @@ export function escapeHtml(text) {
 }
 
 /**
+ * Sanitize a color string to prevent CSS injection.
+ * Only allows safe color formats: hex, rgb/rgba, hsl/hsla, and CSS named colors.
+ * @param {string} color
+ * @param {string} fallback - Default color if input is unsafe
+ * @returns {string} A safe CSS color value
+ */
+export function sanitizeColor(color, fallback = "#38bdf8") {
+  if (!color || typeof color !== "string") return fallback;
+  const val = color.trim();
+  // Hex: #abc, #aabbcc, #aabbccdd
+  if (/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(val)) return val;
+  // rgb/rgba with numeric values
+  if (/^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*[\d.]+\s*)?\)$/.test(val)) return val;
+  // hsl/hsla with numeric values
+  if (/^hsla?\(\s*\d{1,3}\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%\s*(,\s*[\d.]+\s*)?\)$/.test(val)) return val;
+  // Simple CSS keyword colors (letters only, short)
+  if (/^[a-zA-Z]{3,20}$/.test(val) && !/[<>"'{}();:]/.test(val)) return val;
+  return fallback;
+}
+
+/**
  * Get the local date string in YYYY-MM-DD format for a given Date object or date value.
  * @param {Date|string|number} [date]
  * @returns {string} e.g. "2026-07-11"

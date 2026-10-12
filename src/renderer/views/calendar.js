@@ -6,11 +6,7 @@ import { getState } from "../state.js";
 import { createTaskItem } from "../components/task-item.js";
 import { openAddTaskModal } from "../components/modals.js";
 import { getLocalDateString, getCombinedEvents } from "../utils.js";
-
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
+import { MONTH_NAMES } from "../constants.js";
 
 // View-local state
 let viewYear = new Date().getFullYear();

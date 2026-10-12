@@ -3,6 +3,7 @@
    ======================================== */
 
 let activeDropdownPopover = null;
+let activeDropdownSelect = null;
 
 /** Close any open custom dropdown popover */
 export function closeCustomDropdowns() {
@@ -10,6 +11,7 @@ export function closeCustomDropdowns() {
     activeDropdownPopover.parentElement.removeChild(activeDropdownPopover);
   }
   activeDropdownPopover = null;
+  activeDropdownSelect = null;
 }
 
 /** Initialize custom dropdown listeners */
@@ -18,8 +20,11 @@ export function initCustomDropdowns() {
   document.addEventListener("click", (e) => {
     if (!activeDropdownPopover) return;
     const isInsidePopover = activeDropdownPopover.contains(e.target);
-    const isTargetSelect = e.target.closest(".select-input");
-    if (!isInsidePopover && !isTargetSelect) {
+    const isSameSelect =
+      activeDropdownSelect &&
+      (activeDropdownSelect === e.target ||
+        activeDropdownSelect.contains(e.target));
+    if (!isInsidePopover && !isSameSelect) {
       closeCustomDropdowns();
     }
   });
@@ -60,10 +65,7 @@ function setupSelectDropdown(select) {
     e.stopPropagation();
 
     // Toggle if clicking same select
-    if (
-      activeDropdownPopover &&
-      activeDropdownPopover.dataset.targetId === select.id
-    ) {
+    if (activeDropdownPopover && activeDropdownSelect === select) {
       closeCustomDropdowns();
       return;
     }
@@ -101,14 +103,16 @@ function openDropdownPopover(select) {
       item.classList.add("selected");
     }
 
-    item.innerHTML = `
-      <span>${opt.text}</span>
-      ${
-        opt.value === currentValue
-          ? `<span class="dropdown-checkmark">✓</span>`
-          : ""
-      }
-    `;
+    const label = document.createElement("span");
+    label.textContent = opt.text;
+    item.appendChild(label);
+
+    if (opt.value === currentValue) {
+      const checkmark = document.createElement("span");
+      checkmark.className = "dropdown-checkmark";
+      checkmark.textContent = "✓";
+      item.appendChild(checkmark);
+    }
 
     item.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -142,5 +146,6 @@ function openDropdownPopover(select) {
   popover.style.top = `${Math.max(12, top)}px`;
   popover.style.left = `${Math.max(12, left)}px`;
 
+  activeDropdownSelect = select;
   activeDropdownPopover = popover;
 }

@@ -27,6 +27,24 @@ body {
   color: var(--text-primary);
 }
 
+/* Keyboard focus indicator */
+:focus-visible {
+  outline: 2px solid var(--accent-blue, #38bdf8);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Custom Matte Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

@@ -4,10 +4,8 @@
 
 import { formatDuration, escapeHtml } from "../utils.js";
 import {
-  trackedTasks,
-  customProjects,
+  getState,
   setTrackedTasks,
-  selectedTimerTask,
   setSelectedTimerTask,
 } from "../state.js";
 import { switchView, renderCurrentView } from "../state.js";
@@ -23,7 +21,7 @@ import { showConfirmDialog } from "./confirm-dialog.js";
  * Used by dashboard, schedule, timer, and projects views.
  */
 export function createTaskItem(event, draggable = false, timerState = null) {
-  const task = trackedTasks[event.id] || {};
+  const task = getState().trackedTasks[event.id] || {};
   const isCompleted = task.completed || false;
   const notes = task.notes || task.description || event.description || "";
   const hasNotes = Boolean(notes && notes.trim().length > 0);
@@ -52,7 +50,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     timerState.taskId === event.id &&
     !timerState.paused;
 
-  const project = task.projectId ? customProjects[task.projectId] : null;
+  const project = task.projectId ? getState().customProjects[task.projectId] : null;
   const projectBadge = project
     ? `<span class="task-project-badge" style="color: ${project.color}; border-color: ${project.color};">${escapeHtml(project.name)}</span>`
     : "";
@@ -190,7 +188,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
           isManual: btn.dataset.taskManual === "true" || isManual,
           isAllDay: btn.dataset.taskAllDay === "true" || isAllDay,
           priority: btn.dataset.taskPriority || "medium",
-          projectId: (trackedTasks[btn.dataset.taskId] && trackedTasks[btn.dataset.taskId].projectId) || task.projectId || null,
+          projectId: (getState().trackedTasks[btn.dataset.taskId] && getState().trackedTasks[btn.dataset.taskId].projectId) || task.projectId || null,
           notes: notes,
           description: notes,
         });
@@ -222,7 +220,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
         } else {
           // Start new timer for this task with remaining estimate calculation
           const taskId = btn.dataset.taskId;
-          const taskObj = trackedTasks[taskId] || {};
+          const taskObj = getState().trackedTasks[taskId] || {};
           const totalEst = btn.dataset.estimate
             ? parseInt(btn.dataset.estimate)
             : taskObj.estimateMinutes || null;
@@ -274,7 +272,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
       isManual: isManual,
       isAllDay: isAllDay,
       priority: task.priority || "medium",
-      projectId: (trackedTasks[event.id] && trackedTasks[event.id].projectId) || task.projectId || null,
+      projectId: (getState().trackedTasks[event.id] && getState().trackedTasks[event.id].projectId) || task.projectId || null,
       notes: notes,
       description: notes,
     });

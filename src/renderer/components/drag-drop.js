@@ -2,7 +2,7 @@
    COMPONENT — Drag & Drop (Schedule task reordering)
    ======================================== */
 
-import { taskOrder, setTaskOrder } from "../state.js";
+import { getState, setTaskOrder } from "../state.js";
 
 /**
  * Initialize mouse-based drag-and-drop on a task list element.

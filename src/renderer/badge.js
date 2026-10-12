@@ -3,7 +3,7 @@
    ======================================== */
 
 import { getLocalDateString, getCombinedEvents } from "./utils.js";
-import { calendarEvents, trackedTasks } from "./state.js";
+import { getState } from "./state.js";
 
 let baseIconImage = null;
 let baseIconLoaded = false;
@@ -120,7 +120,10 @@ async function generateBadgedIcon(count) {
  * @param {string} mode "pending" | "all" | "none"
  * @returns {number}
  */
-export function calculateTodayTaskCount(events = calendarEvents, tasks = trackedTasks, mode = null) {
+export function calculateTodayTaskCount(events, tasks, mode = null) {
+  const state = getState();
+  events = events || state.calendarEvents;
+  tasks = tasks || state.trackedTasks;
   const badgeMode = mode || localStorage.getItem("tracker-badge-mode") || "pending";
   if (badgeMode === "none") return 0;
 
@@ -152,7 +155,8 @@ export async function updateAppBadge() {
 
   try {
     const badgeMode = localStorage.getItem("tracker-badge-mode") || "pending";
-    const count = calculateTodayTaskCount(calendarEvents, trackedTasks, badgeMode);
+    const state = getState();
+    const count = calculateTodayTaskCount(state.calendarEvents, state.trackedTasks, badgeMode);
 
     // Update Electron Application Icon & Native Badge
     if (count !== lastRenderedCount || badgeMode !== lastRenderedMode) {

@@ -3,9 +3,7 @@
    ======================================== */
 
 import {
-  calendarEvents,
-  trackedTasks,
-  customProjects,
+  getState,
   setTrackedTasks,
   setCustomProjects,
   setWeeklyTargets,
@@ -156,10 +154,11 @@ export function openAddTaskModal(prefilledDate, prefilledProjectId = null) {
   const notesEl = document.getElementById("task-notes");
   if (notesEl) notesEl.value = "";
 
+  const state = getState();
   const projSelect = document.getElementById("task-project");
   if (projSelect) {
     projSelect.innerHTML = `<option value="">No Project (Unassigned)</option>`;
-    Object.values(customProjects).forEach((p) => {
+    Object.values(state.customProjects).forEach((p) => {
       const opt = document.createElement("option");
       opt.value = p.id;
       opt.textContent = p.name;
@@ -226,10 +225,11 @@ export function openEditTaskModal(task) {
     syncPriorityPills("edit-task", task.priority || "medium");
   }
 
+  const state = getState();
   const projSelect = document.getElementById("edit-task-project");
   if (projSelect) {
     projSelect.innerHTML = `<option value="">No Project (Unassigned)</option>`;
-    Object.values(customProjects).forEach((p) => {
+    Object.values(state.customProjects).forEach((p) => {
       const opt = document.createElement("option");
       opt.value = p.id;
       opt.textContent = p.name;
@@ -315,13 +315,14 @@ export function openLogTimeModal(prefilledTaskId = null) {
   const notesInput = document.getElementById("log-time-notes");
   const markCompleteCheckbox = document.getElementById("log-time-mark-complete");
 
-  const allEvents = getCombinedEvents(calendarEvents, trackedTasks);
+  const state = getState();
+  const allEvents = getCombinedEvents(state.calendarEvents, state.trackedTasks);
 
   // Populate task dropdown
   if (taskSelect) {
     taskSelect.innerHTML = `<option value="">-- Choose Existing Task or Type Name Below --</option>`;
     allEvents.forEach((t) => {
-      const taskObj = trackedTasks[t.id];
+      const taskObj = state.trackedTasks[t.id];
       const isDone = taskObj ? taskObj.completed : false;
       const opt = document.createElement("option");
       opt.value = t.id;
@@ -334,7 +335,7 @@ export function openLogTimeModal(prefilledTaskId = null) {
       const selectedId = taskSelect.value;
       if (selectedId) {
         const selectedEvent = allEvents.find((e) => e.id === selectedId);
-        const selectedTask = trackedTasks[selectedId];
+        const selectedTask = state.trackedTasks[selectedId];
         if (selectedEvent) {
           nameInput.value = selectedEvent.summary || selectedEvent.name || "";
           if (selectedEvent.durationMinutes) {
@@ -360,7 +361,7 @@ export function openLogTimeModal(prefilledTaskId = null) {
   // Populate project dropdown
   if (projSelect) {
     projSelect.innerHTML = `<option value="">No Project (Unassigned)</option>`;
-    Object.values(customProjects).forEach((p) => {
+    Object.values(state.customProjects).forEach((p) => {
       const opt = document.createElement("option");
       opt.value = p.id;
       opt.textContent = p.name;
@@ -370,7 +371,7 @@ export function openLogTimeModal(prefilledTaskId = null) {
 
   if (prefilledTaskId) {
     const selectedEvent = allEvents.find((e) => e.id === prefilledTaskId);
-    const selectedTask = trackedTasks[prefilledTaskId];
+    const selectedTask = state.trackedTasks[prefilledTaskId];
     nameInput.value = selectedEvent?.summary || selectedTask?.name || "";
     if (selectedEvent && selectedEvent.durationMinutes) {
       durInput.value = String(selectedEvent.durationMinutes);
@@ -423,9 +424,10 @@ export function openEditTimeEntryModal(session) {
   durInput.value = session.durationMinutes || 0;
   notesInput.value = session.notes || "";
 
+  const state = getState();
   if (projSelect) {
     projSelect.innerHTML = `<option value="">No Project (Unassigned)</option>`;
-    Object.values(customProjects).forEach((p) => {
+    Object.values(state.customProjects).forEach((p) => {
       const opt = document.createElement("option");
       opt.value = p.id;
       opt.textContent = p.name;
@@ -466,7 +468,7 @@ export function openTaskNotesModal(taskOrId) {
   if (!overlay) return;
 
   const id = typeof taskOrId === "object" ? taskOrId.id : taskOrId;
-  const task = trackedTasks[id] || (typeof taskOrId === "object" ? taskOrId : {});
+  const task = getState().trackedTasks[id] || (typeof taskOrId === "object" ? taskOrId : {});
   const taskName = task.name || (typeof taskOrId === "object" ? taskOrId.name : "Task");
   const taskNotes = task.notes || task.description || (typeof taskOrId === "object" ? taskOrId.notes : "") || "";
 
@@ -515,21 +517,9 @@ async function handleSaveTaskNotes(e) {
 // ---- Close All Modals ----
 export function closeModals() {
   closeCustomPickers();
-  document.getElementById("modal-overlay").style.display = "none";
-  document.getElementById("estimate-modal-overlay").style.display = "none";
-  document.getElementById("edit-task-modal-overlay").style.display = "none";
-  
-  const logModal = document.getElementById("log-time-modal-overlay");
-  if (logModal) logModal.style.display = "none";
-
-  const editSessionModal = document.getElementById("edit-time-entry-modal-overlay");
-  if (editSessionModal) editSessionModal.style.display = "none";
-
-  const taskNotesModal = document.getElementById("task-notes-modal-overlay");
-  if (taskNotesModal) taskNotesModal.style.display = "none";
-
-  const globalOverlay = document.getElementById("global-target-modal-overlay");
-  if (globalOverlay) globalOverlay.style.display = "none";
+  document.querySelectorAll(".modal-overlay").forEach((el) => {
+    el.style.display = "none";
+  });
 }
 
 async function handleSetGlobalTarget(e) {
@@ -718,7 +708,7 @@ async function handleLogTime(e) {
   await window.tracker.saveSession(session);
 
   if (taskId) {
-    const existingTask = trackedTasks[taskId];
+    const existingTask = getState().trackedTasks[taskId];
     if (markComplete) {
       await window.tracker.saveTask({
         id: taskId,
@@ -779,7 +769,12 @@ async function handleEditTimeEntry(e) {
 }
 
 // ---- Project Modal ----
+let projectModalInitialized = false;
+
 export function initProjectModal() {
+  if (projectModalInitialized) return;
+  projectModalInitialized = true;
+
   const newProjBtn = document.getElementById("btn-new-project");
   const projModalOverlay = document.getElementById("project-modal-overlay");
   const closeProjBtn = document.getElementById("btn-project-close");

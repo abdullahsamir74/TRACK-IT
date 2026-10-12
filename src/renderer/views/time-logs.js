@@ -4,10 +4,8 @@
 
 import { formatDuration, escapeHtml, getLocalDateString } from "../utils.js";
 import {
-  allSessions,
+  getState,
   setAllSessions,
-  customProjects,
-  trackedTasks,
   setTrackedTasks,
   renderCurrentView,
 } from "../state.js";
@@ -55,11 +53,12 @@ export async function renderTimeLogs() {
   setAllSessions(sessions);
 
   // Populate Project filter dropdown
+  const state = getState();
   const projSelect = document.getElementById("time-logs-project-filter");
   if (projSelect) {
     const currentVal = projSelect.value;
     projSelect.innerHTML = `<option value="all">All Projects</option>`;
-    Object.values(customProjects).forEach((p) => {
+    Object.values(state.customProjects).forEach((p) => {
       const opt = document.createElement("option");
       opt.value = p.id;
       opt.textContent = p.name;
@@ -108,7 +107,7 @@ export async function renderTimeLogs() {
     if (endDateStr && sDate > endDateStr) return false;
 
     if (projectVal !== "all") {
-      const task = s.taskId ? trackedTasks[s.taskId] : null;
+      const task = s.taskId ? state.trackedTasks[s.taskId] : null;
       const pId = s.projectId || (task && task.projectId);
       if (pId !== projectVal) return false;
     }
@@ -228,8 +227,8 @@ function createSessionCard(session) {
     typeBadge = `<span class="entry-type-badge type-manual">✍️ Manual</span>`;
   }
 
-  const projName = session.projectName || (session.projectId && customProjects[session.projectId]?.name) || null;
-  const projColor = session.projectColor || (session.projectId && customProjects[session.projectId]?.color) || "#38bdf8";
+  const projName = session.projectName || (session.projectId && state.customProjects[session.projectId]?.name) || null;
+  const projColor = session.projectColor || (session.projectId && state.customProjects[session.projectId]?.color) || "#38bdf8";
 
   const projectTag = projName
     ? `<span class="session-project-tag" style="color: ${projColor}; border-color: ${projColor}40; background: ${projColor}15;">${escapeHtml(projName)}</span>`

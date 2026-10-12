@@ -145,6 +145,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   window.tracker.onTimerTick((state) => {
     updateTimerDisplay(state);
 
+    const dashTimer = document.getElementById("dashboard-timer-display");
+    if (dashTimer && state && state.running) {
+      dashTimer.textContent = state.elapsedFormatted;
+    }
+
     // Play alert sound when the timer reaches the estimate
     const soundEnabled = localStorage.getItem("tracker-sounds-enabled") !== "false";
     if (soundEnabled && state.estimateMinutes && state.progress >= 1 && !estimateAlertFired) {
@@ -158,9 +163,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // Listen for window resize
   window.addEventListener("resize", () => {
-    import("./state.js").then(({ analyticsChart }) => {
-      if (analyticsChart && typeof analyticsChart.resize === "function") {
-        analyticsChart.resize();
+    import("./state.js").then(({ getState }) => {
+      const chart = getState().analyticsChart;
+      if (chart && typeof chart.resize === "function") {
+        chart.resize();
       }
     });
   });

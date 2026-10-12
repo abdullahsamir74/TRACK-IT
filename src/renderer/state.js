@@ -34,21 +34,6 @@ class Store {
   updateState(newState) {
     this.state = { ...this.state, ...newState };
 
-    // Synchronize live bindings
-    calendarEvents = this.state.calendarEvents;
-    trackedTasks = this.state.trackedTasks;
-    customProjects = this.state.customProjects;
-    expandedProjects = this.state.expandedProjects;
-    habits = this.state.habits;
-    allSessions = this.state.allSessions;
-    currentView = this.state.currentView;
-    selectedTimerTask = this.state.selectedTimerTask;
-    analyticsChart = this.state.analyticsChart;
-    taskOrder = this.state.taskOrder;
-    projectOrder = this.state.projectOrder;
-    weeklyTargets = this.state.weeklyTargets;
-    taskSortMode = this.state.taskSortMode;
-
     updateAppBadge().catch((err) =>
       console.error("Error updating app badge from state:", err),
     );
@@ -76,20 +61,11 @@ class Store {
 
 const storeInstance = new Store();
 
-// ---- Mutable live bindings for external module imports ----
-export let calendarEvents = [];
-export let trackedTasks = {};
-export let customProjects = {};
-export let expandedProjects = {};
-export let habits = {};
-export let allSessions = [];
-export let currentView = "dashboard";
-export let selectedTimerTask = null;
-export let analyticsChart = null;
-export let taskOrder = [];
-export let projectOrder = [];
-export let weeklyTargets = {};
-export let taskSortMode = "manual";
+// ---- State accessor (replaces broken ES module live bindings) ----
+// Usage: import { getState } from "./state.js"; then getState().trackedTasks
+export function getState() {
+  return storeInstance.state;
+}
 
 // ---- State setters invoking the store ----
 export function setCalendarEvents(val) {
@@ -235,7 +211,7 @@ export function switchView(viewName) {
 
 export async function renderCurrentView() {
   updateStreakCount();
-  const renderer = viewRenderers[currentView];
+  const renderer = viewRenderers[getState().currentView];
   if (renderer) {
     await renderer();
   }

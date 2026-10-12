@@ -62,9 +62,10 @@ export function initKeyboardShortcuts() {
       }
     }
 
-    // 3. Spacebar -> Start / Pause / Resume Active Timer
+    // 3. Spacebar -> Start / Pause / Resume Active Timer (ignore key repeat)
     if (
       (e.code === "Space" || e.key === " ") &&
+      !e.repeat &&
       !isInputElement(document.activeElement) &&
       !isAnyModalOpen()
     ) {

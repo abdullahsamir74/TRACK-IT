@@ -16,7 +16,7 @@ class AnalyticsService {
     this.db = repository.db;
   }
 
-  getAnalytics(range = "week") {
+  async getAnalytics(range = "week") {
     const now = new Date();
     let startDate = new Date(now);
     let endDate = new Date(now);
@@ -35,7 +35,15 @@ class AnalyticsService {
       startDate.setDate(1);
       startDate.setHours(0, 0, 0, 0);
 
-      endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+      endDate = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0,
+        23,
+        59,
+        59,
+        999,
+      );
     } else {
       // Fixed Calendar Year: Jan 1 to Dec 31
       startDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
@@ -57,17 +65,31 @@ class AnalyticsService {
       FROM time_entries te
       LEFT JOIN tasks t ON te.task_id = t.id
       LEFT JOIN projects p ON COALESCE(te.project_id, t.project_id) = p.id
-      WHERE te.start_time >= ? AND te.start_time <= ?
+      WHERE te.start_time >= $1 AND te.start_time <= $2
       ORDER BY te.start_time ASC
     `;
-    const filteredEntries = this.db.prepare(entriesQuery).all(startIso, endIso);
+    const filteredEntries = (
+      await this.db.query(entriesQuery, [startIso, endIso])
+    ).rows;
 
     // Build continuous daily slots for the chart
     const dailyData = [];
     const dailyMap = {};
 
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-      const key = getLocalDateString(d);
+    const iterDate = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth(),
+      startDate.getDate(),
+      12,
+    );
+    const endLimit = new Date(
+      endDate.getFullYear(),
+      endDate.getMonth(),
+      endDate.getDate(),
+      12,
+    );
+    while (iterDate <= endLimit) {
+      const key = getLocalDateString(iterDate);
       const item = {
         date: key,
         trackedMinutes: 0,
@@ -76,13 +98,15 @@ class AnalyticsService {
       };
       dailyData.push(item);
       dailyMap[key] = item;
+      iterDate.setDate(iterDate.getDate() + 1);
     }
 
     // Populate daily map
     for (const entry of filteredEntries) {
       const key = getLocalDateString(entry.start_time);
       if (dailyMap[key]) {
-        dailyMap[key].trackedMinutes += Math.round((entry.duration_minutes || 0) * 10) / 10;
+        dailyMap[key].trackedMinutes +=
+          Math.round((entry.duration_minutes || 0) * 10) / 10;
         dailyMap[key].sessionsCount += 1;
       }
     }
@@ -92,7 +116,9 @@ class AnalyticsService {
     for (const entry of filteredEntries) {
       const projId = entry.effective_project_id;
       const projName = entry.project_name_joined;
-      const rawTaskName = (entry.task_name || entry.task_name_joined || "Unknown Task").trim() || "Unknown Task";
+      const rawTaskName =
+        (entry.task_name || entry.task_name_joined || "Unknown Task").trim() ||
+        "Unknown Task";
       const duration = entry.duration_minutes || 0;
 
       let key;
@@ -126,7 +152,8 @@ class AnalyticsService {
         };
       } else if (
         !isProject &&
-        progressStatsMap[key].name === progressStatsMap[key].name.toLowerCase() &&
+        progressStatsMap[key].name ===
+          progressStatsMap[key].name.toLowerCase() &&
         displayName !== displayName.toLowerCase()
       ) {
         progressStatsMap[key].name = displayName;
@@ -188,32 +215,52 @@ class AnalyticsService {
       projectStatsMap[projName].sessionsCount += 1;
     }
     const projectStats = Object.values(projectStatsMap)
-      .map((p) => ({ ...p, totalMinutes: Math.round(p.totalMinutes * 10) / 10 }))
+      .map((p) => ({
+        ...p,
+        totalMinutes: Math.round(p.totalMinutes * 10) / 10,
+      }))
       .sort((a, b) => b.totalMinutes - a.totalMinutes);
 
     // Completion stats for tasks scoped to the selected date range (week, month, year)
-    const periodTasks = this.db.prepare(`
+    const periodTasks = (
+      await this.db.query(
+        `
       SELECT id, status, completed_at, created_at, due_date
       FROM tasks
       WHERE deleted_at IS NULL
         AND (
-          (due_date >= ? AND due_date <= ?)
-          OR (created_at >= ? AND created_at <= ?)
-          OR (completed_at >= ? AND completed_at <= ?)
+          (due_date >= $1 AND due_date <= $2)
+          OR (created_at >= $3 AND created_at <= $4)
+          OR (completed_at >= $5 AND completed_at <= $6)
           OR id IN (
             SELECT DISTINCT task_id 
             FROM time_entries 
-            WHERE start_time >= ? AND start_time <= ? AND task_id IS NOT NULL
+            WHERE start_time >= $7 AND start_time <= $8 AND task_id IS NOT NULL
           )
         )
-    `).all(startIso, endIso, startIso, endIso, startIso, endIso, startIso, endIso);
+    `,
+        [
+          startIso,
+          endIso,
+          startIso,
+          endIso,
+          startIso,
+          endIso,
+          startIso,
+          endIso,
+        ],
+      )
+    ).rows;
 
     const completedCount = periodTasks.filter((t) => {
       if (t.status !== "completed") return false;
       if (t.completed_at) {
         return (
           (t.completed_at >= startIso && t.completed_at <= endIso) ||
-          (t.due_date && t.due_date >= startIso && t.due_date <= endIso && t.completed_at <= endIso)
+          (t.due_date &&
+            t.due_date >= startIso &&
+            t.due_date <= endIso &&
+            t.completed_at <= endIso)
         );
       }
       return true;
@@ -225,11 +272,16 @@ class AnalyticsService {
     yearAgo.setDate(now.getDate() - 364);
     yearAgo.setHours(0, 0, 0, 0);
 
-    const allYearEntries = this.db.prepare(`
+    const allYearEntries = (
+      await this.db.query(
+        `
       SELECT start_time, duration_minutes 
       FROM time_entries 
-      WHERE start_time >= ?
-    `).all(yearAgo.toISOString());
+      WHERE start_time >= $1
+    `,
+        [yearAgo.toISOString()],
+      )
+    ).rows;
 
     const heatmapData = {};
     for (const s of allYearEntries) {
@@ -243,12 +295,22 @@ class AnalyticsService {
     // Streak calculation (Consecutive active days ending today or yesterday)
     let streak = 0;
     const todayKey = getLocalDateString();
+    const activeEntries = (
+      await this.db.query(
+        "SELECT start_time FROM time_entries WHERE duration_minutes > 0",
+      )
+    ).rows;
     const allDatesWithActivity = new Set(
-      this.db.prepare("SELECT DISTINCT substr(start_time, 1, 10) as day FROM time_entries").all().map((r) => r.day)
+      activeEntries
+        .map((r) => getLocalDateString(r.start_time))
+        .filter(Boolean),
     );
 
     let checkDate = new Date();
-    if (allDatesWithActivity.has(todayKey) || (heatmapData[todayKey] || 0) > 0) {
+    if (
+      allDatesWithActivity.has(todayKey) ||
+      (heatmapData[todayKey] || 0) > 0
+    ) {
       // Activity today!
     } else {
       checkDate.setDate(checkDate.getDate() - 1);
@@ -276,12 +338,17 @@ class AnalyticsService {
     curWeekStart.setDate(now.getDate() - now.getDay());
     curWeekStart.setHours(0, 0, 0, 0);
 
-    const weekEntries = this.db.prepare(`
+    const weekEntries = (
+      await this.db.query(
+        `
       SELECT te.duration_minutes, te.project_id, t.project_id as task_project_id
       FROM time_entries te
       LEFT JOIN tasks t ON te.task_id = t.id
-      WHERE te.start_time >= ?
-    `).all(curWeekStart.toISOString());
+      WHERE te.start_time >= $1
+    `,
+        [curWeekStart.toISOString()],
+      )
+    ).rows;
 
     let currentWeekTotalMinutes = 0;
     const weeklyProjectMinutes = {};
@@ -297,7 +364,7 @@ class AnalyticsService {
 
     const totalTrackedMinutes = filteredEntries.reduce(
       (sum, s) => sum + (s.duration_minutes || 0),
-      0
+      0,
     );
 
     return {

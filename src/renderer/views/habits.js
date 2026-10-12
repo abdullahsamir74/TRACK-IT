@@ -3,7 +3,7 @@
    ======================================== */
 
 import { escapeHtml, getLocalDateString } from "../utils.js";
-import { habits, setHabits, renderCurrentView } from "../state.js";
+import { getState, setHabits, renderCurrentView } from "../state.js";
 import { showConfirmDialog } from "../components/confirm-dialog.js";
 
 // Selected calendar view state (defaults to current year/month)
@@ -209,7 +209,7 @@ export async function renderHabitsView() {
 
   container.innerHTML = "";
 
-  const habitList = Object.values(habits);
+  const habitList = Object.values(getState().habits);
 
   if (habitList.length === 0) {
     container.innerHTML = `

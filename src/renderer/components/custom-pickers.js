@@ -12,6 +12,7 @@ const MONTH_NAMES = [
 const WEEKDAY_NAMES = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
 let activePopover = null;
+let activeAnchor = null;
 
 // ---- Public API ----
 
@@ -21,6 +22,7 @@ export function closeCustomPickers() {
     activePopover.parentElement.removeChild(activePopover);
   }
   activePopover = null;
+  activeAnchor = null;
 }
 
 /** Initialize custom pickers event listeners */
@@ -29,8 +31,10 @@ export function initCustomPickers() {
   document.addEventListener("click", (e) => {
     if (!activePopover) return;
     const isInsidePopover = activePopover.contains(e.target);
-    const isTargetInputWrapper = e.target.closest(".input-wrapper");
-    if (!isInsidePopover && !isTargetInputWrapper) {
+    const isInsideAnchor =
+      activeAnchor &&
+      (activeAnchor === e.target || activeAnchor.contains(e.target));
+    if (!isInsidePopover && !isInsideAnchor) {
       closeCustomPickers();
     }
   });
@@ -262,6 +266,7 @@ function openCalendarPicker(input, wrapper) {
 
   render();
   positionPopover(popover, wrapper || input);
+  activeAnchor = wrapper || input;
   activePopover = popover;
 }
 
@@ -418,6 +423,7 @@ function openTimePicker(input, wrapper) {
 
   render();
   positionPopover(popover, wrapper || input);
+  activeAnchor = wrapper || input;
   activePopover = popover;
 }
 

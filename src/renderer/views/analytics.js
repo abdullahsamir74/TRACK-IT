@@ -1,5 +1,5 @@
 import { formatDuration, escapeHtml, getLocalDateString } from "../utils.js";
-import { analyticsChart, setAnalyticsChart } from "../state.js";
+import { getState, setAnalyticsChart } from "../state.js";
 import {
   openGlobalTargetModal,
   openEditProjectModal,
@@ -355,6 +355,7 @@ function renderChart(dailyData) {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
 
+  const analyticsChart = getState().analyticsChart;
   if (analyticsChart && typeof analyticsChart.destroy === "function") {
     try {
       analyticsChart.destroy();

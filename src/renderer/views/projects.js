@@ -4,11 +4,7 @@
 
 import { escapeHtml, getCombinedEvents, formatDuration } from "../utils.js";
 import {
-  calendarEvents,
-  trackedTasks,
-  customProjects,
-  expandedProjects,
-  projectOrder,
+  getState,
   setTrackedTasks,
   setCustomProjects,
   setProjectOrder,
@@ -74,11 +70,12 @@ export async function renderProjects() {
     targets = (await window.tracker.getWeeklyTargets()) || {};
   } catch (e) {}
 
-  const projects = Object.values(customProjects);
+  const state = getState();
+  const projects = Object.values(state.customProjects);
   // Sort projects according to projectOrder configuration
   projects.sort((a, b) => {
-    const idxA = projectOrder.indexOf(a.id);
-    const idxB = projectOrder.indexOf(b.id);
+    const idxA = state.projectOrder.indexOf(a.id);
+    const idxB = state.projectOrder.indexOf(b.id);
     if (idxA === -1 && idxB === -1) return 0;
     if (idxA === -1) return 1;
     if (idxB === -1) return -1;
@@ -91,7 +88,7 @@ export async function renderProjects() {
   });
 
   // Combine calendar events and manual tasks
-  const allEvents = getCombinedEvents(calendarEvents, trackedTasks);
+  const allEvents = getCombinedEvents(state.calendarEvents, state.trackedTasks);
 
   const unassignedEvents = [];
 
@@ -102,8 +99,8 @@ export async function renderProjects() {
   });
 
   allEvents.forEach((event) => {
-    const task = trackedTasks[event.id] || {};
-    if (task.projectId && customProjects[task.projectId]) {
+    const task = state.trackedTasks[event.id] || {};
+    if (task.projectId && state.customProjects[task.projectId]) {
       projectAllTasks[task.projectId].total++;
       if (task.completed) {
         projectAllTasks[task.projectId].completed++;
@@ -152,6 +149,7 @@ export async function renderProjects() {
  * Render the compact unassigned tasks drawer.
  */
 function renderUnassignedDrawer(unassignedEvents, timerState) {
+  const state = getState();
   const drawer = document.getElementById("unassigned-pool-panel");
   const pool = document.getElementById("unassigned-tasks-pool");
   const countBadge = document.getElementById("unassigned-tasks-count");
@@ -161,7 +159,7 @@ function renderUnassignedDrawer(unassignedEvents, timerState) {
   pool.innerHTML = "";
   countBadge.textContent = unassignedEvents.length;
 
-  const isExpanded = expandedProjects["unassigned"] === true;
+  const isExpanded = state.expandedProjects["unassigned"] === true;
   if (isExpanded) {
     drawer.classList.add("expanded");
   } else {
@@ -175,7 +173,7 @@ function renderUnassignedDrawer(unassignedEvents, timerState) {
     if (header) {
       header.addEventListener("click", () => {
         const expanded = drawer.classList.toggle("expanded");
-        expandedProjects["unassigned"] = expanded;
+        state.expandedProjects["unassigned"] = expanded;
       });
     }
   }
@@ -198,6 +196,7 @@ function renderUnassignedDrawer(unassignedEvents, timerState) {
  * Create a single Kanban column for a project.
  */
 function createKanbanColumn(project, activeTasks, allTaskStats, timerState) {
+  const state = getState();
   const column = document.createElement("div");
   column.className = "kanban-column";
   column.dataset.projectId = project.id;
@@ -205,7 +204,7 @@ function createKanbanColumn(project, activeTasks, allTaskStats, timerState) {
 
   // Calculate stats
   let projectTrackedMinutes = 0;
-  Object.values(trackedTasks).forEach((t) => {
+  Object.values(state.trackedTasks).forEach((t) => {
     if (t.projectId === project.id) {
       projectTrackedMinutes += t.totalTrackedMinutes || 0;
     }
@@ -329,7 +328,7 @@ function createKanbanColumn(project, activeTasks, allTaskStats, timerState) {
       confirmText: "Delete Project",
       onConfirm: async () => {
         await window.tracker.deleteProject(project.id);
-        delete expandedProjects[project.id];
+        delete state.expandedProjects[project.id];
         setCustomProjects(await window.tracker.getProjects());
         setTrackedTasks(await window.tracker.getTasks());
       },

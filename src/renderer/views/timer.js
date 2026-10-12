@@ -9,13 +9,9 @@ import {
   getCombinedEvents,
 } from "../utils.js";
 import {
-  calendarEvents,
-  trackedTasks,
-  customProjects,
+  getState,
   setTrackedTasks,
-  selectedTimerTask,
   setSelectedTimerTask,
-  taskOrder,
   updateStreakCount,
 } from "../state.js";
 import { initDragAndDrop } from "../components/drag-drop.js";
@@ -50,9 +46,9 @@ function updatePomodoroPhaseBadge() {
 function formatTimerTaskName(taskId, rawName) {
   if (!rawName) return "No task selected";
   if (!taskId) return rawName;
-  const taskObj = trackedTasks[taskId];
-  if (taskObj && taskObj.projectId && customProjects[taskObj.projectId]) {
-    const proj = customProjects[taskObj.projectId];
+  const taskObj = getState().trackedTasks[taskId];
+  if (taskObj && taskObj.projectId && getState().customProjects[taskObj.projectId]) {
+    const proj = getState().customProjects[taskObj.projectId];
     return `${proj.name} · ${rawName}`;
   }
   return rawName;
@@ -122,8 +118,8 @@ export function initTimerControls() {
     // automatically stop the current task and save its session, then start the new task from 0.
     if (
       timerState.running &&
-      selectedTimerTask &&
-      timerState.taskId !== selectedTimerTask.id
+      getState().selectedTimerTask &&
+      timerState.taskId !== getState().selectedTimerTask.id
     ) {
       await window.tracker.stopTimer();
       startTimerForTask(true);
@@ -226,8 +222,8 @@ export function initTimerControls() {
   const editNotesBtn = document.getElementById("btn-timer-edit-notes");
   if (editNotesBtn) {
     editNotesBtn.addEventListener("click", () => {
-      if (selectedTimerTask) {
-        openTaskNotesModal(selectedTimerTask);
+      if (getState().selectedTimerTask) {
+        openTaskNotesModal(getState().selectedTimerTask);
       }
     });
   }
@@ -241,12 +237,12 @@ export function updateTimerNotesDisplay() {
   const notesBody = document.getElementById("timer-task-notes-body");
   if (!notesCard || !notesBody) return;
 
-  if (!selectedTimerTask) {
+  if (!getState().selectedTimerTask) {
     notesCard.style.display = "none";
     return;
   }
 
-  const taskObj = trackedTasks[selectedTimerTask.id] || {};
+  const taskObj = getState().trackedTasks[getState().selectedTimerTask.id] || {};
   const notes = (taskObj.notes || taskObj.description || "").trim();
 
   if (notes) {
@@ -266,7 +262,7 @@ export async function startTimerForTask(isNewTask = false) {
     pomodoroBlockCount = 1;
   }
 
-  if (!selectedTimerTask) {
+  if (!getState().selectedTimerTask) {
     setSelectedTimerTask({
       id: null,
       name:
@@ -288,12 +284,12 @@ export async function startTimerForTask(isNewTask = false) {
   // Reset the estimate-reached alert so it can fire for this new session
   resetEstimateAlert();
 
-  const taskObj = selectedTimerTask.id
-    ? trackedTasks[selectedTimerTask.id] || {}
+  const taskObj = getState().selectedTimerTask.id
+    ? getState().trackedTasks[getState().selectedTimerTask.id] || {}
     : {};
   const totalEst =
-    selectedTimerTask.totalEstimate ||
-    selectedTimerTask.estimate ||
+    getState().selectedTimerTask.totalEstimate ||
+    getState().selectedTimerTask.estimate ||
     taskObj.estimateMinutes ||
     null;
   const tracked = taskObj.totalTrackedMinutes || 0;
@@ -303,23 +299,23 @@ export async function startTimerForTask(isNewTask = false) {
       : null;
 
   // Update selectedTimerTask with calculated remaining estimate
-  selectedTimerTask.estimate = remainingEst;
-  selectedTimerTask.totalEstimate = totalEst;
+  getState().selectedTimerTask.estimate = remainingEst;
+  getState().selectedTimerTask.totalEstimate = totalEst;
 
-  let displayName = selectedTimerTask.name || "Focus Session";
-  if (timerMode === "pomodoro" && pomodoroPhase !== "focus" && !selectedTimerTask.id) {
+  let displayName = getState().selectedTimerTask.name || "Focus Session";
+  if (timerMode === "pomodoro" && pomodoroPhase !== "focus" && !getState().selectedTimerTask.id) {
     displayName =
       pomodoroPhase === "shortBreak" ? "Short Break" : "Long Break";
   }
 
   await window.tracker.startTimer(
-    selectedTimerTask.id,
+    getState().selectedTimerTask.id,
     displayName,
     remainingEst,
   );
 
   document.getElementById("timer-task-name").textContent =
-    formatTimerTaskName(selectedTimerTask.id, displayName);
+    formatTimerTaskName(getState().selectedTimerTask.id, displayName);
   document.getElementById("timer-play-icon").style.display = "none";
   document.getElementById("timer-pause-icon").style.display = "";
   document.getElementById("btn-timer-stop").disabled = false;
@@ -596,11 +592,11 @@ export async function renderTimerView() {
   } else {
     // Reset view to idle if nothing is running
     document.getElementById("btn-timer-stop").disabled = true;
-    if (selectedTimerTask && trackedTasks[selectedTimerTask.id]?.completed) {
+    if (getState().selectedTimerTask && getState().trackedTasks[getState().selectedTimerTask.id]?.completed) {
       setSelectedTimerTask(null);
     }
-    document.getElementById("timer-task-name").textContent = selectedTimerTask
-      ? formatTimerTaskName(selectedTimerTask.id, selectedTimerTask.name)
+    document.getElementById("timer-task-name").textContent = getState().selectedTimerTask
+      ? formatTimerTaskName(getState().selectedTimerTask.id, getState().selectedTimerTask.name)
       : "No task selected";
     document.getElementById("timer-play-icon").style.display = "";
     document.getElementById("timer-pause-icon").style.display = "none";
@@ -620,11 +616,12 @@ export async function renderTimerView() {
  */
 function renderTimerTaskList() {
   const listEl = document.getElementById("timer-task-list");
+  const state = getState();
 
-  const merged = getCombinedEvents(calendarEvents, trackedTasks);
+  const merged = getCombinedEvents(state.calendarEvents, state.trackedTasks);
   const incompleteTasks = merged
     .map((e) => {
-      const task = trackedTasks[e.id] || {};
+      const task = state.trackedTasks[e.id] || {};
       return {
         id: e.id,
         name: e.summary,
@@ -650,9 +647,9 @@ function renderTimerTaskList() {
   }
 
   // Sort unique tasks using taskOrder
-  if (taskOrder && taskOrder.length > 0) {
+  if (state.taskOrder && state.taskOrder.length > 0) {
     const orderMap = {};
-    taskOrder.forEach((id, i) => (orderMap[id] = i));
+    state.taskOrder.forEach((id, i) => (orderMap[id] = i));
     unique.sort((a, b) => {
       const oa = orderMap[a.id] !== undefined ? orderMap[a.id] : 99999;
       const ob = orderMap[b.id] !== undefined ? orderMap[b.id] : 99999;
@@ -662,7 +659,7 @@ function renderTimerTaskList() {
 
   listEl.innerHTML = "";
   unique.slice(0, 8).forEach((task) => {
-    const taskObj = trackedTasks[task.id] || {};
+    const taskObj = state.trackedTasks[task.id] || {};
     const totalEst = task.estimate;
     const tracked = taskObj.totalTrackedMinutes || 0;
     const remainingEst =
@@ -670,13 +667,13 @@ function renderTimerTaskList() {
         ? Math.max(0, totalEst - tracked)
         : null;
     const displayEst = remainingEst !== null ? remainingEst : totalEst;
-    const proj = taskObj.projectId ? customProjects[taskObj.projectId] : null;
+    const proj = taskObj.projectId ? state.customProjects[taskObj.projectId] : null;
     const projectBadge = proj
       ? `<span class="task-project-badge" style="color: ${proj.color}; border-color: ${proj.color}40; background: ${proj.color}15; font-size: 10px; padding: 1px 6px;">${escapeHtml(proj.name)}</span>`
       : "";
 
     const opt = document.createElement("div");
-    opt.className = `timer-task-option${selectedTimerTask?.id === task.id ? " selected" : ""}`;
+    opt.className = `timer-task-option${getState().selectedTimerTask?.id === task.id ? " selected" : ""}`;
     opt.dataset.taskId = task.id;
     opt.setAttribute("role", "button");
     opt.setAttribute("tabindex", "0");
@@ -724,4 +721,3 @@ function renderTimerTaskList() {
   // Initialize drag-and-drop on the task list
   initDragAndDrop(listEl);
 }
-

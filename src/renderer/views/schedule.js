@@ -2,7 +2,7 @@
    VIEW — Schedule
    ======================================== */
 
-import { calendarEvents, trackedTasks, setTrackedTasks, taskOrder, taskSortMode, setTaskSortMode } from "../state.js";
+import { getState, setTrackedTasks, setTaskSortMode } from "../state.js";
 import { createTaskItem } from "../components/task-item.js";
 import { openAddTaskModal } from "../components/modals.js";
 import { initDragAndDrop } from "../components/drag-drop.js";
@@ -12,8 +12,14 @@ import { getLocalDateString, getCombinedEvents } from "../utils.js";
  * Render the schedule view (filters + event list).
  */
 export async function renderSchedule() {
-  const tasks = await window.tracker.getTasks();
-  setTrackedTasks(tasks || {});
+  const state = getState();
+  try {
+    const tasks = await window.tracker.getTasks();
+    setTrackedTasks(tasks || {});
+  } catch (err) {
+    console.error("Failed to load tasks for schedule:", err);
+    return;
+  }
 
   const taskListEl = document.getElementById("schedule-task-list");
   const filterBtns = document.querySelectorAll(".filter-btn");
@@ -37,7 +43,7 @@ export async function renderSchedule() {
   // Sort preference setup
   const sortSelect = document.getElementById("select-schedule-sort");
   if (sortSelect) {
-    sortSelect.value = taskSortMode;
+    sortSelect.value = state.taskSortMode;
     sortSelect.onchange = async () => {
       const newMode = sortSelect.value;
       await window.tracker.saveTaskSortMode(newMode);
@@ -51,12 +57,13 @@ export async function renderSchedule() {
  * Render the filtered & grouped task list for the schedule view.
  */
 async function renderScheduleList(filter) {
+  const state = getState();
   const taskListEl = document.getElementById("schedule-task-list");
   const todayStr = getLocalDateString();
   const now = new Date();
 
   // Combine calendar events and manual tasks
-  let allItems = getCombinedEvents(calendarEvents, trackedTasks);
+  let allItems = getCombinedEvents(state.calendarEvents, state.trackedTasks);
 
   // Apply filter
   if (filter === "today") {
@@ -72,8 +79,8 @@ async function renderScheduleList(filter) {
     const dateA = getLocalDateString(a.start);
     const dateB = getLocalDateString(b.start);
     if (dateA !== dateB) return new Date(a.start) - new Date(b.start);
-    const aAllDay = Boolean(trackedTasks[a.id]?.isAllDay || a.isAllDay);
-    const bAllDay = Boolean(trackedTasks[b.id]?.isAllDay || b.isAllDay);
+    const aAllDay = Boolean(state.trackedTasks[a.id]?.isAllDay || a.isAllDay);
+    const bAllDay = Boolean(state.trackedTasks[b.id]?.isAllDay || b.isAllDay);
     if (aAllDay && !bAllDay) return -1;
     if (!aAllDay && bAllDay) return 1;
     return new Date(a.start) - new Date(b.start);
@@ -101,11 +108,11 @@ async function renderScheduleList(filter) {
     groups[dateKey].push(item);
   });
 
-  // Sort inside each date group based on taskSortMode
-  if (taskSortMode === "manual") {
-    if (taskOrder.length > 0) {
+  // Sort inside each date group based on state.taskSortMode
+  if (state.taskSortMode === "manual") {
+    if (state.taskOrder.length > 0) {
       const orderMap = {};
-      taskOrder.forEach((id, i) => (orderMap[id] = i));
+      state.taskOrder.forEach((id, i) => (orderMap[id] = i));
       for (const dateKey of Object.keys(groups)) {
         groups[dateKey].sort((a, b) => {
           const oa = orderMap[a.id] !== undefined ? orderMap[a.id] : 99999;
@@ -119,22 +126,22 @@ async function renderScheduleList(filter) {
         groups[dateKey].sort((a, b) => new Date(a.start) - new Date(b.start));
       }
     }
-  } else if (taskSortMode === "date") {
+  } else if (state.taskSortMode === "date") {
     for (const dateKey of Object.keys(groups)) {
       groups[dateKey].sort((a, b) => {
-        const aAllDay = Boolean(trackedTasks[a.id]?.isAllDay || a.isAllDay);
-        const bAllDay = Boolean(trackedTasks[b.id]?.isAllDay || b.isAllDay);
+        const aAllDay = Boolean(state.trackedTasks[a.id]?.isAllDay || a.isAllDay);
+        const bAllDay = Boolean(state.trackedTasks[b.id]?.isAllDay || b.isAllDay);
         if (aAllDay && !bAllDay) return -1;
         if (!aAllDay && bAllDay) return 1;
         return new Date(a.start) - new Date(b.start);
       });
     }
-  } else if (taskSortMode === "priority") {
+  } else if (state.taskSortMode === "priority") {
     const priorityMap = { high: 3, medium: 2, low: 1 };
     for (const dateKey of Object.keys(groups)) {
       groups[dateKey].sort((a, b) => {
-        const taskA = trackedTasks[a.id] || {};
-        const taskB = trackedTasks[b.id] || {};
+        const taskA = state.trackedTasks[a.id] || {};
+        const taskB = state.trackedTasks[b.id] || {};
         const pa = priorityMap[taskA.priority] || 0;
         const pb = priorityMap[taskB.priority] || 0;
         if (pa !== pb) {
@@ -162,14 +169,14 @@ async function renderScheduleList(filter) {
     }
     taskListEl.appendChild(header);
 
-    const isDraggable = taskSortMode === "manual";
+    const isDraggable = state.taskSortMode === "manual";
     items.forEach((item) => {
       taskListEl.appendChild(createTaskItem(item, isDraggable, timerState));
     });
   }
 
   // Initialize drag-and-drop on the task list
-  if (taskSortMode === "manual") {
+  if (state.taskSortMode === "manual") {
     initDragAndDrop(taskListEl);
   }
 }

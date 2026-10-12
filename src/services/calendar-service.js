@@ -208,7 +208,7 @@ class CalendarService {
           dir,
           { persistent: false },
           async (eventType) => {
-            if (eventType === "change") {
+            if (eventType === "change" || eventType === "rename") {
               // Debounce — wait 500ms for file to finish writing
               if (this._debounceTimer) clearTimeout(this._debounceTimer);
               this._debounceTimer = setTimeout(async () => {

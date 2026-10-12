@@ -22,6 +22,9 @@ Thumbs.db
 *.swp
 
 # Local configuration / data store files
+.env
+.env.*
+!.env.example
 src/renderer/icon.png.backup
 data/
 *.sqlite

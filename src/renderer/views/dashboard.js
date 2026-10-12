@@ -8,13 +8,9 @@ import {
   getCombinedEvents,
 } from "../utils.js";
 import {
-  calendarEvents,
-  trackedTasks,
-  customProjects,
+  getState,
   setTrackedTasks,
   setCalendarEvents,
-  taskOrder,
-  taskSortMode,
   setTaskSortMode,
   updateStreakCount,
   switchView,
@@ -71,7 +67,8 @@ export async function renderDashboard() {
   setTrackedTasks(tasks || {});
 
   // Combine calendar events and manual tasks
-  const allEvents = getCombinedEvents(calendarEvents, trackedTasks);
+  const state = getState();
+  const allEvents = getCombinedEvents(state.calendarEvents, state.trackedTasks);
 
   // Get today's events
   const todayEvents = allEvents.filter((e) => {
@@ -96,17 +93,17 @@ export async function renderDashboard() {
   if (totalTimeEl) totalTimeEl.textContent = formatDuration(trackedToday);
 
   const completedTodayCount = todayEvents.filter(
-    (e) => trackedTasks[e.id]?.completed,
+    (e) => state.trackedTasks[e.id]?.completed,
   ).length;
   const completedCountEl = document.getElementById("stat-completed-count");
   if (completedCountEl) completedCountEl.textContent = completedTodayCount;
 
   // Estimated total remaining for uncompleted tasks
   const pendingTodayEvents = todayEvents.filter(
-    (e) => !trackedTasks[e.id]?.completed,
+    (e) => !state.trackedTasks[e.id]?.completed,
   );
   const estimatedRemaining = pendingTodayEvents.reduce((sum, e) => {
-    const task = trackedTasks[e.id];
+    const task = state.trackedTasks[e.id];
     const est = task?.estimateMinutes || e.durationMinutes || 0;
     const tracked = task?.totalTrackedMinutes || 0;
     const remaining = Math.max(0, est - tracked);
@@ -121,8 +118,8 @@ export async function renderDashboard() {
   if (activeTimerEl) {
     if (timerState && timerState.running) {
       activeTimerEl.style.display = "flex";
-      const task = timerState.taskId ? trackedTasks[timerState.taskId] : null;
-      const proj = task?.projectId ? customProjects[task.projectId] : null;
+      const task = timerState.taskId ? state.trackedTasks[timerState.taskId] : null;
+      const proj = task?.projectId ? state.customProjects[task.projectId] : null;
       const displayTask = proj
         ? `${proj.name} · ${timerState.taskName}`
         : timerState.taskName;
@@ -144,7 +141,7 @@ export async function renderDashboard() {
   // Sort preference setup
   const sortSelect = document.getElementById("select-dashboard-sort");
   if (sortSelect) {
-    sortSelect.value = taskSortMode;
+    sortSelect.value = state.taskSortMode;
     sortSelect.onchange = async () => {
       const newMode = sortSelect.value;
       await window.tracker.saveTaskSortMode(newMode);
@@ -182,11 +179,11 @@ export async function renderDashboard() {
   } else {
     taskListEl.innerHTML = "";
 
-    // Sort todayEvents based on taskSortMode
-    if (taskSortMode === "manual") {
-      if (taskOrder && taskOrder.length > 0) {
+    // Sort todayEvents based on state.taskSortMode
+    if (state.taskSortMode === "manual") {
+      if (state.taskOrder && state.taskOrder.length > 0) {
         const orderMap = {};
-        taskOrder.forEach((id, i) => (orderMap[id] = i));
+        state.taskOrder.forEach((id, i) => (orderMap[id] = i));
         todayEvents.sort((a, b) => {
           const oa = orderMap[a.id] !== undefined ? orderMap[a.id] : 99999;
           const ob = orderMap[b.id] !== undefined ? orderMap[b.id] : 99999;
@@ -196,19 +193,19 @@ export async function renderDashboard() {
       } else {
         todayEvents.sort((a, b) => new Date(a.start) - new Date(b.start));
       }
-    } else if (taskSortMode === "date") {
+    } else if (state.taskSortMode === "date") {
       todayEvents.sort((a, b) => {
-        const aAllDay = Boolean(trackedTasks[a.id]?.isAllDay || a.isAllDay);
-        const bAllDay = Boolean(trackedTasks[b.id]?.isAllDay || b.isAllDay);
+        const aAllDay = Boolean(state.trackedTasks[a.id]?.isAllDay || a.isAllDay);
+        const bAllDay = Boolean(state.trackedTasks[b.id]?.isAllDay || b.isAllDay);
         if (aAllDay && !bAllDay) return -1;
         if (!aAllDay && bAllDay) return 1;
         return new Date(a.start) - new Date(b.start);
       });
-    } else if (taskSortMode === "priority") {
+    } else if (state.taskSortMode === "priority") {
       const priorityMap = { high: 3, medium: 2, low: 1 };
       todayEvents.sort((a, b) => {
-        const taskA = trackedTasks[a.id] || {};
-        const taskB = trackedTasks[b.id] || {};
+        const taskA = state.trackedTasks[a.id] || {};
+        const taskB = state.trackedTasks[b.id] || {};
         const pa = priorityMap[taskA.priority] || 0;
         const pb = priorityMap[taskB.priority] || 0;
         if (pa !== pb) {
@@ -218,7 +215,7 @@ export async function renderDashboard() {
       });
     }
 
-    const isDraggable = taskSortMode === "manual";
+    const isDraggable = state.taskSortMode === "manual";
     todayEvents.forEach((event) => {
       taskListEl.appendChild(createTaskItem(event, isDraggable, timerState));
     });

@@ -2,7 +2,7 @@
    VIEW — Calendar (Monthly Task Organizer)
    ======================================== */
 
-import { calendarEvents, trackedTasks } from "../state.js";
+import { getState } from "../state.js";
 import { createTaskItem } from "../components/task-item.js";
 import { openAddTaskModal } from "../components/modals.js";
 import { getLocalDateString, getCombinedEvents } from "../utils.js";
@@ -21,13 +21,14 @@ let selectedDate = getLocalDateString(); // YYYY-MM-DD
  * Build a map of dateString → array of {event, task} for all tasks.
  */
 function buildTaskMap() {
-  const allItems = getCombinedEvents(calendarEvents, trackedTasks);
+  const state = getState();
+  const allItems = getCombinedEvents(state.calendarEvents, state.trackedTasks);
   const map = {}; // "YYYY-MM-DD" → [{event, task}]
   allItems.forEach((item) => {
     const dateKey = getLocalDateString(item.start);
     if (!map[dateKey]) map[dateKey] = [];
 
-    const task = trackedTasks[item.id] || {};
+    const task = state.trackedTasks[item.id] || {};
     map[dateKey].push({ event: item, task });
   });
 

@@ -1,4 +1,11 @@
-const { app, BrowserWindow, ipcMain, nativeTheme, dialog, nativeImage } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  nativeTheme,
+  dialog,
+  nativeImage,
+} = require("electron");
 const path = require("path");
 
 // Configure app name and model ID early so GNOME and Linux WMs associate the window & icon instantly
@@ -22,6 +29,7 @@ let analyticsService = null;
 let calendarService = null;
 let timerService = null;
 let defaultAppIcon = null;
+let shutdownComplete = false;
 
 function createWindow() {
   const iconPath = path.join(__dirname, "renderer", "icon.png");
@@ -79,7 +87,7 @@ function createWindow() {
 
 app.whenReady().then(async () => {
   try {
-    dbManager = new DatabaseManager();
+    dbManager = await DatabaseManager.create();
     repository = new Repository(dbManager);
     analyticsService = new AnalyticsService(repository);
     calendarService = new CalendarService();
@@ -112,15 +120,31 @@ app.whenReady().then(async () => {
     createWindow();
   } catch (err) {
     console.error("Failed to initialize application services:", err);
+    dialog.showErrorBox(
+      "Failed to Initialize Database",
+      `TRACK IT was unable to initialize the database connection.\n\nPlease verify your PostgreSQL server is running and DATABASE_URL is set correctly in your .env file.\n\nError: ${err.message}`,
+    );
+    app.quit();
   }
 });
 
 app.on("window-all-closed", () => {
+  app.quit();
+});
+
+app.on("before-quit", (event) => {
+  if (shutdownComplete) return;
+  event.preventDefault();
+  shutdownComplete = true;
+  void shutdown().finally(() => app.quit());
+});
+
+async function shutdown() {
   if (timerService && timerService.isRunning()) {
     try {
       const session = timerService.stop();
       if (session && repository) {
-        repository.saveSession(session);
+        await repository.saveSession(session);
       }
     } catch (err) {
       console.error("Error saving running timer on shutdown:", err);
@@ -130,10 +154,9 @@ app.on("window-all-closed", () => {
     calendarService.stopWatching();
   }
   if (dbManager) {
-    dbManager.close();
+    await dbManager.close();
   }
-  app.quit();
-});
+}
 
 function registerIpcHandlers(serviceManager) {
   ipcMain.on("window-minimize", () => {
@@ -177,39 +200,42 @@ function registerIpcHandlers(serviceManager) {
   });
 
   // Set badge count, window icon, and title
-  ipcMain.handle("app-set-badge", async (event, { count, iconDataUrl } = {}) => {
-    const numCount = typeof count === "number" && !isNaN(count) ? count : 0;
+  ipcMain.handle(
+    "app-set-badge",
+    async (event, { count, iconDataUrl } = {}) => {
+      const numCount = typeof count === "number" && !isNaN(count) ? count : 0;
 
-    // 1. Native dock/launcher badge count (GNOME Dash to Dock, Ubuntu Dock, Unity, macOS)
-    if (typeof app.setBadgeCount === "function") {
-      try {
-        app.setBadgeCount(numCount);
-      } catch (err) {
-        console.warn("setBadgeCount failed:", err);
-      }
-    }
-
-    // 2. Window Icon with dynamic canvas overlay & Window Title
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      try {
-        if (numCount > 0 && iconDataUrl) {
-          const badgedImg = nativeImage.createFromDataURL(iconDataUrl);
-          if (!badgedImg.isEmpty()) {
-            mainWindow.setIcon(badgedImg);
-          }
-        } else if (defaultAppIcon && !defaultAppIcon.isEmpty()) {
-          mainWindow.setIcon(defaultAppIcon);
+      // 1. Native dock/launcher badge count (GNOME Dash to Dock, Ubuntu Dock, Unity, macOS)
+      if (typeof app.setBadgeCount === "function") {
+        try {
+          app.setBadgeCount(numCount);
+        } catch (err) {
+          console.warn("setBadgeCount failed:", err);
         }
-
-        const title = numCount > 0 ? `(${numCount}) TRACK IT` : "TRACK IT";
-        mainWindow.setTitle(title);
-      } catch (err) {
-        console.warn("Error updating window icon or title:", err);
       }
-    }
 
-    return true;
-  });
+      // 2. Window Icon with dynamic canvas overlay & Window Title
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        try {
+          if (numCount > 0 && iconDataUrl) {
+            const badgedImg = nativeImage.createFromDataURL(iconDataUrl);
+            if (!badgedImg.isEmpty()) {
+              mainWindow.setIcon(badgedImg);
+            }
+          } else if (defaultAppIcon && !defaultAppIcon.isEmpty()) {
+            mainWindow.setIcon(defaultAppIcon);
+          }
+
+          const title = numCount > 0 ? `(${numCount}) TRACK IT` : "TRACK IT";
+          mainWindow.setTitle(title);
+        } catch (err) {
+          console.warn("Error updating window icon or title:", err);
+        }
+      }
+
+      return true;
+    },
+  );
 
   ipcMain.handle(
     "service-invoke",

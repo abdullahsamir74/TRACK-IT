@@ -36,23 +36,29 @@ class TrackerFacade {
     return this.repo.setEstimate(taskId, minutes);
   }
 
-  markTaskComplete(taskId, autoLogEstimate = true) {
+  async markTaskComplete(taskId, autoLogEstimate = true) {
     const timerState = this.timer ? this.timer.getState() : null;
-    if (this.timer && this.timer.isRunning() && timerState && timerState.taskId === taskId) {
+    if (
+      this.timer &&
+      this.timer.isRunning() &&
+      timerState &&
+      timerState.taskId === taskId
+    ) {
       const session = this.timer.stop();
       if (session) {
-        this.repo.saveSession(session);
+        await this.repo.saveSession(session);
       }
     } else if (autoLogEstimate) {
       // No active timer on this task — check if task has an estimate to auto-log offline progress
-      const tasks = this.repo.getTasks();
+      const tasks = await this.repo.getTasks();
       const task = tasks[taskId];
       if (task) {
         const estimateMin = task.estimateMinutes || 0;
         if (estimateMin > 0) {
           const existingTracked = task.totalTrackedMinutes || 0;
           if (existingTracked < estimateMin) {
-            const durationToAdd = Math.round((estimateMin - existingTracked) * 10) / 10;
+            const durationToAdd =
+              Math.round((estimateMin - existingTracked) * 10) / 10;
             const durationMs = Math.round(durationToAdd * 60000);
             const now = new Date();
             const taskDate = task.start ? new Date(task.start) : now;
@@ -60,11 +66,14 @@ class TrackerFacade {
               taskDate.getFullYear() === now.getFullYear() &&
               taskDate.getMonth() === now.getMonth() &&
               taskDate.getDate() === now.getDate();
-            const sessionDate = isScheduledToday && !isNaN(taskDate.getTime()) ? taskDate : now;
+            const sessionDate =
+              isScheduledToday && !isNaN(taskDate.getTime()) ? taskDate : now;
             const startTime = sessionDate.toISOString();
-            const endTime = new Date(sessionDate.getTime() + durationMs).toISOString();
+            const endTime = new Date(
+              sessionDate.getTime() + durationMs,
+            ).toISOString();
 
-            this.repo.saveSession({
+            await this.repo.saveSession({
               id: `session_comp_${taskId}_${Date.now()}`,
               taskId,
               projectId: task.projectId || null,
@@ -85,8 +94,8 @@ class TrackerFacade {
     return this.repo.markTaskComplete(taskId);
   }
 
-  markTaskIncomplete(taskId) {
-    this.repo.deleteCompletionSession(taskId);
+  async markTaskIncomplete(taskId) {
+    await this.repo.deleteCompletionSession(taskId);
     return this.repo.markTaskIncomplete(taskId);
   }
 
@@ -184,14 +193,14 @@ class TrackerFacade {
   }
 
   // --- Timer ---
-  startTimer(taskId, taskName, estimateMinutes, onTick) {
+  async startTimer(taskId, taskName, estimateMinutes, onTick) {
     // If another timer is running for a different task, stop and save it first
     if (this.timer.isRunning()) {
       const state = this.timer.getState();
       if (state.taskId !== taskId) {
         const session = this.timer.stop();
         if (session) {
-          this.repo.saveSession(session);
+          await this.repo.saveSession(session);
         }
       }
     }
@@ -206,10 +215,10 @@ class TrackerFacade {
     return this.timer.resume(onTick);
   }
 
-  stopTimer() {
+  async stopTimer() {
     const session = this.timer.stop();
     if (session) {
-      this.repo.saveSession(session);
+      await this.repo.saveSession(session);
     }
     return session;
   }

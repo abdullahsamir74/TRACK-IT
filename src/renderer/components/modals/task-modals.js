@@ -13,26 +13,50 @@ import { showToast } from "../toast.js";
 import { closeModals, syncPriorityPills } from "./helpers.js";
 
 // ---- Add Task Modal ----
-export function openAddTaskModal(prefilledDate, prefilledProjectId = null) {
+export function openAddTaskModal(
+  prefilledDate,
+  prefilledProjectId = null,
+  opts = {},
+) {
   const today = getLocalDateString();
   const currentTime = getLocalTimeString();
+  const startTime = opts.startTime || currentTime;
+  const endTime = opts.endTime || null;
+  const isAllDayPrefill = Boolean(opts.isAllDay);
+
   document.getElementById("task-date").value = prefilledDate || today;
-  document.getElementById("task-time").value = currentTime;
+  const taskTimeInput = document.getElementById("task-time");
+  if (taskTimeInput) taskTimeInput.value = startTime;
   document.getElementById("task-name").value = "";
-  document.getElementById("task-estimate").value = "";
   document.getElementById("task-priority").value = "medium";
 
+  // Estimate from range if provided
+  let estimateVal = "";
+  if (endTime && startTime) {
+    try {
+      const [sh, sm] = startTime.split(":").map(Number);
+      const [eh, em] = endTime.split(":").map(Number);
+      let startMins = sh * 60 + sm;
+      let endMins = eh * 60 + em;
+      if (endMins <= startMins) endMins = startMins + 30;
+      const diff = Math.max(1, endMins - startMins);
+      estimateVal = String(diff);
+    } catch (e) {
+      estimateVal = "";
+    }
+  }
+  document.getElementById("task-estimate").value = estimateVal;
+
   const allDayCb = document.getElementById("task-all-day");
-  const taskTimeInput = document.getElementById("task-time");
   const taskTimeWrap = document.getElementById("task-time-wrapper");
-  if (allDayCb) allDayCb.checked = false;
+  if (allDayCb) allDayCb.checked = isAllDayPrefill;
   if (taskTimeInput) {
-    taskTimeInput.required = true;
-    taskTimeInput.disabled = false;
+    taskTimeInput.required = !isAllDayPrefill;
+    taskTimeInput.disabled = isAllDayPrefill;
   }
   if (taskTimeWrap) {
-    taskTimeWrap.style.opacity = "1";
-    taskTimeWrap.style.pointerEvents = "auto";
+    taskTimeWrap.style.opacity = isAllDayPrefill ? "0.4" : "1";
+    taskTimeWrap.style.pointerEvents = isAllDayPrefill ? "none" : "auto";
   }
 
   const notesEl = document.getElementById("task-notes");
@@ -91,9 +115,13 @@ export async function handleAddTask(e) {
     ? new Date(`${date}T00:00:00`)
     : new Date(`${date}T${time}`);
   if (isNaN(startDate.getTime())) return;
-  const endDate = isAllDay
-    ? new Date(`${date}T23:59:59.999`)
-    : new Date(startDate.getTime() + (estimate || 60) * 60000);
+  let endDate;
+  if (isAllDay) {
+    endDate = new Date(`${date}T23:59:59.999`);
+  } else {
+    // Use estimate; if estimate comes from range and is very short, keep it
+    endDate = new Date(startDate.getTime() + (estimate || 60) * 60000);
+  }
 
   const task = {
     id: `manual-${Date.now()}`,

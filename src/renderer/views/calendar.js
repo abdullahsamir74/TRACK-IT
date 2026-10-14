@@ -1,284 +1,350 @@
 /* ========================================
-   VIEW — Calendar (Monthly Task Organizer)
+   VIEW — Calendar (Week View - Google Calendar Style)
    ======================================== */
 
-import { getState } from "../state.js";
-import { createTaskItem } from "../components/task-item.js";
+import { getState, setTrackedTasks } from "../state.js";
 import { openAddTaskModal } from "../components/modals.js";
 import { getLocalDateString, getCombinedEvents } from "../utils.js";
-import { MONTH_NAMES } from "../constants.js";
 
-// View-local state
-let viewYear = new Date().getFullYear();
-let viewMonth = new Date().getMonth();
-let selectedDate = getLocalDateString(); // YYYY-MM-DD
+let viewDate = new Date();
+let currentWeekDates = [];
+let selectedEventEl = null;
+let drag = null;
 
-/**
- * Build a map of dateString → array of {event, task} for all tasks.
- */
-function buildTaskMap() {
-  const state = getState();
-  const allItems = getCombinedEvents(state.calendarEvents, state.trackedTasks);
-  const map = {}; // "YYYY-MM-DD" → [{event, task}]
-  allItems.forEach((item) => {
-    const dateKey = getLocalDateString(item.start);
-    if (!map[dateKey]) map[dateKey] = [];
-
-    const task = state.trackedTasks[item.id] || {};
-    map[dateKey].push({ event: item, task });
-  });
-
-  // Sort each day's tasks: all-day first, then by start time
-  for (const key of Object.keys(map)) {
-    map[key].sort((a, b) => {
-      const aAllDay = Boolean(a.task?.isAllDay || a.event?.isAllDay);
-      const bAllDay = Boolean(b.task?.isAllDay || b.event?.isAllDay);
-      if (aAllDay && !bAllDay) return -1;
-      if (!aAllDay && bAllDay) return 1;
-      return new Date(a.event.start) - new Date(b.event.start);
-    });
-  }
-
-  return map;
+function startOfWeek(date) {
+  const d = new Date(date);
+  d.setDate(d.getDate() - d.getDay());
+  d.setHours(0, 0, 0, 0);
+  return d;
 }
 
-/**
- * Format a time from an ISO string to a short display like "2:30p"
- */
-function formatShortTime(isoString) {
-  const d = new Date(isoString);
-  if (isNaN(d.getTime())) return "";
-  let h = d.getHours();
-  const m = d.getMinutes();
+function addDays(date, n) {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+function formatTimeLabel(h) {
+  const ampm = h >= 12 ? "PM" : "AM";
+  return `${h % 12 || 12} ${ampm}`;
+}
+
+function escapeHtml(text) {
+  if (text == null) return "";
+  const div = document.createElement("div");
+  div.textContent = String(text);
+  return div.innerHTML;
+}
+
+function formatShort(dt) {
+  let h = dt.getHours();
+  const m = dt.getMinutes();
   const ampm = h >= 12 ? "p" : "a";
   h = h % 12 || 12;
   if (m === 0) return `${h}${ampm}`;
   return `${h}:${String(m).padStart(2, "0")}${ampm}`;
 }
 
-/**
- * Main render — calendar grid + detail panel.
- */
-export async function renderCalendar() {
-  const titleEl = document.getElementById("cal-month-title");
-  const gridEl = document.getElementById("cal-days-grid");
-  const prevBtn = document.getElementById("cal-prev-month");
-  const nextBtn = document.getElementById("cal-next-month");
-  const todayBtn = document.getElementById("cal-today-btn");
-  const addTaskBtn = document.getElementById("cal-add-task-btn");
-
-  if (!titleEl || !gridEl) return;
-
-  // Header title
-  titleEl.textContent = `${MONTH_NAMES[viewMonth]} ${viewYear}`;
-
-  // Navigation handlers
-  prevBtn.onclick = () => {
-    viewMonth--;
-    if (viewMonth < 0) { viewMonth = 11; viewYear--; }
-    renderCalendar();
-  };
-  nextBtn.onclick = () => {
-    viewMonth++;
-    if (viewMonth > 11) { viewMonth = 0; viewYear++; }
-    renderCalendar();
-  };
-  todayBtn.onclick = () => {
-    const now = new Date();
-    viewYear = now.getFullYear();
-    viewMonth = now.getMonth();
-    selectedDate = getLocalDateString(now);
-    renderCalendar();
-  };
-
-  // Add task button → open modal pre-filled with selected date
-  addTaskBtn.onclick = () => openAddTaskModal(selectedDate);
-
-  // ---- Build grid ----
-  const taskMap = buildTaskMap();
-  const todayStr = getLocalDateString();
-  const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay();
-  const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-  const daysInPrevMonth = new Date(viewYear, viewMonth, 0).getDate();
-
-  gridEl.innerHTML = "";
-
-  // Previous month trailing days
-  for (let i = firstDayOfMonth - 1; i >= 0; i--) {
-    const dayNum = daysInPrevMonth - i;
-    const prevM = viewMonth === 0 ? 11 : viewMonth - 1;
-    const prevY = viewMonth === 0 ? viewYear - 1 : viewYear;
-    const dateStr = `${prevY}-${String(prevM + 1).padStart(2, "0")}-${String(dayNum).padStart(2, "0")}`;
-    gridEl.appendChild(createDayCell(dayNum, dateStr, taskMap, todayStr, true));
-  }
-
-  // Current month days
-  for (let day = 1; day <= daysInMonth; day++) {
-    const mStr = String(viewMonth + 1).padStart(2, "0");
-    const dStr = String(day).padStart(2, "0");
-    const dateStr = `${viewYear}-${mStr}-${dStr}`;
-    gridEl.appendChild(createDayCell(day, dateStr, taskMap, todayStr, false));
-  }
-
-  // Next month leading days to fill rows
-  const totalSoFar = firstDayOfMonth + daysInMonth;
-  const rows = totalSoFar <= 35 ? 35 : 42;
-  const remaining = rows - totalSoFar;
-  for (let i = 1; i <= remaining; i++) {
-    const nextM = viewMonth === 11 ? 0 : viewMonth + 1;
-    const nextY = viewMonth === 11 ? viewYear + 1 : viewYear;
-    const dateStr = `${nextY}-${String(nextM + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
-    gridEl.appendChild(createDayCell(i, dateStr, taskMap, todayStr, true));
-  }
-
-  // Render the detail panel for the selected date
-  await renderDetailPanel(taskMap);
+function roundTo15(m) {
+  return Math.round(m / 15) * 15;
 }
 
-/**
- * Create a single day cell element with task previews inside.
- */
-function createDayCell(dayNum, dateStr, taskMap, todayStr, isOtherMonth) {
-  const cell = document.createElement("div");
-  cell.className = "cal-day-cell";
-  if (isOtherMonth) cell.classList.add("other-month");
-  if (dateStr === todayStr) cell.classList.add("today");
-  if (dateStr === selectedDate) cell.classList.add("selected");
+function minutesToTime(m) {
+  return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+}
 
-  // Day number
-  const numEl = document.createElement("span");
-  numEl.className = "cal-day-num";
-  numEl.textContent = dayNum;
-  cell.appendChild(numEl);
+export async function renderCalendar() {
+  const weekTitle = document.getElementById("week-title");
+  const weekHeaderRow = document.getElementById("week-header-row");
+  const timeAxis = document.getElementById("time-axis");
+  const weekColumns = document.getElementById("week-columns");
+  const prevBtn = document.getElementById("week-prev");
+  const nextBtn = document.getElementById("week-next");
+  const todayBtn = document.getElementById("week-today");
+  const scrollEl = document.getElementById("week-scroll");
 
-  // Task previews inside the cell
-  const tasks = taskMap[dateStr];
-  if (tasks && tasks.length > 0) {
-    const tasksContainer = document.createElement("div");
-    tasksContainer.className = "cal-day-tasks";
+  if (!weekTitle || !weekHeaderRow || !timeAxis || !weekColumns) return;
 
-    const maxVisible = 3;
-    const visibleTasks = tasks.slice(0, maxVisible);
+  prevBtn.onclick = () => { viewDate = addDays(viewDate, -7); renderCalendar(); };
+  nextBtn.onclick = () => { viewDate = addDays(viewDate, 7); renderCalendar(); };
+  todayBtn.onclick = () => { viewDate = new Date(); renderCalendar(); };
 
-    visibleTasks.forEach((dt) => {
-      const preview = document.createElement("div");
-      preview.className = "cal-task-preview";
+  const weekStart = startOfWeek(viewDate);
+  const todayStr = getLocalDateString();
 
-      const priority = dt.task.priority || "medium";
-      preview.classList.add(`priority-${priority}`);
+  currentWeekDates = [];
+  for (let i = 0; i < 7; i++) currentWeekDates.push(addDays(weekStart, i));
 
-      if (dt.task.completed) {
-        preview.classList.add("completed");
-      }
+  const weekEnd = addDays(weekStart, 6);
+  weekTitle.textContent = `${weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })} – ${weekEnd.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
 
-      // Task name
-      const nameEl = document.createElement("span");
-      nameEl.className = "cal-task-name";
-      nameEl.textContent = dt.event.summary || dt.task.name || "Untitled";
-      preview.appendChild(nameEl);
-
-      // Short time
-      const isAllDay = Boolean(dt.task?.isAllDay || dt.event?.isAllDay);
-      const timeStr = isAllDay ? "All Day" : formatShortTime(dt.event.start);
-      if (timeStr) {
-        const timeEl = document.createElement("span");
-        timeEl.className = "cal-task-time";
-        timeEl.textContent = timeStr;
-        preview.appendChild(timeEl);
-      }
-
-      tasksContainer.appendChild(preview);
-    });
-
-    // Overflow indicator
-    if (tasks.length > maxVisible) {
-      const moreEl = document.createElement("div");
-      moreEl.className = "cal-tasks-more";
-      moreEl.textContent = `+${tasks.length - maxVisible} more`;
-      tasksContainer.appendChild(moreEl);
-    }
-
-    cell.appendChild(tasksContainer);
+  // Header row
+  weekHeaderRow.innerHTML = "";
+  for (let i = 0; i < 7; i++) {
+    const d = currentWeekDates[i];
+    const h = document.createElement("div");
+    h.className = "week-day-header";
+    if (getLocalDateString(d) === todayStr) h.classList.add("today");
+    h.innerHTML = `<div class="week-day-name">${d.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}</div><div class="week-day-num">${d.getDate()}</div>`;
+    weekHeaderRow.appendChild(h);
   }
 
-  // Click handler — select this day
-  cell.addEventListener("click", () => {
-    selectedDate = dateStr;
-
-    // If the clicked day is in another month, navigate to that month
-    if (isOtherMonth) {
-      const d = new Date(dateStr + "T00:00:00");
-      viewYear = d.getFullYear();
-      viewMonth = d.getMonth();
+  // Time axis
+  timeAxis.innerHTML = "";
+  for (let h = 0; h < 24; h++) {
+    for (let m = 0; m < 60; m += 15) {
+      const slot = document.createElement("div");
+      slot.className = "time-slot-label";
+      if (m === 0) slot.textContent = formatTimeLabel(h);
+      timeAxis.appendChild(slot);
     }
+  }
 
-    renderCalendar();
+  // Build grid
+  weekColumns.innerHTML = "";
+  const state = getState();
+  const allItems = getCombinedEvents(state.calendarEvents, state.trackedTasks);
+
+  const byDate = {};
+  allItems.forEach((it) => {
+    const k = getLocalDateString(it.start);
+    if (!byDate[k]) byDate[k] = [];
+    byDate[k].push(it);
   });
 
-  return cell;
+  for (let i = 0; i < 7; i++) {
+    const d = currentWeekDates[i];
+    const dStr = getLocalDateString(d);
+    const col = document.createElement("div");
+    col.className = "week-day-col";
+    col.dataset.dayIndex = String(i);
+
+    // Grid lines
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        const line = document.createElement("div");
+        line.className = "time-grid-line";
+        line.dataset.mins = String(h * 60 + m);
+        col.appendChild(line);
+      }
+    }
+
+    // Events
+    const dayEvents = byDate[dStr] || [];
+    dayEvents.forEach((ev) => {
+      const evEl = document.createElement("div");
+      const start = new Date(ev.start);
+      const end = ev.end ? new Date(ev.end) : new Date(start.getTime() + (ev.durationMinutes || 60) * 60000);
+      const sMins = start.getHours() * 60 + start.getMinutes();
+      const eMins = end.getHours() * 60 + end.getMinutes();
+      const height = Math.max(8, eMins - sMins);
+
+      const readOnly = !ev.isManual && ev.calendarEventId;
+      evEl.className = "week-event" + (readOnly ? " readonly" : " draggable");
+      evEl.style.top = `${(sMins / 15) * 20}px`;
+      evEl.style.height = `${(height / 15) * 20}px`;
+
+      const name = ev.summary || state.trackedTasks[ev.id]?.name || "Untitled";
+      const timeText = ev.isAllDay ? "All Day" : `${formatShort(start)} – ${formatShort(end)}`;
+      evEl.innerHTML = `<div class="event-name">${escapeHtml(name)}</div><div class="event-time">${escapeHtml(timeText)}</div><div class="event-resize-handle"></div>`;
+
+      if (!readOnly) evEl.dataset.eventId = ev.id;
+
+      col.appendChild(evEl);
+    });
+
+    // Selection overlay
+    const sel = document.createElement("div");
+    sel.className = "week-selection";
+    sel.style.display = "none";
+    col.appendChild(sel);
+
+    weekColumns.appendChild(col);
+  }
+
+  if (scrollEl) {
+    const savedScroll = scrollEl.dataset.savedScrollTop;
+    scrollEl.scrollTop = savedScroll ? parseInt(savedScroll) : (8 * 60 / 15) * 20;
+  }
 }
 
-/**
- * Render the detail panel showing tasks for the selected day.
- */
-async function renderDetailPanel(taskMap) {
-  const dateEl = document.getElementById("cal-detail-date");
-  const tasksEl = document.getElementById("cal-detail-tasks");
-  if (!dateEl || !tasksEl) return;
+// ========================================
+// Persistent event handlers using pointer events + setPointerCapture
+// ========================================
 
-  // Format the selected date nicely
-  const d = new Date(selectedDate + "T00:00:00");
-  const todayStr = getLocalDateString();
-  let dateLabel;
-  if (selectedDate === todayStr) {
-    dateLabel = "Today";
-  } else {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    if (selectedDate === getLocalDateString(yesterday)) {
-      dateLabel = "Yesterday";
-    } else if (selectedDate === getLocalDateString(tomorrow)) {
-      dateLabel = "Tomorrow";
-    } else {
-      dateLabel = d.toLocaleDateString("en-US", {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-      });
-    }
+function getEventMins(el) {
+  const top = parseFloat(el.style.top);
+  const h = parseFloat(el.style.height);
+  return {
+    sMins: Math.round((top / 20) * 15),
+    eMins: Math.round(((top + h) / 20) * 15),
+  };
+}
+
+function getDayIndexFromX(clientX) {
+  const cols = document.querySelectorAll(".week-day-col");
+  for (let i = 0; i < cols.length; i++) {
+    const rect = cols[i].getBoundingClientRect();
+    if (clientX >= rect.left && clientX < rect.right) return i;
   }
-  dateEl.textContent = dateLabel;
+  // Fallback: find closest
+  let best = 0, bestDist = Infinity;
+  for (let i = 0; i < cols.length; i++) {
+    const rect = cols[i].getBoundingClientRect();
+    const center = rect.left + rect.width / 2;
+    const dist = Math.abs(clientX - center);
+    if (dist < bestDist) { bestDist = dist; best = i; }
+  }
+  return best;
+}
 
-  // Get tasks for this day
-  const dayTasks = taskMap ? taskMap[selectedDate] : null;
+function onPointerDown(e) {
+  // 1) Event click/drag
+  const eventEl = e.target.closest(".week-event.draggable");
+  if (eventEl) {
+    e.preventDefault();
+    if (selectedEventEl) selectedEventEl.classList.remove("selected");
+    selectedEventEl = eventEl;
+    eventEl.classList.add("selected");
 
-  if (!dayTasks || dayTasks.length === 0) {
-    tasksEl.innerHTML = `
-      <div class="cal-detail-empty">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.3">
-          <rect x="3" y="4" width="18" height="18" rx="2"></rect>
-          <line x1="16" y1="2" x2="16" y2="6"></line>
-          <line x1="8" y1="2" x2="8" y2="6"></line>
-          <line x1="3" y1="10" x2="21" y2="10"></line>
-        </svg>
-        <p>No tasks for this day</p>
-      </div>
-    `;
+    const { sMins, eMins } = getEventMins(eventEl);
+    const col = eventEl.closest(".week-day-col");
+    const dayIdx = col ? parseInt(col.dataset.dayIndex) : 0;
+    const isResize = e.target.classList.contains("event-resize-handle");
+
+    drag = {
+      type: isResize ? "resize" : "move",
+      el: eventEl,
+      id: eventEl.dataset.eventId,
+      startPointerY: e.clientY,
+      startMins: sMins,
+      startEMins: eMins,
+      dayIdx,
+    };
+
+    eventEl.setPointerCapture(e.pointerId);
+    eventEl.style.zIndex = "20";
+    eventEl.style.opacity = isResize ? "1" : "0.7";
     return;
   }
 
-  // Render task items using the existing createTaskItem component
-  tasksEl.innerHTML = "";
-  const timerState = await window.tracker.getTimerState();
+  // 2) Empty grid — create drag
+  const gridLine = e.target.closest(".time-grid-line");
+  if (gridLine) {
+    e.preventDefault();
+    const col = gridLine.closest(".week-day-col");
+    if (!col) return;
 
-  const sortedEvents = dayTasks
-    .map((dt) => dt.event)
-    .sort((a, b) => new Date(a.start) - new Date(b.start));
+    const dayIdx = parseInt(col.dataset.dayIndex);
+    const rounded = roundTo15(parseInt(gridLine.dataset.mins));
+    const sel = col.querySelector(".week-selection");
 
-  sortedEvents.forEach((item) => {
-    tasksEl.appendChild(createTaskItem(item, false, timerState));
-  });
+    drag = { type: "create", startDayIdx: dayIdx, startMins: rounded, endMins: rounded + 15, sel };
+
+    if (sel) {
+      sel.style.top = `${(rounded / 15) * 20}px`;
+      sel.style.height = "20px";
+      sel.style.display = "block";
+    }
+  }
 }
+
+function onPointerMove(e) {
+  if (!drag) return;
+
+  if (drag.type === "move") {
+    const deltaMins = roundTo15(((e.clientY - drag.startPointerY) / 20) * 15);
+    const newS = Math.max(0, Math.min(1439, drag.startMins + deltaMins));
+    drag.el.style.top = `${(newS / 15) * 20}px`;
+    drag.dayIdx = getDayIndexFromX(e.clientX);
+    return;
+  }
+
+  if (drag.type === "resize") {
+    const deltaMins = roundTo15(((e.clientY - drag.startPointerY) / 20) * 15);
+    const newE = Math.max(drag.startMins + 15, Math.min(1440, drag.startEMins + deltaMins));
+    drag.el.style.height = `${((newE - drag.startMins) / 15) * 20}px`;
+    return;
+  }
+
+  if (drag.type === "create" && drag.sel) {
+    const col = drag.sel.closest(".week-day-col");
+    if (!col) return;
+    const rect = col.getBoundingClientRect();
+    const relY = e.clientY - rect.top;
+    const mins = Math.max(0, Math.min(1440, roundTo15((relY / 20) * 15) + 15));
+    drag.endMins = mins;
+    const s = Math.min(drag.startMins, mins);
+    const en = Math.max(drag.startMins, mins);
+    drag.sel.style.top = `${(s / 15) * 20}px`;
+    drag.sel.style.height = `${((en - s) / 15) * 20}px`;
+  }
+}
+
+async function onPointerUp(e) {
+  if (!drag) return;
+
+  if (drag.type === "move") {
+    const { sMins, eMins } = getEventMins(drag.el);
+    const newDate = currentWeekDates[drag.dayIdx];
+    const ns = new Date(newDate); ns.setHours(Math.floor(sMins / 60), sMins % 60, 0, 0);
+    const ne = new Date(newDate); ne.setHours(Math.floor(eMins / 60), eMins % 60, 0, 0);
+
+    const state = getState();
+    const task = state.trackedTasks[drag.id];
+    if (task) {
+      task.start = ns.toISOString();
+      task.end = ne.toISOString();
+      await window.tracker.saveTask(task);
+      const nt = { ...state.trackedTasks }; nt[drag.id] = task;
+      setTrackedTasks(nt);
+      const scrollEl = document.getElementById("week-scroll");
+      const savedScroll = scrollEl?.scrollTop || 0;
+      await renderCalendar();
+      if (scrollEl) scrollEl.scrollTop = savedScroll;
+    }
+  }
+
+  if (drag.type === "resize") {
+    const { sMins, eMins } = getEventMins(drag.el);
+    const col = drag.el.closest(".week-day-col");
+    const dayIdx = col ? parseInt(col.dataset.dayIndex) : 0;
+    const newDate = currentWeekDates[dayIdx];
+    const ne = new Date(newDate); ne.setHours(Math.floor(eMins / 60), eMins % 60, 0, 0);
+
+    const state = getState();
+    const task = state.trackedTasks[drag.id];
+    if (task) {
+      task.end = ne.toISOString();
+      const dur = Math.round((ne - new Date(task.start)) / 60000);
+      task.estimateMinutes = dur > 0 ? dur : task.estimateMinutes;
+      await window.tracker.saveTask(task);
+      const nt = { ...state.trackedTasks }; nt[drag.id] = task;
+      setTrackedTasks(nt);
+      const scrollEl = document.getElementById("week-scroll");
+      const savedScroll = scrollEl?.scrollTop || 0;
+      renderCalendar();
+      if (scrollEl) scrollEl.scrollTop = savedScroll;
+    }
+  }
+
+  if (drag.type === "create") {
+    let s = drag.startMins, en = drag.endMins;
+    if (en < s) [s, en] = [en, s];
+    if (en - s < 15) en = s + 15;
+    if (drag.sel) drag.sel.style.display = "none";
+    openAddTaskModal(getLocalDateString(currentWeekDates[drag.startDayIdx]), null, { startTime: minutesToTime(s), endTime: minutesToTime(en) });
+  }
+
+  if (selectedEventEl) { selectedEventEl.style.cursor = ""; selectedEventEl.style.opacity = ""; selectedEventEl.style.zIndex = ""; }
+  drag = null;
+}
+
+function onKeyDown(e) {
+  if (e.key === "Escape" && selectedEventEl) { selectedEventEl.classList.remove("selected"); selectedEventEl = null; }
+}
+
+document.addEventListener("pointerdown", onPointerDown);
+document.addEventListener("pointermove", onPointerMove);
+document.addEventListener("pointerup", onPointerUp);
+document.addEventListener("keydown", onKeyDown);

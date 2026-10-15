@@ -146,8 +146,18 @@ export async function renderCalendar() {
 
       const name = ev.summary || state.trackedTasks[ev.id]?.name || "Untitled";
       const timeText = ev.isAllDay ? "All Day" : `${formatShort(start)} – ${formatShort(end)}`;
-      evEl.innerHTML = `<div class="event-name">${escapeHtml(name)}</div><div class="event-time">${escapeHtml(timeText)}</div><div class="event-resize-handle"></div>`;
+      const isCompleted = state.trackedTasks[ev.id]?.completed || state.trackedTasks[ev.id]?.status === "completed";
 
+      evEl.innerHTML = `
+        <div class="event-checkbox" title="Toggle completed"></div>
+        <div class="event-content">
+          <div class="event-name">${escapeHtml(name)}</div>
+          <div class="event-time">${escapeHtml(timeText)}</div>
+        </div>
+        <div class="event-resize-handle"></div>
+      `;
+
+      if (isCompleted) evEl.classList.add("completed");
       if (!readOnly) evEl.dataset.eventId = ev.id;
 
       col.appendChild(evEl);
@@ -159,6 +169,16 @@ export async function renderCalendar() {
     sel.style.display = "none";
     col.appendChild(sel);
 
+    // Current time indicator (only on today's column)
+    if (dStr === todayStr) {
+      const now = new Date();
+      const nowMins = now.getHours() * 60 + now.getMinutes();
+      const timeLine = document.createElement("div");
+      timeLine.className = "current-time-line";
+      timeLine.style.top = `${(nowMins / 15) * 20}px`;
+      col.appendChild(timeLine);
+    }
+
     weekColumns.appendChild(col);
   }
 
@@ -167,6 +187,16 @@ export async function renderCalendar() {
     scrollEl.scrollTop = savedScroll ? parseInt(savedScroll) : (8 * 60 / 15) * 20;
   }
 }
+
+// Update current time line position every minute
+function updateCurrentTimeLine() {
+  const line = document.querySelector(".current-time-line");
+  if (!line) return;
+  const now = new Date();
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  line.style.top = `${(nowMins / 15) * 20}px`;
+}
+setInterval(updateCurrentTimeLine, 60000);
 
 // ========================================
 // Persistent event handlers using pointer events + setPointerCapture
@@ -199,6 +229,30 @@ function getDayIndexFromX(clientX) {
 }
 
 function onPointerDown(e) {
+  // 0) Checkbox click — toggle completed state
+  const checkbox = e.target.closest(".event-checkbox");
+  if (checkbox) {
+    e.preventDefault();
+    e.stopPropagation();
+    const eventEl = checkbox.closest(".week-event");
+    if (eventEl && eventEl.dataset.eventId) {
+      const state = getState();
+      const task = state.trackedTasks[eventEl.dataset.eventId];
+      if (task) {
+        task.completed = !task.completed;
+        task.status = task.completed ? "completed" : "todo";
+        task.completedAt = task.completed ? new Date().toISOString() : null;
+        window.tracker.saveTask(task).then(() => {
+          const nt = { ...getState().trackedTasks };
+          nt[task.id] = task;
+          setTrackedTasks(nt);
+          renderCalendar();
+        });
+      }
+    }
+    return;
+  }
+
   // 1) Event click/drag
   const eventEl = e.target.closest(".week-event.draggable");
   if (eventEl) {

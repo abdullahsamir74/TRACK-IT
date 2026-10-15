@@ -165,6 +165,11 @@
   border-color: rgba(148, 163, 184, 0.4);
 }
 
+.week-event .event-content {
+  flex: 1;
+  min-width: 0;
+}
+
 .week-event .event-time {
   font-size: 9px;
   color: var(--text-secondary);
@@ -175,6 +180,68 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.week-event.completed {
+  opacity: 0.55;
+}
+
+.week-event.completed .event-name {
+  text-decoration: line-through;
+}
+
+.event-checkbox {
+  width: 14px;
+  height: 14px;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  border-radius: 3px;
+  flex-shrink: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  margin-top: 1px;
+}
+
+.event-checkbox:hover {
+  border-color: var(--accent-blue);
+  background: rgba(56, 189, 248, 0.15);
+}
+
+.week-event.completed .event-checkbox {
+  background: var(--accent-blue);
+  border-color: var(--accent-blue);
+}
+
+.week-event.completed .event-checkbox::after {
+  content: "";
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) translateY(-1px);
+}
+
+.current-time-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #ef4444;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.current-time-line::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
 }
 
 .week-event.selected {

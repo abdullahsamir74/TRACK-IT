@@ -71,8 +71,19 @@ export function showConfirmDialog({
     if (e.key === "Escape") {
       closeDialog();
     }
+    if (e.key === "ArrowRight") {
+      e.preventDefault();
+      confirmBtn.focus();
+    }
+    if (e.key === "ArrowLeft") {
+      e.preventDefault();
+      cancelBtn.focus();
+    }
   };
   document.addEventListener("keydown", onKeyDown);
+
+  // Auto-focus cancel button by default (safer default)
+  setTimeout(() => cancelBtn.focus(), 50);
 
   cancelBtn.addEventListener("click", closeDialog);
 

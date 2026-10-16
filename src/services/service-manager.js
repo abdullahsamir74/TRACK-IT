@@ -28,6 +28,9 @@ class ServiceManager {
    * @param  {...any} args
    */
   async invoke(serviceName, methodName, ...args) {
+    if (typeof methodName !== "string" || methodName.startsWith("_")) {
+      throw new Error(`Invalid method name "${methodName}"`);
+    }
     const service = this.get(serviceName);
     if (!service) {
       throw new Error(`Service "${serviceName}" is not registered`);

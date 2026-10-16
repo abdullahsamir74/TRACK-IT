@@ -3,6 +3,7 @@
    ======================================== */
 
 import { updateAppBadge } from "./badge.js";
+import { showToast } from "./components/toast.js";
 
 class Store {
   constructor() {
@@ -211,9 +212,16 @@ export function switchView(viewName) {
 
 export async function renderCurrentView() {
   updateStreakCount();
-  const renderer = viewRenderers[getState().currentView];
+  const viewName = getState().currentView;
+  const renderer = viewRenderers[viewName];
   if (renderer) {
-    await renderer();
+    // A single failing view must never blank the whole app.
+    try {
+      await renderer();
+    } catch (err) {
+      console.error(`Failed to render view "${viewName}":`, err);
+      showToast(`Could not load the "${viewName}" view.`, "error");
+    }
   }
   import("./components/custom-dropdown.js")
     .then(({ attachCustomDropdowns }) => {

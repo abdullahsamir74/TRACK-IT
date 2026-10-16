@@ -268,12 +268,9 @@ async function renderWeeklyTargets(analytics) {
     statusBadgeHtml = `<span class="target-status-badge badge-primary">⚡ In Progress</span>`;
   }
 
-  const fillGradient = isCompleted
-    ? "linear-gradient(90deg, #059669, #10b981, #34d399)"
-    : "linear-gradient(90deg, #0284c7, #38bdf8, #818cf8)";
-  const fillGlow = isCompleted
-    ? "0 0 12px rgba(52, 211, 153, 0.4)"
-    : "0 0 12px rgba(56, 189, 248, 0.4)";
+  const fillColor = isCompleted
+    ? "var(--accent-green)"
+    : "var(--accent-blue)";
 
   const globalCard = document.createElement("div");
   globalCard.className = "target-item-card target-single-card";
@@ -315,9 +312,7 @@ async function renderWeeklyTargets(analytics) {
         </span>
       </div>
       <div class="target-track-bar-enhanced">
-        <div class="target-fill-bar-enhanced" style="width: ${globalPercent}%; background: ${fillGradient}; box-shadow: ${fillGlow};">
-          <div class="target-fill-glow-tip"></div>
-        </div>
+        <div class="target-fill-bar-enhanced" style="width: ${globalPercent}%; background: ${fillColor};"></div>
       </div>
     </div>
 
@@ -472,9 +467,7 @@ function renderTopTasks(taskStats) {
     el.className = "top-task-item";
     const barWidth = Math.round((item.totalMinutes / maxMinutes) * 100);
     const displayName = escapeHtml(item.name || item.taskName || "Unknown");
-    const barColor = item.color
-      ? `linear-gradient(90deg, ${item.color}, ${item.color}bb)`
-      : `linear-gradient(90deg, #38bdf8, #0284c7)`;
+    const barColor = item.color || "var(--accent-blue)";
 
     const tagBadge = item.isProject
       ? `<span class="top-progress-badge project" style="color: ${item.color || '#38bdf8'}; border-color: ${item.color || '#38bdf8'}40; background: ${item.color || '#38bdf8'}15;">Project</span>`

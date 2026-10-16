@@ -19,6 +19,7 @@ import { initDragAndDrop } from "../components/drag-drop.js";
 import { playTimerStopSound, playAlarmSound } from "../sounds.js";
 import { resetEstimateAlert } from "../app.js";
 import { openTaskNotesModal } from "../components/modals.js";
+import { getSoundsEnabled } from "../preferences.js";
 
 let timerMode = "stopwatch"; // "stopwatch" | "pomodoro"
 let pomodoroFocusMins = 25;
@@ -149,7 +150,7 @@ export function initTimerControls() {
     if (session) {
       // Play stop sound and reset estimate alert
       const soundEnabled =
-        localStorage.getItem("tracker-sounds-enabled") !== "false";
+        getSoundsEnabled();
       if (soundEnabled) {
         playTimerStopSound();
       }
@@ -380,7 +381,7 @@ export function updateTimerDisplay(state) {
     if (remainingMs <= 0 && state.running && !pomodoroPhaseFired) {
       pomodoroPhaseFired = true;
       const soundEnabled =
-        localStorage.getItem("tracker-sounds-enabled") !== "false";
+        getSoundsEnabled();
       if (soundEnabled) {
         playAlarmSound();
       }

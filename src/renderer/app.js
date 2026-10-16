@@ -38,8 +38,24 @@ import {
 // ---- Sounds ----
 import { playAlarmSound } from "./sounds.js";
 
+// ---- Preferences ----
+import {
+  getTheme,
+  setTheme,
+  getSoundsEnabled,
+} from "./preferences.js";
+
 // ---- Badging & Notifications ----
 import { initBadgeEngine, updateAppBadge } from "./badge.js";
+
+// ---- Global safety net ----
+// Surface any error the renderer does not handle, instead of failing silently.
+window.addEventListener("error", (event) => {
+  console.error("Unhandled renderer error:", event.error || event.message);
+});
+window.addEventListener("unhandledrejection", (event) => {
+  console.error("Unhandled renderer promise rejection:", event.reason);
+});
 
 let estimateAlertFired = false;
 let currentAlarm = null;
@@ -101,7 +117,6 @@ async function loadViewTemplates() {
 document.addEventListener("DOMContentLoaded", async () => {
   // Load HTML templates dynamically
   await loadViewTemplates();
-
   // Register view renderers
   registerViewRenderers({
     dashboard: renderDashboard,
@@ -151,8 +166,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Play alert sound when the timer reaches the estimate
-    const soundEnabled = localStorage.getItem("tracker-sounds-enabled") !== "false";
-    if (soundEnabled && state.estimateMinutes && state.progress >= 1 && !estimateAlertFired) {
+    if (getSoundsEnabled() && state.estimateMinutes && state.progress >= 1 && !estimateAlertFired) {
       estimateAlertFired = true;
       currentAlarm = playAlarmSound();
     }
@@ -175,7 +189,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 // ---- Titlebar & Theme ----
 export function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
-  localStorage.setItem("tracker-theme", theme);
+  setTheme(theme);
 
   const btnToggle = document.getElementById("btn-theme-toggle");
   const moonIcon = btnToggle?.querySelector(".icon-moon");
@@ -202,7 +216,7 @@ export function applyTheme(theme) {
 }
 
 function initTheme() {
-  const savedTheme = localStorage.getItem("tracker-theme") || "dark";
+  const savedTheme = getTheme();
   applyTheme(savedTheme);
 }
 

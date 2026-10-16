@@ -17,23 +17,23 @@ class TrackerFacade {
 
   // --- Tasks ---
   getTasks() {
-    return this.repo.getTasks();
+    return this.repo.tasks.getTasks();
   }
 
   saveTask(task) {
-    return this.repo.saveTask(task);
+    return this.repo.tasks.saveTask(task);
   }
 
   saveTaskNotes(taskId, notes, taskName = null) {
-    return this.repo.saveTaskNotes(taskId, notes, taskName);
+    return this.repo.tasks.saveTaskNotes(taskId, notes, taskName);
   }
 
   deleteTask(taskId) {
-    return this.repo.deleteTask(taskId);
+    return this.repo.tasks.deleteTask(taskId);
   }
 
   setEstimate(taskId, minutes) {
-    return this.repo.setEstimate(taskId, minutes);
+    return this.repo.tasks.setEstimate(taskId, minutes);
   }
 
   async markTaskComplete(taskId, autoLogEstimate = true) {
@@ -46,11 +46,11 @@ class TrackerFacade {
     ) {
       const session = this.timer.stop();
       if (session) {
-        await this.repo.saveSession(session);
+        await this.repo.sessions.saveSession(session);
       }
     } else if (autoLogEstimate) {
       // No active timer on this task — check if task has an estimate to auto-log offline progress
-      const tasks = await this.repo.getTasks();
+      const tasks = await this.repo.tasks.getTasks();
       const task = tasks[taskId];
       if (task) {
         const estimateMin = task.estimateMinutes || 0;
@@ -73,7 +73,7 @@ class TrackerFacade {
               sessionDate.getTime() + durationMs,
             ).toISOString();
 
-            await this.repo.saveSession({
+            await this.repo.sessions.saveSession({
               id: `session_comp_${taskId}_${Date.now()}`,
               taskId,
               projectId: task.projectId || null,
@@ -91,100 +91,100 @@ class TrackerFacade {
       }
     }
 
-    return this.repo.markTaskComplete(taskId);
+    return this.repo.tasks.markTaskComplete(taskId);
   }
 
   async markTaskIncomplete(taskId) {
-    await this.repo.deleteCompletionSession(taskId);
-    return this.repo.markTaskIncomplete(taskId);
+    await this.repo.sessions.deleteCompletionSession(taskId);
+    return this.repo.tasks.markTaskIncomplete(taskId);
   }
 
   saveTaskOrder(orderedIds) {
-    return this.repo.saveTaskOrder(orderedIds);
+    return this.repo.tasks.saveTaskOrder(orderedIds);
   }
 
   getTaskOrder() {
-    return this.repo.getTaskOrder();
+    return this.repo.tasks.getTaskOrder();
   }
 
   getTaskSortMode() {
-    return this.repo.getTaskSortMode();
+    return this.repo.tasks.getTaskSortMode();
   }
 
   saveTaskSortMode(mode) {
-    return this.repo.saveTaskSortMode(mode);
+    return this.repo.tasks.saveTaskSortMode(mode);
   }
 
   // --- Time Entries / Sessions ---
   getAllSessions(options) {
-    return this.repo.getAllSessions(options);
+    return this.repo.sessions.getAllSessions(options);
   }
 
   getSessions(taskId) {
-    return this.repo.getSessions(taskId);
+    return this.repo.sessions.getSessions(taskId);
   }
 
   saveSession(session) {
-    return this.repo.saveSession(session);
+    return this.repo.sessions.saveSession(session);
   }
 
   deleteSession(identifier) {
-    return this.repo.deleteSession(identifier);
+    return this.repo.sessions.deleteSession(identifier);
   }
 
   // --- Projects ---
   getProjects() {
-    return this.repo.getProjects();
+    return this.repo.projects.getProjects();
   }
 
   saveProject(project) {
-    return this.repo.saveProject(project);
+    return this.repo.projects.saveProject(project);
   }
 
   deleteProject(projectId) {
-    return this.repo.deleteProject(projectId);
+    return this.repo.projects.deleteProject(projectId);
   }
 
   assignTaskToProject(taskId, projectId) {
-    return this.repo.assignTaskToProject(taskId, projectId);
+    return this.repo.projects.assignTaskToProject(taskId, projectId);
   }
 
   saveProjectOrder(orderedIds) {
-    return this.repo.saveProjectOrder(orderedIds);
+    return this.repo.projects.saveProjectOrder(orderedIds);
   }
 
   getProjectOrder() {
-    return this.repo.getProjectOrder();
+    return this.repo.projects.getProjectOrder();
   }
 
   // --- Habits ---
   getHabits() {
-    return this.repo.getHabits();
+    return this.repo.habits.getHabits();
   }
 
   saveHabit(habit) {
-    return this.repo.saveHabit(habit);
+    return this.repo.habits.saveHabit(habit);
   }
 
   deleteHabit(habitId) {
-    return this.repo.deleteHabit(habitId);
+    return this.repo.habits.deleteHabit(habitId);
   }
 
   // --- Targets & Settings ---
   getWeeklyTargets() {
-    return this.repo.getWeeklyTargets();
+    return this.repo.settings.getWeeklyTargets();
   }
 
   saveWeeklyTarget(targetKey, hours) {
-    return this.repo.saveWeeklyTarget(targetKey, hours);
+    return this.repo.settings.saveWeeklyTarget(targetKey, hours);
   }
 
   getSetting(key, defaultVal) {
-    return this.repo.getSetting(key, defaultVal);
+    return this.repo.settings.getSetting(key, defaultVal);
   }
 
   setSetting(key, value) {
-    return this.repo.setSetting(key, value);
+    return this.repo.settings.setSetting(key, value);
   }
 
   // --- Analytics ---
@@ -200,7 +200,7 @@ class TrackerFacade {
       if (state.taskId !== taskId) {
         const session = this.timer.stop();
         if (session) {
-          await this.repo.saveSession(session);
+          await this.repo.sessions.saveSession(session);
         }
       }
     }
@@ -218,7 +218,7 @@ class TrackerFacade {
   async stopTimer() {
     const session = this.timer.stop();
     if (session) {
-      await this.repo.saveSession(session);
+      await this.repo.sessions.saveSession(session);
     }
     return session;
   }
@@ -229,15 +229,15 @@ class TrackerFacade {
 
   // --- Backup & Safe Data Management ---
   exportBackup() {
-    return this.repo.exportDatabaseJson();
+    return this.repo.backup.exportDatabaseJson();
   }
 
   importBackup(jsonData) {
-    return this.repo.importDatabaseJson(jsonData);
+    return this.repo.backup.importDatabaseJson(jsonData);
   }
 
   resetData(scope) {
-    return this.repo.resetData(scope);
+    return this.repo.backup.resetData(scope);
   }
 }
 

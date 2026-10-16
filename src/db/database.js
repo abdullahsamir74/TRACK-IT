@@ -33,6 +33,17 @@ class DatabaseManager {
         process.env.PGSSL === "true"
           ? { rejectUnauthorized: false }
           : undefined,
+      max: Number(process.env.PG_POOL_MAX) || 10,
+      idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: Number(process.env.PG_CONNECT_TIMEOUT_MS) || 10_000,
+      statement_timeout: Number(process.env.PG_STATEMENT_TIMEOUT_MS) || 30_000,
+      application_name: "track-it",
+    });
+
+    // An idle client emitting an error (network drop, server restart) must
+    // never take down the whole process — log it and let the pool recycle.
+    this.pool.on("error", (err) => {
+      console.error("Unexpected PostgreSQL pool error:", err);
     });
   }
   static async create(connectionString) {
@@ -68,11 +79,21 @@ class DatabaseManager {
       await client.query("COMMIT");
       return result;
     } catch (error) {
-      await client.query("ROLLBACK");
+      // The rollback itself can fail if the connection already died; never
+      // let that mask the original error.
+      try {
+        await client.query("ROLLBACK");
+      } catch (rollbackError) {
+        console.error("Failed to roll back transaction:", rollbackError);
+      }
       throw error;
     } finally {
       client.release();
     }
+  }
+  /** Lightweight connectivity check used by startup/health diagnostics. */
+  async ping() {
+    await this.pool.query("SELECT 1");
   }
   getDb() {
     return this;

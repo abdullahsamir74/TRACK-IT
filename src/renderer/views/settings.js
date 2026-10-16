@@ -10,6 +10,12 @@ import {
 } from "../state.js";
 import { showConfirmDialog } from "../components/confirm-dialog.js";
 import { showToast } from "../components/toast.js";
+import {
+  getSoundsEnabled,
+  setSoundsEnabled,
+  getBadgeMode,
+  setBadgeMode,
+} from "../preferences.js";
 
 let settingsInitialized = false;
 
@@ -30,10 +36,10 @@ export function initSettings() {
   // Sound toggle
   const soundToggle = document.getElementById("settings-sounds-toggle");
   if (soundToggle) {
-    const soundEnabled = localStorage.getItem("tracker-sounds-enabled") !== "false";
+    const soundEnabled = getSoundsEnabled();
     soundToggle.checked = soundEnabled;
     soundToggle.addEventListener("change", () => {
-      localStorage.setItem("tracker-sounds-enabled", soundToggle.checked ? "true" : "false");
+      setSoundsEnabled(soundToggle.checked);
       showToast(soundToggle.checked ? "Sound effects enabled" : "Sound effects muted", "info");
     });
   }
@@ -41,10 +47,10 @@ export function initSettings() {
   // Badge mode select
   const badgeSelect = document.getElementById("settings-badge-select");
   if (badgeSelect) {
-    const savedBadgeMode = localStorage.getItem("tracker-badge-mode") || "pending";
+    const savedBadgeMode = getBadgeMode();
     badgeSelect.value = savedBadgeMode;
     badgeSelect.addEventListener("change", async () => {
-      localStorage.setItem("tracker-badge-mode", badgeSelect.value);
+      setBadgeMode(badgeSelect.value);
       await updateAppBadge();
       showToast("App icon badge preference updated! 🔔", "success");
     });
@@ -197,6 +203,6 @@ export async function renderSettings() {
 
   const badgeSelect = document.getElementById("settings-badge-select");
   if (badgeSelect) {
-    badgeSelect.value = localStorage.getItem("tracker-badge-mode") || "pending";
+    badgeSelect.value = getBadgeMode();
   }
 }

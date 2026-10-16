@@ -4,6 +4,7 @@
 
 import { getLocalDateString, getCombinedEvents } from "./utils.js";
 import { getState } from "./state.js";
+import { getBadgeMode } from "./preferences.js";
 
 let baseIconImage = null;
 let baseIconLoaded = false;
@@ -124,7 +125,7 @@ export function calculateTodayTaskCount(events, tasks, mode = null) {
   const state = getState();
   events = events || state.calendarEvents;
   tasks = tasks || state.trackedTasks;
-  const badgeMode = mode || localStorage.getItem("tracker-badge-mode") || "pending";
+  const badgeMode = mode || getBadgeMode();
   if (badgeMode === "none") return 0;
 
   const todayStr = getLocalDateString();
@@ -154,7 +155,7 @@ export async function updateAppBadge() {
   isRendering = true;
 
   try {
-    const badgeMode = localStorage.getItem("tracker-badge-mode") || "pending";
+    const badgeMode = getBadgeMode();
     const state = getState();
     const count = calculateTodayTaskCount(state.calendarEvents, state.trackedTasks, badgeMode);
 

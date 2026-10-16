@@ -368,7 +368,6 @@
 
 [data-theme="light"] .target-single-card:hover {
   border-color: #a1a1aa;
-  box-shadow: var(--shadow-md);
 }
 
 [data-theme="light"] .target-track-bar-enhanced {
@@ -575,12 +574,10 @@
 
 [data-theme="light"] .kanban-column:hover {
   border-color: #d4d4d8;
-  box-shadow: var(--shadow-md);
 }
 
 [data-theme="light"] .kanban-column.drag-over {
   border-color: var(--accent-blue) !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
 }
 
 [data-theme="light"] .kanban-column-header {

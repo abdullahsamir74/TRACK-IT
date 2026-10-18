@@ -349,6 +349,10 @@ async function onPointerUp(e) {
     if (task) {
       task.start = ns.toISOString();
       task.end = ne.toISOString();
+      // Persist the new start: the repository stores the task time in due_date
+      // and saveTask prefers `due` over `start`, so both must be updated here.
+      task.due = ns.toISOString();
+      task.isAllDay = false;
       await window.tracker.saveTask(task);
       const nt = { ...state.trackedTasks }; nt[drag.id] = task;
       setTrackedTasks(nt);

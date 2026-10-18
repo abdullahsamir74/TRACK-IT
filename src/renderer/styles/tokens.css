@@ -95,64 +95,65 @@
 }
 
 [data-theme="light"] {
-  /* Core Palette - Vercel / Linear Modern Light Mode */
-  --bg-primary: #f4f4f5;
-  --bg-secondary: #ffffff;
-  --bg-tertiary: #f4f4f5;
-  --bg-card: #ffffff;
-  --bg-card-hover: #fafafa;
-  --bg-glass: rgba(255, 255, 255, 0.95);
-  --bg-glass-border: #e4e4e7;
-  --bg-hover: #f4f4f5;
-  --bg-input: #ffffff;
-  --border-input: #d4d4d8;
+  /* Core Palette — Warm "Latte" Light Mode (layered light-brown tones) */
+  --bg-primary: #f6f1ea; /* page canvas — warm cream */
+  --bg-secondary: #efe7dc; /* sidebar / titlebar — light tan */
+  --bg-tertiary: #f1eade;
+  --bg-card: #fffdfa; /* cards — warm off-white, pops off the cream */
+  --bg-card-hover: #faf4ec;
+  --bg-glass: rgba(255, 253, 250, 0.92);
+  --bg-glass-border: #e4d8c8; /* visible light-brown hairline */
+  --bg-hover: #efe5d8;
+  --bg-input: #fffdfa;
+  --border-input: #d9c9b4;
+  --border-color: #e4d8c8;
 
-  /* Typography Colors */
-  --text-primary: #09090b;
-  --text-secondary: #52525b;
-  --text-muted: #71717a;
-  --text-accent: #09090b;
+  /* Typography Colors — warm espresso ink */
+  --text-primary: #3d3029;
+  --text-secondary: #6b5a4b;
+  --text-muted: #9b8875;
+  --text-accent: #3d3029;
 
-  /* Accents — Vibrant Indigo & Crisp Tones */
-  --accent-primary: #4f46e5;
-  --accent-primary-hover: #4338ca;
-  --accent-secondary: #0d9488;
-  --accent-pink: #e11d48;
-  --accent-orange: #ea580c;
-  --accent-blue: #2563eb;
-  --accent-green: #16a34a;
+  /* Accents — caramel, terracotta, ochre & muted olive */
+  --accent-primary: #9c6b45;
+  --accent-primary-hover: #83573a;
+  --accent-secondary: #a98a6b;
+  --accent-pink: #b5605f;
+  --accent-orange: #c17f3f;
+  --accent-blue: #6b7f99;
+  --accent-green: #7d8f5e;
 
   /* Navigation & Buttons */
-  --nav-btn-hover: #f4f4f5;
-  --nav-btn-active-bg: #f4f4f5;
-  --nav-btn-active-text: #09090b;
-  --btn-accent-bg: #09090b;
-  --btn-accent-text: #ffffff;
-  --btn-accent-hover: #27272a;
-  --btn-ghost-bg: #ffffff;
-  --btn-ghost-text: #09090b;
-  --btn-ghost-border: #e4e4e7;
-  --btn-ghost-hover: #f4f4f5;
+  --nav-btn-hover: #eae0d2;
+  --nav-btn-active-bg: #e2d3bf;
+  --nav-btn-active-text: #3d3029;
+  --btn-accent-bg: #8a5a35;
+  --btn-accent-text: #fdfaf6;
+  --btn-accent-hover: #734a2b;
+  --btn-ghost-bg: #fffdfa;
+  --btn-ghost-text: #3d3029;
+  --btn-ghost-border: #ddcdb8;
+  --btn-ghost-hover: #f3ebe0;
 
   /* Gradients */
-  --gradient-accent: linear-gradient(135deg, #4f46e5, #3b82f6);
-  --gradient-warm: linear-gradient(135deg, #e11d48, #ea580c);
-  --gradient-cool: linear-gradient(135deg, #2563eb, #16a34a);
+  --gradient-accent: linear-gradient(135deg, #b07d4f, #8a5a35);
+  --gradient-warm: linear-gradient(135deg, #b5605f, #c17f3f);
+  --gradient-cool: linear-gradient(135deg, #6b7f99, #7d8f5e);
   --gradient-card: linear-gradient(
     145deg,
-    rgba(0, 0, 0, 0.015),
-    rgba(0, 0, 0, 0.005)
+    rgba(156, 107, 69, 0.05),
+    rgba(156, 107, 69, 0.015)
   );
 
-  /* Shadows — Vercel Crisp Multi-Layer Elevation */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.03), 0 0 0 1px rgba(0, 0, 0, 0.05);
-  --shadow-glow: 0 0 16px rgba(79, 70, 229, 0.12);
+  /* Shadows — soft, warm-tinted elevation */
+  --shadow-sm: 0 1px 2px rgba(61, 48, 41, 0.06), 0 0 0 1px rgba(61, 48, 41, 0.05);
+  --shadow-md: 0 4px 10px -2px rgba(61, 48, 41, 0.1), 0 2px 4px -2px rgba(61, 48, 41, 0.06), 0 0 0 1px rgba(61, 48, 41, 0.05);
+  --shadow-lg: 0 12px 28px -6px rgba(61, 48, 41, 0.16), 0 4px 10px -4px rgba(61, 48, 41, 0.08), 0 0 0 1px rgba(61, 48, 41, 0.06);
+  --shadow-glow: 0 0 16px rgba(156, 107, 69, 0.15);
 
   /* Scrollbars */
-  --scrollbar-track: rgba(0, 0, 0, 0.04);
-  --scrollbar-thumb: #cbd5e1;
-  --scrollbar-thumb-hover: #94a3b8;
-  --scrollbar-thumb-active: #64748b;
+  --scrollbar-track: rgba(61, 48, 41, 0.05);
+  --scrollbar-thumb: #d9c9b4;
+  --scrollbar-thumb-hover: #c4ad91;
+  --scrollbar-thumb-active: #a98a6b;
 }

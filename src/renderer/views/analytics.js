@@ -373,13 +373,13 @@ function renderChart(dailyData) {
   );
 
   const isLight = document.documentElement.getAttribute("data-theme") === "light";
-  const barBg = "rgba(56, 189, 248, 0.85)";
-  const barBorder = "#38bdf8";
-  const textColor = isLight ? "#52525b" : "#a1a1aa";
-  const gridColor = isLight ? "rgba(0, 0, 0, 0.06)" : "rgba(255, 255, 255, 0.06)";
-  const tooltipBg = isLight ? "#09090b" : "#18181b";
-  const tooltipTitle = isLight ? "#ffffff" : "#f4f4f5";
-  const tooltipBody = "#a1a1aa";
+  const barBg = isLight ? "rgba(176, 125, 79, 0.85)" : "rgba(56, 189, 248, 0.85)";
+  const barBorder = isLight ? "#9c6b45" : "#38bdf8";
+  const textColor = isLight ? "#6b5a4b" : "#a1a1aa";
+  const gridColor = isLight ? "rgba(61, 48, 41, 0.08)" : "rgba(255, 255, 255, 0.06)";
+  const tooltipBg = isLight ? "#3d3029" : "#18181b";
+  const tooltipTitle = isLight ? "#fdfaf6" : "#f4f4f5";
+  const tooltipBody = isLight ? "#d9c9b4" : "#a1a1aa";
 
   const newChart = new Chart(ctx, {
     type: "bar",

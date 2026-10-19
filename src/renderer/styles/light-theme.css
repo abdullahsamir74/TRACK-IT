@@ -6,8 +6,8 @@
 
 /* ---- Text Selection ---- */
 [data-theme="light"] ::selection {
-  background: rgba(156, 107, 69, 0.2);
-  color: #3d3029;
+  background: rgba(138, 90, 43, 0.2);
+  color: #38291b;
 }
 
 /* ============================================================
@@ -19,19 +19,19 @@
 }
 
 [data-theme="light"] .nav-shortcut-hint {
-  background: #efe5d8;
-  border: 1px solid #e0d2bd;
+  background: #d8c6ab;
+  border: 1px solid #c0a888;
   color: var(--text-muted);
 }
 
 [data-theme="light"] .sidebar-shortcut-info {
-  background: #efe5d8;
-  border: 1px solid #e0d2bd;
+  background: #d8c6ab;
+  border: 1px solid #c0a888;
 }
 
 [data-theme="light"] .sidebar-shortcut-info kbd {
-  background: rgba(156, 107, 69, 0.1);
-  border: 1px solid rgba(156, 107, 69, 0.25);
+  background: rgba(138, 90, 43, 0.1);
+  border: 1px solid rgba(138, 90, 43, 0.25);
   color: var(--accent-primary);
 }
 
@@ -42,75 +42,75 @@
 
 /* Streak badge — warm ochre */
 [data-theme="light"] .streak-badge {
-  background: rgba(193, 127, 63, 0.12);
-  border-color: rgba(193, 127, 63, 0.35);
-  color: #a9621c;
+  background: rgba(189, 119, 51, 0.12);
+  border-color: rgba(189, 119, 51, 0.35);
+  color: #8a5218;
   box-shadow: none;
 }
 
 [data-theme="light"] .streak-badge:hover {
-  border-color: rgba(193, 127, 63, 0.55);
-  box-shadow: 0 2px 8px rgba(193, 127, 63, 0.2);
+  border-color: rgba(189, 119, 51, 0.55);
+  box-shadow: 0 2px 8px rgba(189, 119, 51, 0.2);
 }
 
 /* ============================================================
    MODALS & DIALOGS — Warm Card & Soft Borders
    ============================================================ */
 [data-theme="light"] .modal-overlay {
-  background: rgba(61, 48, 41, 0.35);
+  background: rgba(56, 41, 27, 0.35);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
 
 [data-theme="light"] .modal {
-  background: #fffdfa;
-  border: 1px solid #e4d8c8;
+  background: #f4ebdc;
+  border: 1px solid #c8b092;
   box-shadow:
-    0 20px 25px -5px rgba(61, 48, 41, 0.15),
-    0 8px 10px -6px rgba(61, 48, 41, 0.08),
-    0 0 0 1px rgba(61, 48, 41, 0.04);
+    0 20px 25px -5px rgba(56, 41, 27, 0.15),
+    0 8px 10px -6px rgba(56, 41, 27, 0.08),
+    0 0 0 1px rgba(56, 41, 27, 0.04);
 }
 
 [data-theme="light"] .modal-header h2 {
   background: none;
   -webkit-text-fill-color: initial;
-  color: #3d3029;
+  color: #38291b;
 }
 
 /* Close button */
 [data-theme="light"] .btn-close-modal {
-  background: #efe5d8;
-  border: 1px solid #e0d2bd;
-  color: #6b5a4b;
+  background: #d8c6ab;
+  border: 1px solid #c0a888;
+  color: #5d4a35;
 }
 
 [data-theme="light"] .btn-close-modal:hover {
-  background: #e2d3bf;
-  color: #3d3029;
+  background: #cbb693;
+  color: #38291b;
 }
 
 /* --- Form Inputs inside Modals --- */
 [data-theme="light"] .input-wrapper input,
 [data-theme="light"] .input-wrapper textarea,
 [data-theme="light"] .textarea-input {
-  background: #fffdfa;
-  border: 1px solid #d9c9b4;
-  color: #3d3029;
+  background: #f4ebdc;
+  border: 1px solid #c3aa8a;
+  color: #38291b;
 }
 
 [data-theme="light"] .input-wrapper input:hover,
 [data-theme="light"] .input-wrapper textarea:hover,
 [data-theme="light"] .textarea-input:hover {
-  border-color: #c4ad91;
-  background: #fffdfa;
+  border-color: #b0977a;
+  background: #f4ebdc;
 }
 
 [data-theme="light"] .input-wrapper input:focus,
 [data-theme="light"] .input-wrapper textarea:focus,
 [data-theme="light"] .textarea-input:focus {
   border-color: var(--accent-primary);
-  background: #fffdfa;
-  box-shadow: 0 0 0 3px rgba(156, 107, 69, 0.15);
+  background: #f4ebdc;
+  box-shadow: 0 0 0 3px rgba(138, 90, 43, 0.15);
 }
 
 [data-theme="light"] .input-wrapper input[type="date"],
@@ -126,95 +126,95 @@
 
 /* --- Priority Selector --- */
 [data-theme="light"] .priority-selector {
-  background: #efe5d8;
-  border: 1px solid #e0d2bd;
+  background: #d8c6ab;
+  border: 1px solid #c0a888;
 }
 
 /* --- Ghost Buttons inside Modals --- */
 [data-theme="light"] .modal .btn-ghost {
-  background: #fffdfa !important;
-  border: 1px solid #d9c9b4 !important;
-  color: #3d3029 !important;
+  background: #f4ebdc !important;
+  border: 1px solid #c3aa8a !important;
+  color: #38291b !important;
 }
 
 [data-theme="light"] .modal .btn-ghost:hover {
-  background: #f3ebe0 !important;
-  border-color: #c4ad91 !important;
+  background: #ece0cc !important;
+  border-color: #b0977a !important;
 }
 
 /* --- Confirm Dialog --- */
 [data-theme="light"] .confirm-overlay {
-  background: rgba(61, 48, 41, 0.35);
+  background: rgba(56, 41, 27, 0.35);
   backdrop-filter: blur(12px);
 }
 
 [data-theme="light"] .confirm-dialog {
-  background: #fffdfa;
-  border: 1px solid #e4d8c8;
+  background: #f4ebdc;
+  border: 1px solid #c8b092;
   box-shadow:
-    0 20px 25px -5px rgba(61, 48, 41, 0.15),
-    0 8px 10px -6px rgba(61, 48, 41, 0.08);
+    0 20px 25px -5px rgba(56, 41, 27, 0.15),
+    0 8px 10px -6px rgba(56, 41, 27, 0.08);
 }
 
 /* --- Duration Presets --- */
 [data-theme="light"] .preset-btn {
-  background: #fffdfa;
-  border: 1px solid #d9c9b4;
-  color: #6b5a4b;
+  background: #f4ebdc;
+  border: 1px solid #c3aa8a;
+  color: #5d4a35;
 }
 
 [data-theme="light"] .preset-btn:hover {
-  background: #f3ebe0;
-  border-color: #c4ad91;
-  color: #3d3029;
+  background: #ece0cc;
+  border-color: #b0977a;
+  color: #38291b;
 }
 
 /* --- Select Inputs --- */
 [data-theme="light"] .select-input {
-  background-color: #fffdfa;
-  border: 1px solid #d9c9b4;
-  color: #3d3029;
+  background-color: #f4ebdc;
+  border: 1px solid #c3aa8a;
+  color: #38291b;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239b8875' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
 [data-theme="light"] .select-input:hover {
-  background-color: #fffdfa;
-  border-color: #c4ad91;
+  background-color: #f4ebdc;
+  border-color: #b0977a;
 }
 
 [data-theme="light"] .select-input option {
-  background: #fffdfa;
-  color: #3d3029;
+  background: #f4ebdc;
+  color: #38291b;
 }
 
 /* ============================================================
    TIMER — Mode Switcher, Presets & Controls
    ============================================================ */
 [data-theme="light"] .timer-mode-switcher {
-  background: #efe5d8;
-  border: 1px solid #e0d2bd;
+  background: #d8c6ab;
+  border: 1px solid #c0a888;
 }
 
 [data-theme="light"] .timer-mode-btn.active {
-  background: #fffdfa;
+  background: #f4ebdc;
   color: var(--accent-primary);
-  box-shadow: 0 1px 3px rgba(61, 48, 41, 0.12);
+  box-shadow: 0 1px 3px rgba(56, 41, 27, 0.12);
 }
 
 [data-theme="light"] .pomo-preset-btn {
-  border: 1px solid #d9c9b4;
-  background: #fffdfa;
-  color: #6b5a4b;
+  border: 1px solid #c3aa8a;
+  background: #f4ebdc;
+  color: #5d4a35;
 }
 
 [data-theme="light"] .pomo-preset-btn:hover {
-  background: #f3ebe0;
-  color: #3d3029;
+  background: #ece0cc;
+  color: #38291b;
 }
 
 [data-theme="light"] .pomo-preset-btn.active {
-  background: rgba(156, 107, 69, 0.1);
-  border-color: rgba(156, 107, 69, 0.35);
+  background: rgba(138, 90, 43, 0.1);
+  border-color: rgba(138, 90, 43, 0.35);
   color: var(--accent-primary);
 }
 
@@ -224,10 +224,10 @@
 
 @keyframes pulseGlowLatte {
   0%, 100% {
-    filter: drop-shadow(0 0 6px rgba(156, 107, 69, 0.3));
+    filter: drop-shadow(0 0 6px rgba(138, 90, 43, 0.3));
   }
   50% {
-    filter: drop-shadow(0 0 14px rgba(156, 107, 69, 0.6));
+    filter: drop-shadow(0 0 14px rgba(138, 90, 43, 0.6));
   }
 }
 
@@ -239,40 +239,40 @@
    CUSTOM PICKERS — Warm Popovers
    ============================================================ */
 [data-theme="light"] .picker-popover {
-  background: #fffdfa;
-  border: 1px solid #e4d8c8;
+  background: #f4ebdc;
+  border: 1px solid #c8b092;
   box-shadow:
-    0 10px 25px -5px rgba(61, 48, 41, 0.15),
-    0 8px 10px -6px rgba(61, 48, 41, 0.08);
+    0 10px 25px -5px rgba(56, 41, 27, 0.15),
+    0 8px 10px -6px rgba(56, 41, 27, 0.08);
 }
 
 [data-theme="light"] .picker-title {
-  color: #3d3029;
+  color: #38291b;
 }
 
 [data-theme="light"] .picker-nav-btn {
-  border: 1px solid #d9c9b4;
-  background: #fffdfa;
-  color: #3d3029;
+  border: 1px solid #c3aa8a;
+  background: #f4ebdc;
+  color: #38291b;
 }
 
 [data-theme="light"] .picker-nav-btn:hover {
-  background: #f3ebe0;
-  border-color: #c4ad91;
+  background: #ece0cc;
+  border-color: #b0977a;
 }
 
 [data-theme="light"] .picker-today-btn {
-  background: rgba(156, 107, 69, 0.1);
-  border: 1px solid rgba(156, 107, 69, 0.3);
+  background: rgba(138, 90, 43, 0.1);
+  border: 1px solid rgba(138, 90, 43, 0.3);
   color: var(--accent-primary);
 }
 
 [data-theme="light"] .picker-today-btn:hover {
-  background: rgba(156, 107, 69, 0.18);
+  background: rgba(138, 90, 43, 0.18);
 }
 
 [data-theme="light"] .picker-day-cell:hover:not(.empty):not(.selected) {
-  background: #f3ebe0;
+  background: #ece0cc;
 }
 
 [data-theme="light"] .picker-day-cell.today {
@@ -285,8 +285,8 @@
 
 [data-theme="light"] .picker-day-cell.selected {
   background: var(--gradient-accent);
-  color: #fdfaf6;
-  box-shadow: 0 4px 12px rgba(138, 90, 53, 0.35);
+  color: #f8f1e6;
+  box-shadow: 0 4px 12px rgba(122, 78, 38, 0.35);
 }
 
 [data-theme="light"] .picker-time-digital {
@@ -299,80 +299,80 @@
 
 [data-theme="light"] .picker-ampm-btn.active {
   background: var(--accent-primary);
-  color: #fdfaf6;
-  box-shadow: 0 2px 8px rgba(138, 90, 53, 0.3);
+  color: #f8f1e6;
+  box-shadow: 0 2px 8px rgba(122, 78, 38, 0.3);
 }
 
 [data-theme="light"] .picker-time-display-card {
-  background: #f7f1e8;
-  border: 1px solid #e4d8c8;
+  background: #e6d8c3;
+  border: 1px solid #c8b092;
 }
 
 [data-theme="light"] .picker-preset-pill {
-  background: #fffdfa;
-  border: 1px solid #d9c9b4;
-  color: #6b5a4b;
+  background: #f4ebdc;
+  border: 1px solid #c3aa8a;
+  color: #5d4a35;
 }
 
 [data-theme="light"] .picker-preset-pill:hover {
-  background: #f3ebe0;
-  color: #3d3029;
+  background: #ece0cc;
+  color: #38291b;
 }
 
 [data-theme="light"] .picker-ampm-switch {
-  background: #efe5d8;
+  background: #d8c6ab;
 }
 
 [data-theme="light"] .picker-unit-pill {
-  border: 1px solid #d9c9b4;
-  background: #fffdfa;
-  color: #6b5a4b;
+  border: 1px solid #c3aa8a;
+  background: #f4ebdc;
+  color: #5d4a35;
 }
 
 [data-theme="light"] .picker-unit-pill:hover {
-  background: #f3ebe0;
-  color: #3d3029;
+  background: #ece0cc;
+  color: #38291b;
 }
 
 [data-theme="light"] .picker-unit-pill.active {
-  background: #f3ebe0;
+  background: #ece0cc;
   border-color: var(--accent-primary);
   color: var(--accent-primary);
 }
 
 [data-theme="light"] .picker-steppers {
-  border-top: 1px solid #e4d8c8;
+  border-top: 1px solid #c8b092;
 }
 
 [data-theme="light"] .picker-stepper-btn {
-  background: #fffdfa;
-  border: 1px solid #d9c9b4;
-  color: #3d3029;
+  background: #f4ebdc;
+  border: 1px solid #c3aa8a;
+  color: #38291b;
 }
 
 [data-theme="light"] .picker-stepper-btn:hover {
-  background: #f3ebe0;
+  background: #ece0cc;
 }
 
 /* ============================================================
    CUSTOM DROPDOWNS — Warm Menus
    ============================================================ */
 [data-theme="light"] .custom-dropdown-popover {
-  background: #fffdfa;
-  border: 1px solid #e4d8c8;
+  background: #f4ebdc;
+  border: 1px solid #c8b092;
   box-shadow:
-    0 10px 25px -5px rgba(61, 48, 41, 0.15),
-    0 4px 6px -2px rgba(61, 48, 41, 0.06);
+    0 10px 25px -5px rgba(56, 41, 27, 0.15),
+    0 4px 6px -2px rgba(56, 41, 27, 0.06);
 }
 
 [data-theme="light"] .dropdown-option-item:hover {
-  background: #f3ebe0;
-  color: #3d3029;
+  background: #ece0cc;
+  color: #38291b;
 }
 
 [data-theme="light"] .dropdown-option-item.selected {
-  background: rgba(156, 107, 69, 0.1);
-  border: 1px solid rgba(156, 107, 69, 0.25);
+  background: rgba(138, 90, 43, 0.1);
+  border: 1px solid rgba(138, 90, 43, 0.25);
   color: var(--accent-primary);
 }
 
@@ -380,84 +380,84 @@
    HABITS — Day Circles, Stats & Cards
    ============================================================ */
 [data-theme="light"] .habit-rate-section {
-  background: #f7f1e8;
-  border: 1px solid #e6dccd;
+  background: #e6d8c3;
+  border: 1px solid #ccb697;
 }
 
 [data-theme="light"] .habit-progress-bar-bg {
-  background: #e6dccd;
+  background: #ccb697;
 }
 
 [data-theme="light"] .habit-badge-item {
-  background: #fffdfa;
-  border: 1px solid #e6dccd;
+  background: #f4ebdc;
+  border: 1px solid #ccb697;
 }
 
 [data-theme="light"] .habit-day-circle {
-  border: 1px solid #d9c9b4;
-  background: #fffdfa;
-  color: #6b5a4b;
+  border: 1px solid #c3aa8a;
+  background: #f4ebdc;
+  color: #5d4a35;
 }
 
 [data-theme="light"] .habit-day-circle:hover {
-  border-color: #3d3029;
-  color: #3d3029;
-  box-shadow: 0 4px 12px rgba(61, 48, 41, 0.1);
+  border-color: #38291b;
+  color: #38291b;
+  box-shadow: 0 4px 12px rgba(56, 41, 27, 0.1);
 }
 
 /* ============================================================
    ANALYTICS — Targets, Metrics & Heatmap
    ============================================================ */
 [data-theme="light"] .target-single-card {
-  background: #fffdfa;
-  border: 1px solid #e4d8c8;
+  background: #f4ebdc;
+  border: 1px solid #c8b092;
 }
 
 [data-theme="light"] .target-single-card:hover {
-  border-color: #c4ad91;
+  border-color: #b0977a;
 }
 
 [data-theme="light"] .target-track-bar-enhanced {
-  background: #ece1d1;
-  border: 1px solid #ddcdb8;
+  background: #d8c5a9;
+  border: 1px solid #c3aa8a;
 }
 
 [data-theme="light"] .target-fill-glow-tip {
   background: #ffffff;
-  box-shadow: 0 0 6px rgba(61, 48, 41, 0.25);
+  box-shadow: 0 0 6px rgba(56, 41, 27, 0.25);
 }
 
 [data-theme="light"] .target-metrics-grid {
-  border-top: 1px solid #e4d8c8;
+  border-top: 1px solid #c8b092;
 }
 
 [data-theme="light"] .target-metric-card {
-  background: #f7f1e8;
-  border: 1px solid #e6dccd;
+  background: #e6d8c3;
+  border: 1px solid #ccb697;
 }
 
 [data-theme="light"] .target-single-card:hover .target-metric-card {
-  background: #efe5d8;
+  background: #d8c6ab;
 }
 
 /* Heatmap — caramel intensity scale */
 [data-theme="light"] .heatmap-cell.level-0 {
-  background: #ece1d1;
+  background: #d8c5a9;
 }
 [data-theme="light"] .heatmap-cell.level-1 {
-  background: #e0c8a2;
+  background: #cbaa7e;
   box-shadow: none;
 }
 [data-theme="light"] .heatmap-cell.level-2 {
-  background: #cba874;
+  background: #b58e5e;
   box-shadow: none;
 }
 [data-theme="light"] .heatmap-cell.level-3 {
-  background: #b3834f;
+  background: #9a6c3c;
   box-shadow: none;
 }
 [data-theme="light"] .heatmap-cell.level-4 {
-  background: #8a5a35;
+  background: #734820;
   box-shadow: none;
 }
 
@@ -465,13 +465,13 @@
    CALENDAR — Month Grid (legacy)
    ============================================================ */
 [data-theme="light"] .cal-day-cell {
-  background: #fffdfa;
-  border-color: #e4d8c8;
+  background: #f4ebdc;
+  border-color: #c8b092;
 }
 
 [data-theme="light"] .cal-day-cell:hover {
-  background-color: #faf4ec;
-  border-color: #c4ad91;
+  background-color: #efe3d0;
+  border-color: #b0977a;
   box-shadow: var(--shadow-sm);
 }
 
@@ -479,8 +479,8 @@
   border-color: var(--accent-primary);
   background-image: linear-gradient(
     160deg,
-    rgba(156, 107, 69, 0.07) 0%,
-    rgba(156, 107, 69, 0.02) 100%
+    rgba(138, 90, 43, 0.07) 0%,
+    rgba(138, 90, 43, 0.02) 100%
   );
 }
 
@@ -488,54 +488,54 @@
   border-color: var(--accent-primary);
   background-image: linear-gradient(
     160deg,
-    rgba(156, 107, 69, 0.12) 0%,
-    rgba(156, 107, 69, 0.04) 100%
+    rgba(138, 90, 43, 0.12) 0%,
+    rgba(138, 90, 43, 0.04) 100%
   );
   box-shadow: 0 0 0 1px var(--accent-primary);
 }
 
 [data-theme="light"] .cal-day-cell.other-month {
-  background: #f1eade;
-  border-color: #e4d8c8;
+  background: #d8c6ab;
+  border-color: #c8b092;
   opacity: 0.6;
 }
 
 [data-theme="light"] .cal-task-preview {
-  background: #efe5d8;
+  background: #d8c6ab;
 }
 
 [data-theme="light"] .cal-day-cell:hover .cal-task-preview {
-  background: #e2d3bf;
+  background: #cbb693;
 }
 
 [data-theme="light"] .cal-nav-btn {
-  border-color: #d9c9b4;
-  background: #fffdfa;
+  border-color: #c3aa8a;
+  background: #f4ebdc;
 }
 
 [data-theme="light"] .cal-nav-btn:hover {
-  background: #f3ebe0;
-  border-color: #c4ad91;
+  background: #ece0cc;
+  border-color: #b0977a;
 }
 
 [data-theme="light"] .cal-today-btn {
-  background: rgba(156, 107, 69, 0.1);
-  border-color: rgba(156, 107, 69, 0.3);
+  background: rgba(138, 90, 43, 0.1);
+  border-color: rgba(138, 90, 43, 0.3);
   color: var(--accent-primary);
 }
 
 [data-theme="light"] .cal-today-btn:hover {
-  background: rgba(156, 107, 69, 0.18);
+  background: rgba(138, 90, 43, 0.18);
 }
 
 [data-theme="light"] .cal-detail-panel {
-  background: #fffdfa;
-  border-color: #e4d8c8;
+  background: #f4ebdc;
+  border-color: #c8b092;
   box-shadow: var(--shadow-sm);
 }
 
 [data-theme="light"] .cal-detail-header {
-  border-bottom-color: #e4d8c8;
+  border-bottom-color: #c8b092;
 }
 
 /* ============================================================
@@ -543,35 +543,35 @@
    ============================================================ */
 [data-theme="light"] .week-grid,
 [data-theme="light"] .week-scroll {
-  border-color: #e4d8c8;
-  background: #fffdfa;
+  border-color: #c8b092;
+  background: #f4ebdc;
 }
 
 [data-theme="light"] .week-gutter,
 [data-theme="light"] .week-header-row {
-  background: #f7f1e8;
+  background: #e6d8c3;
 }
 
 [data-theme="light"] .week-gutter,
 [data-theme="light"] .time-axis {
-  border-right-color: #e4d8c8;
+  border-right-color: #c8b092;
 }
 
 [data-theme="light"] .week-day-header {
-  border-left-color: #ece1d1;
-  border-bottom-color: #e4d8c8;
+  border-left-color: #d8c5a9;
+  border-bottom-color: #c8b092;
 }
 
 [data-theme="light"] .week-day-col {
-  border-left-color: #ece1d1;
+  border-left-color: #d8c5a9;
 }
 
 [data-theme="light"] .time-grid-line {
-  border-bottom-color: #f0e7d9;
+  border-bottom-color: #d9c7ac;
 }
 
 [data-theme="light"] .week-day-num {
-  color: #3d3029;
+  color: #38291b;
 }
 
 [data-theme="light"] .week-day-header.today .week-day-num {
@@ -579,41 +579,41 @@
 }
 
 [data-theme="light"] .week-selection {
-  border-color: rgba(156, 107, 69, 0.6);
-  background: rgba(156, 107, 69, 0.18);
+  border-color: rgba(138, 90, 43, 0.6);
+  background: rgba(138, 90, 43, 0.18);
 }
 
 [data-theme="light"] .week-event {
-  border-color: rgba(156, 107, 69, 0.3);
+  border-color: rgba(138, 90, 43, 0.3);
   background: linear-gradient(
     135deg,
-    rgba(176, 125, 79, 0.32),
-    rgba(176, 125, 79, 0.16)
+    rgba(169, 116, 58, 0.32),
+    rgba(169, 116, 58, 0.16)
   );
-  color: #3d3029;
-  box-shadow: 0 2px 8px rgba(61, 48, 41, 0.12);
+  color: #38291b;
+  box-shadow: 0 2px 8px rgba(56, 41, 27, 0.12);
 }
 
 [data-theme="light"] .week-event.readonly {
   background: linear-gradient(
     135deg,
-    rgba(169, 138, 107, 0.28),
-    rgba(169, 138, 107, 0.14)
+    rgba(154, 118, 73, 0.28),
+    rgba(154, 118, 73, 0.14)
   );
-  border-color: rgba(169, 138, 107, 0.45);
+  border-color: rgba(154, 118, 73, 0.45);
 }
 
 [data-theme="light"] .week-event .event-time {
-  color: #6b5a4b;
+  color: #5d4a35;
 }
 
 [data-theme="light"] .event-checkbox {
-  border-color: rgba(61, 48, 41, 0.4);
+  border-color: rgba(56, 41, 27, 0.4);
 }
 
 [data-theme="light"] .event-checkbox:hover {
   border-color: var(--accent-primary);
-  background: rgba(156, 107, 69, 0.15);
+  background: rgba(138, 90, 43, 0.15);
 }
 
 [data-theme="light"] .week-event.completed .event-checkbox {
@@ -622,7 +622,7 @@
 }
 
 [data-theme="light"] .event-resize-handle:hover {
-  background: rgba(61, 48, 41, 0.18);
+  background: rgba(56, 41, 27, 0.18);
 }
 
 /* ============================================================
@@ -650,18 +650,18 @@
 }
 
 [data-theme="light"] .task-item:hover {
-  border-color: rgba(156, 107, 69, 0.4);
-  box-shadow: 0 4px 12px rgba(61, 48, 41, 0.1);
+  border-color: rgba(138, 90, 43, 0.4);
+  box-shadow: 0 4px 12px rgba(56, 41, 27, 0.1);
 }
 
 [data-theme="light"] .all-day-tag {
-  background: rgba(156, 107, 69, 0.12);
+  background: rgba(138, 90, 43, 0.12);
   color: var(--accent-primary);
-  border-color: rgba(156, 107, 69, 0.3);
+  border-color: rgba(138, 90, 43, 0.3);
 }
 
 [data-theme="light"] .btn-accent-gradient:hover {
-  box-shadow: 0 6px 20px rgba(138, 90, 53, 0.35);
+  box-shadow: 0 6px 20px rgba(122, 78, 38, 0.35);
 }
 
 /* --- Task Notes Light Mode Overrides --- */
@@ -681,8 +681,8 @@
 }
 
 [data-theme="light"] .timer-task-notes-card {
-  background: #fffdfa;
-  border-color: #e4d8c8;
+  background: #f4ebdc;
+  border-color: #c8b092;
 }
 
 [data-theme="light"] .timer-task-notes-card:hover {
@@ -690,35 +690,35 @@
 }
 
 [data-theme="light"] .btn-timer-edit-notes {
-  background: #efe5d8;
-  border-color: #e4d8c8;
-  color: #6b5a4b;
+  background: #d8c6ab;
+  border-color: #c8b092;
+  color: #5d4a35;
 }
 
 [data-theme="light"] .btn-timer-edit-notes:hover {
-  background: #e2d3bf;
-  color: #3d3029;
+  background: #cbb693;
+  color: #38291b;
 }
 
 /* ============================================================
    PROJECTS KANBAN — Light Mode Overrides
    ============================================================ */
 [data-theme="light"] .kanban-unassigned-drawer {
-  background: #fffdfa;
-  border-color: #e4d8c8;
+  background: #f4ebdc;
+  border-color: #c8b092;
 }
 
 [data-theme="light"] .kanban-unassigned-drawer:hover {
-  border-color: #d9c9b4;
+  border-color: #c3aa8a;
 }
 
 [data-theme="light"] .kanban-column {
-  background: #fffdfa;
-  border-color: #e4d8c8;
+  background: #f4ebdc;
+  border-color: #c8b092;
 }
 
 [data-theme="light"] .kanban-column:hover {
-  border-color: #d9c9b4;
+  border-color: #c3aa8a;
 }
 
 [data-theme="light"] .kanban-column.drag-over {
@@ -726,65 +726,65 @@
 }
 
 [data-theme="light"] .kanban-column-header {
-  border-bottom-color: #e4d8c8;
+  border-bottom-color: #c8b092;
 }
 
 [data-theme="light"] .kanban-progress-bar {
-  background: #e6dccd;
+  background: #ccb697;
 }
 
 [data-theme="light"] .kanban-column-count {
-  background: #efe5d8;
-  border-color: #e4d8c8;
-  color: #6b5a4b;
+  background: #d8c6ab;
+  border-color: #c8b092;
+  color: #5d4a35;
 }
 
 [data-theme="light"] .kanban-column-empty {
-  border-color: #d9c9b4;
+  border-color: #c3aa8a;
 }
 
 [data-theme="light"] .kanban-column:hover .kanban-column-empty {
-  border-color: rgba(156, 107, 69, 0.35);
+  border-color: rgba(138, 90, 43, 0.35);
 }
 
 [data-theme="light"] .kanban-column.drag-over .kanban-column-empty {
   border-color: var(--accent-primary);
-  background: rgba(156, 107, 69, 0.05);
+  background: rgba(138, 90, 43, 0.05);
 }
 
 [data-theme="light"] .kanban-column.drag-placeholder {
-  background: #efe5d8;
-  border-color: #d9c9b4;
+  background: #d8c6ab;
+  border-color: #c3aa8a;
 }
 
 /* Kanban Horizontal Scrollbar (Light Theme) */
 [data-theme="light"] .kanban-columns::-webkit-scrollbar-track {
-  background: rgba(61, 48, 41, 0.05);
+  background: rgba(56, 41, 27, 0.05);
 }
 [data-theme="light"] .kanban-columns::-webkit-scrollbar-thumb {
-  background: #d9c9b4;
+  background: #c3aa8a;
 }
 [data-theme="light"] .kanban-columns::-webkit-scrollbar-thumb:hover {
-  background: #c4ad91;
+  background: #b0977a;
 }
 [data-theme="light"] .kanban-columns::-webkit-scrollbar-thumb:active {
-  background: var(--accent-primary, #9c6b45);
+  background: var(--accent-primary, #8a5a2b);
 }
 
 /* ============================================================
    INSET SURFACES — Settings, Time Logs & Analytics panels
    ============================================================ */
 [data-theme="light"] .settings-card-header {
-  background: #f7f1e8;
+  background: #e6d8c3;
 }
 
 [data-theme="light"] .setting-row {
-  border-bottom-color: #ece1d1;
+  border-bottom-color: #d8c5a9;
 }
 
 [data-theme="light"] .stat-mini-pill {
-  background: #f7f1e8;
-  border-color: #e6dccd;
+  background: #e6d8c3;
+  border-color: #ccb697;
 }
 
 [data-theme="light"] .stat-mini-val {
@@ -792,12 +792,12 @@
 }
 
 [data-theme="light"] .reset-action-item {
-  background: #f7f1e8;
-  border-color: #e6dccd;
+  background: #e6d8c3;
+  border-color: #ccb697;
 }
 
 [data-theme="light"] .slider {
-  background-color: #d9c9b4;
+  background-color: #c3aa8a;
 }
 
 [data-theme="light"] .settings-card-danger {
@@ -805,17 +805,17 @@
 }
 
 [data-theme="light"] .time-logs-filter-bar {
-  background: #fffdfa;
+  background: #f4ebdc;
 }
 
 [data-theme="light"] .time-logs-filters .search-input {
-  background: #fffdfa;
-  border-color: #d9c9b4;
+  background: #f4ebdc;
+  border-color: #c3aa8a;
 }
 
 [data-theme="light"] .summary-pill {
-  background: rgba(156, 107, 69, 0.08);
-  border-color: rgba(156, 107, 69, 0.25);
+  background: rgba(138, 90, 43, 0.08);
+  border-color: rgba(138, 90, 43, 0.25);
 }
 
 [data-theme="light"] .summary-pill-val {
@@ -823,21 +823,21 @@
 }
 
 [data-theme="light"] .session-card {
-  background: #fffdfa;
-  border-color: #e4d8c8;
+  background: #f4ebdc;
+  border-color: #c8b092;
 }
 
 [data-theme="light"] .session-card:hover {
-  background: #faf4ec;
-  border-color: #c4ad91;
+  background: #efe3d0;
+  border-color: #b0977a;
 }
 
 [data-theme="light"] .session-duration-pill {
-  background: #efe5d8;
+  background: #d8c6ab;
 }
 
 [data-theme="light"] .btn-icon:hover {
-  background: #efe5d8;
+  background: #d8c6ab;
 }
 
 [data-theme="light"] .day-group-total {
@@ -845,12 +845,12 @@
 }
 
 [data-theme="light"] .top-task-item {
-  background: #f7f1e8;
-  border-color: #ece1d1;
+  background: #e6d8c3;
+  border-color: #d8c5a9;
 }
 
 [data-theme="light"] .top-project-subtasks {
-  border-left-color: #e0d2bd;
+  border-left-color: #c0a888;
 }
 
 [data-theme="light"] .type-timer {

@@ -15,7 +15,10 @@ import {
   setSoundsEnabled,
   getBadgeMode,
   setBadgeMode,
+  getCelebrationsEnabled,
+  setCelebrationsEnabled,
 } from "../preferences.js";
+import { getDailyGoalHours, setDailyGoal } from "../focus.js";
 
 let settingsInitialized = false;
 
@@ -41,6 +44,50 @@ export function initSettings() {
     soundToggle.addEventListener("change", () => {
       setSoundsEnabled(soundToggle.checked);
       showToast(soundToggle.checked ? "Sound effects enabled" : "Sound effects muted", "info");
+    });
+  }
+
+  // Daily focus goal
+  const goalSelect = document.getElementById("settings-goal-select");
+  if (goalSelect) {
+    goalSelect.value = String(getDailyGoalHours());
+    goalSelect.addEventListener("change", async () => {
+      const hours = parseFloat(goalSelect.value);
+      await setDailyGoal(hours);
+      showToast(`Daily focus goal set to ${hours}h`, "success");
+      renderCurrentView();
+    });
+  }
+
+  // Focus HUD toggle
+  const hudToggle = document.getElementById("settings-hud-toggle");
+  if (hudToggle) {
+    window.tracker
+      .isHudOpen()
+      .then((open) => {
+        hudToggle.checked = open;
+      })
+      .catch(() => {});
+
+    hudToggle.addEventListener("change", async () => {
+      const open = await window.tracker.toggleHud(hudToggle.checked);
+      hudToggle.checked = open;
+      showToast(open ? "Focus HUD is on" : "Focus HUD is off", "info");
+    });
+  }
+
+  // Celebrations toggle
+  const celebrationsToggle = document.getElementById(
+    "settings-celebrations-toggle",
+  );
+  if (celebrationsToggle) {
+    celebrationsToggle.checked = getCelebrationsEnabled();
+    celebrationsToggle.addEventListener("change", () => {
+      setCelebrationsEnabled(celebrationsToggle.checked);
+      showToast(
+        celebrationsToggle.checked ? "Celebrations on" : "Celebrations off",
+        "info",
+      );
     });
   }
 
@@ -204,5 +251,27 @@ export async function renderSettings() {
   const badgeSelect = document.getElementById("settings-badge-select");
   if (badgeSelect) {
     badgeSelect.value = getBadgeMode();
+  }
+
+  const goalSelect = document.getElementById("settings-goal-select");
+  if (goalSelect) {
+    goalSelect.value = String(getDailyGoalHours());
+  }
+
+  const celebrationsToggle = document.getElementById(
+    "settings-celebrations-toggle",
+  );
+  if (celebrationsToggle) {
+    celebrationsToggle.checked = getCelebrationsEnabled();
+  }
+
+  const hudToggle = document.getElementById("settings-hud-toggle");
+  if (hudToggle) {
+    window.tracker
+      .isHudOpen()
+      .then((open) => {
+        hudToggle.checked = open;
+      })
+      .catch(() => {});
   }
 }

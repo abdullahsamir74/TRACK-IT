@@ -4,6 +4,7 @@
 
 import { updateAppBadge } from "./badge.js";
 import { showToast } from "./components/toast.js";
+import { getLocalDateString } from "./utils.js";
 
 class Store {
   constructor() {
@@ -21,6 +22,10 @@ class Store {
       projectOrder: [],
       weeklyTargets: {},
       taskSortMode: "manual",
+      focus3: [],
+      focus3Date: null,
+      dailyGoalHours: 4,
+      todaySummary: null,
     };
     this.listeners = [];
   }
@@ -105,6 +110,23 @@ export function setWeeklyTargets(val) {
 export function setTaskSortMode(val) {
   storeInstance.updateState({ taskSortMode: val || "manual" });
 }
+export function setFocus3(val) {
+  storeInstance.updateState({
+    focus3: Array.isArray(val) ? val.slice(0, 3) : [],
+  });
+}
+export function setFocus3Date(val) {
+  storeInstance.updateState({ focus3Date: val || null });
+}
+export function setDailyGoalHours(val) {
+  const num = parseFloat(val);
+  storeInstance.updateState({
+    dailyGoalHours: Number.isFinite(num) && num >= 0 ? num : 4,
+  });
+}
+export function setTodaySummary(val) {
+  storeInstance.updateState({ todaySummary: val || null });
+}
 
 
 // ---- View registry ----
@@ -112,6 +134,34 @@ let viewRenderers = {};
 
 export function registerViewRenderers(renderers) {
   viewRenderers = renderers;
+}
+
+// ---- Focus preferences (daily goal + today's Focus 3) ----
+export async function loadFocusSettings() {
+  const todayKey = getLocalDateString();
+  try {
+    const [focus3Raw, goalRaw] = await Promise.all([
+      window.tracker.getSetting(`focus3_${todayKey}`, "[]"),
+      window.tracker.getSetting("daily_focus_goal_hours", "4"),
+    ]);
+
+    let focus3 = [];
+    try {
+      const parsed = JSON.parse(focus3Raw);
+      if (Array.isArray(parsed)) focus3 = parsed.filter(Boolean).slice(0, 3);
+    } catch {
+      focus3 = [];
+    }
+
+    const goal = parseFloat(goalRaw);
+    storeInstance.updateState({
+      focus3,
+      focus3Date: todayKey,
+      dailyGoalHours: Number.isFinite(goal) && goal >= 0 ? goal : 4,
+    });
+  } catch (err) {
+    console.error("Failed to load focus settings:", err);
+  }
 }
 
 // ---- Data Loading ----
@@ -168,6 +218,7 @@ export async function loadData() {
       taskSortMode: taskSortModeVal,
     });
 
+    await loadFocusSettings();
     updateStreakCount();
 
     if (timerState && timerState.running) {

@@ -45,6 +45,50 @@
 
         <div class="setting-row">
           <div class="setting-info">
+            <span class="setting-title">Daily Focus Goal</span>
+            <span class="setting-desc">Target focused time per day. Shown on the dashboard and Focus HUD</span>
+          </div>
+          <div class="setting-control">
+            <select id="settings-goal-select" class="select-input">
+              <option value="1">1 hour</option>
+              <option value="2">2 hours</option>
+              <option value="3">3 hours</option>
+              <option value="4">4 hours</option>
+              <option value="5">5 hours</option>
+              <option value="6">6 hours</option>
+              <option value="8">8 hours</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-title">Always-on-top Focus HUD</span>
+            <span class="setting-desc">Keep your current task, goal ring, and Focus 3 visible over other windows</span>
+          </div>
+          <div class="setting-control">
+            <label class="switch">
+              <input type="checkbox" id="settings-hud-toggle" />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
+            <span class="setting-title">Celebrations</span>
+            <span class="setting-desc">Confetti and a chime when you hit your daily goal or clear your Focus 3</span>
+          </div>
+          <div class="setting-control">
+            <label class="switch">
+              <input type="checkbox" id="settings-celebrations-toggle" checked />
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <div class="setting-info">
             <span class="setting-title">App Icon Task Counter Badge</span>
             <span class="setting-desc">Display real-time task count on application icon, dock, and titlebar</span>
           </div>

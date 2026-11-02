@@ -5,7 +5,9 @@
 // ---- State & Navigation ----
 import {
   setCalendarEvents,
+  setTrackedTasks,
   loadData,
+  loadFocusSettings,
   switchView,
   registerViewRenderers,
   renderCurrentView,
@@ -156,6 +158,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     renderCurrentView();
   });
 
+  // Keep the main window in sync when the Focus HUD changes data
+  window.tracker.onDataChanged(async () => {
+    try {
+      setTrackedTasks(await window.tracker.getTasks());
+      await loadFocusSettings();
+      renderCurrentView();
+      updateAppBadge();
+    } catch (err) {
+      console.error("Failed to refresh after HUD change:", err);
+    }
+  });
+
   // Listen for timer ticks
   window.tracker.onTimerTick((state) => {
     updateTimerDisplay(state);
@@ -190,6 +204,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 export function applyTheme(theme) {
   document.documentElement.setAttribute("data-theme", theme);
   setTheme(theme);
+
+  // Keep the Focus HUD visually in sync with the main window.
+  if (window.tracker && window.tracker.setHudTheme) {
+    window.tracker.setHudTheme(theme);
+  }
 
   const btnToggle = document.getElementById("btn-theme-toggle");
   const moonIcon = btnToggle?.querySelector(".icon-moon");
@@ -249,6 +268,29 @@ function initTitlebar() {
       const nextTheme = current === "dark" ? "light" : "dark";
       applyTheme(nextTheme);
     });
+  }
+
+  const btnHud = document.getElementById("btn-hud-toggle");
+  if (btnHud) {
+    btnHud.addEventListener("click", () => window.tracker.toggleHud());
+
+    if (window.tracker && window.tracker.isHudOpen) {
+      window.tracker
+        .isHudOpen()
+        .then((open) => btnHud.classList.toggle("active", open));
+    }
+
+    if (window.tracker && window.tracker.onHudVisibilityChanged) {
+      window.tracker.onHudVisibilityChanged((visible) => {
+        btnHud.classList.toggle("active", visible);
+        btnHud.title = visible
+          ? "Hide Focus HUD (Ctrl+Shift+H)"
+          : "Show Focus HUD (Ctrl+Shift+H)";
+
+        const settingsHudToggle = document.getElementById("settings-hud-toggle");
+        if (settingsHudToggle) settingsHudToggle.checked = visible;
+      });
+    }
   }
 
   if (btnMin) btnMin.addEventListener("click", () => window.tracker.minimize());

@@ -76,6 +76,22 @@ contextBridge.exposeInMainWorld("tracker", {
 
   // Analytics
   getAnalytics: (range) => invokeTracker("getAnalytics", range),
+  getTodaySummary: () => invokeTracker("getTodaySummary"),
+
+  // Focus HUD
+  toggleHud: (force) => ipcRenderer.invoke("hud-toggle", force),
+  isHudOpen: () => ipcRenderer.invoke("hud-is-open"),
+  setHudTheme: (theme) => ipcRenderer.send("hud-set-theme", theme),
+  onHudVisibilityChanged: (callback) => {
+    ipcRenderer.removeAllListeners("hud-visibility-changed");
+    ipcRenderer.on("hud-visibility-changed", (event, visible) =>
+      callback(visible),
+    );
+  },
+  onDataChanged: (callback) => {
+    ipcRenderer.removeAllListeners("tracker-data-changed");
+    ipcRenderer.on("tracker-data-changed", (event, data) => callback(data));
+  },
 
   // Timer
   startTimer: (taskId, taskName, estimateMinutes) =>

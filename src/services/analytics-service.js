@@ -293,45 +293,7 @@ class AnalyticsService {
     }
 
     // Streak calculation (Consecutive active days ending today or yesterday)
-    let streak = 0;
-    const todayKey = getLocalDateString();
-    const activeEntries = (
-      await this.db.query(
-        "SELECT start_time FROM time_entries WHERE duration_minutes > 0",
-      )
-    ).rows;
-    const allDatesWithActivity = new Set(
-      activeEntries
-        .map((r) => getLocalDateString(r.start_time))
-        .filter(Boolean),
-    );
-
-    let checkDate = new Date();
-    if (
-      allDatesWithActivity.has(todayKey) ||
-      (heatmapData[todayKey] || 0) > 0
-    ) {
-      // Activity today!
-    } else {
-      checkDate.setDate(checkDate.getDate() - 1);
-      const yKey = getLocalDateString(checkDate);
-      if (!allDatesWithActivity.has(yKey) && (heatmapData[yKey] || 0) <= 0) {
-        checkDate = null;
-      }
-    }
-
-    if (checkDate) {
-      let limit = 1000;
-      while (limit-- > 0) {
-        const k = getLocalDateString(checkDate);
-        if (allDatesWithActivity.has(k) || (heatmapData[k] || 0) > 0) {
-          streak++;
-          checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-          break;
-        }
-      }
-    }
+    const streak = await this._computeStreak();
 
     // Current week progress for weekly goals
     const curWeekStart = new Date(now);
@@ -379,6 +341,121 @@ class AnalyticsService {
       heatmapData,
       currentWeekTotalMinutes: Math.round(currentWeekTotalMinutes * 10) / 10,
       weeklyProjectMinutes,
+    };
+  }
+
+  /**
+   * Consecutive days with tracked time, ending today (or yesterday when today
+   * has no activity yet). Shared by the analytics view and the Momentum HUD.
+   */
+  async _computeStreak() {
+    const activeEntries = (
+      await this.db.query(
+        "SELECT start_time FROM time_entries WHERE duration_minutes > 0",
+      )
+    ).rows;
+    const allDatesWithActivity = new Set(
+      activeEntries
+        .map((r) => getLocalDateString(r.start_time))
+        .filter(Boolean),
+    );
+
+    let checkDate = new Date();
+    if (!allDatesWithActivity.has(getLocalDateString(checkDate))) {
+      checkDate.setDate(checkDate.getDate() - 1);
+      if (!allDatesWithActivity.has(getLocalDateString(checkDate))) {
+        return 0;
+      }
+    }
+
+    let streak = 0;
+    let limit = 1000;
+    while (limit-- > 0) {
+      const key = getLocalDateString(checkDate);
+      if (!allDatesWithActivity.has(key)) break;
+      streak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    }
+    return streak;
+  }
+
+  /**
+   * A compact snapshot of today used by the Momentum dashboard card and HUD.
+   */
+  async getTodaySummary() {
+    const now = new Date();
+    const start = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      0,
+      0,
+      0,
+      0,
+    );
+    const end = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      23,
+      59,
+      59,
+      999,
+    );
+    const startIso = start.toISOString();
+    const endIso = end.toISOString();
+
+    const entries = (
+      await this.db.query(
+        `
+      SELECT te.duration_minutes, te.task_id
+      FROM time_entries te
+      WHERE te.start_time >= $1 AND te.start_time <= $2
+    `,
+        [startIso, endIso],
+      )
+    ).rows;
+
+    const trackedMinutes =
+      Math.round(
+        entries.reduce((sum, e) => sum + (e.duration_minutes || 0), 0) * 10,
+      ) / 10;
+
+    const completedRows = (
+      await this.db.query(
+        `
+      SELECT id FROM tasks
+      WHERE deleted_at IS NULL
+        AND status = 'completed'
+        AND completed_at >= $1 AND completed_at <= $2
+    `,
+        [startIso, endIso],
+      )
+    ).rows;
+
+    const goalRaw = await this.repo.settings.getSetting(
+      "daily_focus_goal_hours",
+      "4",
+    );
+    const parsedGoal = parseFloat(goalRaw);
+    const goalHours = Number.isFinite(parsedGoal) && parsedGoal >= 0
+      ? parsedGoal
+      : 4;
+    const goalMinutes = Math.round(goalHours * 60);
+
+    return {
+      date: getLocalDateString(now),
+      trackedMinutes,
+      goalHours,
+      goalMinutes,
+      goalProgress:
+        goalMinutes > 0 ? Math.min(1, trackedMinutes / goalMinutes) : 0,
+      goalMet: goalMinutes > 0 && trackedMinutes >= goalMinutes,
+      remainingMinutes: Math.max(0, goalMinutes - trackedMinutes),
+      sessionsCount: entries.length,
+      completedTaskIds: completedRows.map((r) => r.id),
+      completedCount: completedRows.length,
+      streak: await this._computeStreak(),
     };
   }
 }

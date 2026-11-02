@@ -92,3 +92,33 @@ export function playAlarmSound() {
 export function playTimerStopSound() {
   playDigitalBeep(0, 0.12, 0.12);
 }
+
+/**
+ * Play a short, warm ascending arpeggio for meaningful wins
+ * (daily goal reached, Focus 3 cleared).
+ */
+export function playCelebrationSound() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  const notes = [523.25, 659.25, 783.99, 1046.5]; // C5 · E5 · G5 · C6
+
+  notes.forEach((freq, index) => {
+    const start = now + index * 0.09;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(freq, start);
+
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.16, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.34);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start(start);
+    osc.stop(start + 0.36);
+  });
+}

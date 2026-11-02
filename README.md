@@ -56,6 +56,13 @@ Data is stored in PostgreSQL. Run PostgreSQL locally to retain a fully private, 
 - **Audio Chime Alerts**: Subtle sound cues when focus phases complete or timers stop.
 - **Crash Recovery**: Active timer sessions automatically save if the application closes unexpectedly.
 
+### 🚀 Momentum: Daily Goal & Focus HUD
+
+- **Today's Focus 3**: Star up to three tasks to mark the work that matters most today, then start, pause, or complete them from the dashboard.
+- **Daily Focus Goal**: Set a target focused time per day and follow the progress ring, remaining time, and live streak.
+- **Always-on-top Focus HUD**: A compact frameless window that keeps the active timer, goal progress, and Focus 3 visible over other apps, with collapsed and expanded layouts.
+- **Celebrations**: Confetti, a banner, and an optional chime when you hit the daily goal or clear your Focus 3.
+
 ### 📊 Time Logs & Manual Session Entry
 
 - **Session History**: Detailed searchable, filterable log of all completed time entries and focus sessions.
@@ -109,6 +116,7 @@ Control your workspace efficiently without leaving the keyboard:
 | :------------------------------------------------------------- | :------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------- |
 | <kbd>Ctrl</kbd> + <kbd>N</kbd> / <kbd>Cmd</kbd> + <kbd>N</kbd> | **Quick Add Task**        | Opens the task creation modal from any view                                                                                                         |
 | <kbd>Spacebar</kbd>                                            | **Toggle Timer**          | Starts, pauses, or resumes the active focus timer                                                                                                   |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd>              | **Toggle Focus HUD**      | Shows or hides the always-on-top Momentum window                                                                                                    |
 | <kbd>Ctrl</kbd> + <kbd>1</kbd> .. <kbd>9</kbd>                 | **Dynamic View Switcher** | Dynamically jumps to the $N^{\text{th}}$ sidebar tab (Dashboard, Schedule, Calendar, Focus Timer, Time Logs, Projects, Habits, Analytics, Settings) |
 | <kbd>Esc</kbd>                                                 | **Dismiss / Exit**        | Closes active modals, date/time popovers, or exits fullscreen timer mode                                                                            |
 

@@ -9,6 +9,7 @@ const KEYS = {
   theme: "tracker-theme",
   soundsEnabled: "tracker-sounds-enabled",
   badgeMode: "tracker-badge-mode",
+  celebrationsEnabled: "tracker-celebrations-enabled",
 };
 
 export const THEMES = ["dark", "light"];
@@ -66,4 +67,12 @@ export function setBadgeMode(mode) {
     return false;
   }
   return write(KEYS.badgeMode, mode);
+}
+
+export function getCelebrationsEnabled() {
+  return read(KEYS.celebrationsEnabled) !== "false";
+}
+
+export function setCelebrationsEnabled(enabled) {
+  return write(KEYS.celebrationsEnabled, enabled ? "true" : "false");
 }

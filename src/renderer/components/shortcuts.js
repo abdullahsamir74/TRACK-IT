@@ -48,7 +48,14 @@ export function initKeyboardShortcuts() {
       return;
     }
 
-    // 2. Ctrl + 1..9 / Cmd + 1..9 -> Dynamically switch to N-th sidebar view
+    // 2. Ctrl + Shift + H -> Toggle the always-on-top Focus HUD
+    if (isCmdOrCtrl && e.shiftKey && key === "h") {
+      e.preventDefault();
+      window.tracker.toggleHud();
+      return;
+    }
+
+    // 3. Ctrl + 1..9 / Cmd + 1..9 -> Dynamically switch to N-th sidebar view
     if (isCmdOrCtrl && e.key >= "1" && e.key <= "9") {
       const idx = parseInt(e.key, 10) - 1;
       const currentNavButtons = document.querySelectorAll(
@@ -62,7 +69,7 @@ export function initKeyboardShortcuts() {
       }
     }
 
-    // 3. Spacebar -> Start / Pause / Resume Active Timer (ignore key repeat)
+    // 4. Spacebar -> Start / Pause / Resume Active Timer (ignore key repeat)
     if (
       (e.code === "Space" || e.key === " ") &&
       !e.repeat &&

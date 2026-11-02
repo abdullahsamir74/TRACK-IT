@@ -15,6 +15,8 @@ import {
   openTaskNotesModal,
 } from "./modals.js";
 import { showConfirmDialog } from "./confirm-dialog.js";
+import { showToast } from "./toast.js";
+import { isFocusTask, toggleFocusTask } from "../focus.js";
 
 /**
  * Create a single task-item DOM element.
@@ -23,6 +25,7 @@ import { showConfirmDialog } from "./confirm-dialog.js";
 export function createTaskItem(event, draggable = false, timerState = null) {
   const task = getState().trackedTasks[event.id] || {};
   const isCompleted = task.completed || false;
+  const isFocus = isFocusTask(event.id);
   const notes = task.notes || task.description || event.description || "";
   const hasNotes = Boolean(notes && notes.trim().length > 0);
 
@@ -104,10 +107,16 @@ export function createTaskItem(event, draggable = false, timerState = null) {
       ${projectBadge}
       ${priorityBadge}
       ${notesBadge}
+      ${isFocus ? `<span class="task-badge focus3-badge">Focus</span>` : ""}
       ${estimate ? `<span class="task-badge estimate">${formatDuration(estimate)}</span>` : ""}
       ${tracked > 0 ? `<span class="task-badge tracked">${formatDuration(tracked)} tracked</span>` : ""}
     </div>
     <div class="task-actions">
+      <button class="task-action-btn task-action-focus ${isFocus ? "active" : ""}" title="${isFocus ? "Remove from Today's Focus 3" : "Add to Today's Focus 3"}" data-action="focus" data-task-id="${event.id}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="${isFocus ? "currentColor" : "none"}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+        </svg>
+      </button>
       <button class="task-action-btn ${hasNotes ? "has-notes" : ""}" title="${hasNotes ? "View/Edit notes" : "Add notes"}" data-action="notes" data-task-id="${event.id}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -170,6 +179,21 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     btn.addEventListener("click", async (e) => {
       e.stopPropagation();
       const action = btn.dataset.action;
+      if (action === "focus") {
+        const result = await toggleFocusTask(btn.dataset.taskId);
+        if (result.full) {
+          showToast("Focus 3 is full — remove one first.", "warning");
+          return;
+        }
+        showToast(
+          result.added
+            ? "Added to Today's Focus 3 ⭐"
+            : "Removed from Today's Focus 3",
+          "info",
+        );
+        renderCurrentView();
+        return;
+      }
       if (action === "notes") {
         openTaskNotesModal({
           id: event.id,

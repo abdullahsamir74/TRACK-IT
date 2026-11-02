@@ -65,6 +65,77 @@
     </div>
   </div>
 
+  <!-- Momentum: daily goal + Today's Focus 3 -->
+  <div class="momentum-grid">
+    <div class="momentum-card glass" id="momentum-goal-card">
+      <div class="momentum-ring-wrap">
+        <svg class="momentum-ring" viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="momentum-ring-bg" cx="60" cy="60" r="52" />
+          <circle
+            class="momentum-ring-progress"
+            id="momentum-ring-progress"
+            cx="60"
+            cy="60"
+            r="52"
+          />
+        </svg>
+        <div class="momentum-ring-center">
+          <span class="momentum-percent" id="momentum-percent">0%</span>
+          <span class="momentum-ring-caption">of goal</span>
+        </div>
+      </div>
+      <div class="momentum-goal-info">
+        <span class="momentum-eyebrow">Daily Focus Goal</span>
+        <div class="momentum-goal-value">
+          <span id="momentum-tracked">0m</span>
+          <span class="momentum-goal-total">/ <span id="momentum-goal">4h</span></span>
+        </div>
+        <p class="momentum-goal-sub" id="momentum-goal-sub">
+          Start a focus session to build momentum.
+        </p>
+        <div class="momentum-goal-actions">
+          <select
+            id="select-daily-goal"
+            class="select-input momentum-goal-select"
+            title="Daily focus goal"
+          >
+            <option value="1">1h goal</option>
+            <option value="2">2h goal</option>
+            <option value="3">3h goal</option>
+            <option value="4">4h goal</option>
+            <option value="5">5h goal</option>
+            <option value="6">6h goal</option>
+            <option value="8">8h goal</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" id="btn-open-hud" title="Toggle the always-on-top Focus HUD">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+            <span>Focus HUD</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="momentum-card glass" id="momentum-focus3-card">
+      <div class="momentum-card-head">
+        <div>
+          <span class="momentum-eyebrow">Today's Focus 3</span>
+          <p class="momentum-card-sub">The three tasks that matter most today.</p>
+        </div>
+        <span class="momentum-streak" id="momentum-streak" title="Consecutive active days">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2c1.5 4.5-1.5 6-1.5 8.5 0 1.5 1 2.5 2 2.5 1.5 0 2.5-1.5 2.5-3 2 2 3 4 3 6a6 6 0 0 1-12 0c0-3.5 2-5.5 3.5-7.5C11 6.5 12 5 12 2z" />
+          </svg>
+          <span id="momentum-streak-count">0</span>
+        </span>
+      </div>
+      <div class="focus3-list" id="focus3-list"></div>
+    </div>
+  </div>
+
   <!-- Active Timer Card -->
   <div class="active-timer-card glass" id="dashboard-active-timer" style="display: none;">
     <div class="active-timer-info">

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Momentum</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="hud.css" />
+  </head>
+  <body>
+    <div id="hud" class="hud is-collapsed">
+      <div class="hud-drag" id="hud-drag">
+        <span class="hud-status-dot" id="hud-status-dot"></span>
+        <span class="hud-brand">MOMENTUM</span>
+        <span class="hud-streak-pill" id="hud-streak-pill" title="Consecutive active days">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2c1.5 4.5-1.5 6-1.5 8.5 0 1.5 1 2.5 2 2.5 1.5 0 2.5-1.5 2.5-3 2 2 3 4 3 6a6 6 0 0 1-12 0c0-3.5 2-5.5 3.5-7.5C11 6.5 12 5 12 2z" />
+          </svg>
+          <span id="hud-streak-count">0</span>
+        </span>
+        <div class="hud-window-actions">
+          <button class="hud-icon-btn" id="hud-expand" title="Expand HUD" aria-label="Expand HUD">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          <button class="hud-icon-btn hud-close" id="hud-close" title="Close HUD" aria-label="Close HUD">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Collapsed pill -->
+      <div class="hud-pill">
+        <div class="hud-pill-main">
+          <span class="hud-pill-task" id="hud-pill-task">No focus session</span>
+          <span class="hud-pill-time" id="hud-pill-time">00:00:00</span>
+        </div>
+        <div class="hud-pill-controls">
+          <button class="hud-control-btn primary hud-play-btn" id="hud-pill-play" title="Start or pause focus">
+            <svg class="icon-play" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <polygon points="5 3 19 12 5 21 5 3" />
+            </svg>
+            <svg class="icon-pause" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display: none">
+              <rect x="6" y="4" width="4" height="16" rx="1" />
+              <rect x="14" y="4" width="4" height="16" rx="1" />
+            </svg>
+          </button>
+          <button class="hud-control-btn hud-stop-btn" id="hud-pill-stop" title="Stop timer" disabled>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <rect x="5" y="5" width="14" height="14" rx="2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Expanded body -->
+      <div class="hud-body">
+        <div class="hud-timer">
+          <span class="hud-task-name" id="hud-task-name">No focus session</span>
+          <span class="hud-timer-display" id="hud-timer-display">00:00:00</span>
+          <div class="hud-timer-controls">
+            <button class="hud-control-btn primary hud-play-btn" id="hud-play" title="Start or pause focus">
+              <svg class="icon-play" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <polygon points="5 3 19 12 5 21 5 3" />
+              </svg>
+              <svg class="icon-pause" width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="display: none">
+                <rect x="6" y="4" width="4" height="16" rx="1" />
+                <rect x="14" y="4" width="4" height="16" rx="1" />
+              </svg>
+              <span id="hud-play-label">Start</span>
+            </button>
+            <button class="hud-control-btn hud-stop-btn" id="hud-stop" title="Stop timer" disabled>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <rect x="5" y="5" width="14" height="14" rx="2" />
+              </svg>
+              <span>Stop</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="hud-goal">
+          <div class="hud-goal-ring-wrap">
+            <svg class="hud-ring" viewBox="0 0 72 72" aria-hidden="true">
+              <circle class="hud-ring-bg" cx="36" cy="36" r="30" />
+              <circle class="hud-ring-progress" id="hud-ring-progress" cx="36" cy="36" r="30" />
+            </svg>
+            <span class="hud-ring-percent" id="hud-ring-percent">0%</span>
+          </div>
+          <div class="hud-goal-info">
+            <span class="hud-goal-label">Daily Focus Goal</span>
+            <span class="hud-goal-value">
+              <strong id="hud-goal-tracked">0m</strong>
+              <span id="hud-goal-total">/ 4h</span>
+            </span>
+            <span class="hud-goal-sub" id="hud-goal-sub">Start a session</span>
+          </div>
+        </div>
+
+        <div class="hud-focus3">
+          <div class="hud-section-head">
+            <span class="hud-section-title">Today's Focus 3</span>
+            <span class="hud-focus3-count" id="hud-focus3-count">0/3</span>
+          </div>
+          <div class="hud-focus3-list" id="hud-focus3-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="hud.js"></script>
+  </body>
+</html>

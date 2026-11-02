@@ -192,6 +192,10 @@ class TrackerFacade {
     return this.analytics.getAnalytics(range);
   }
 
+  getTodaySummary() {
+    return this.analytics.getTodaySummary();
+  }
+
   // --- Timer ---
   async startTimer(taskId, taskName, estimateMinutes, onTick) {
     // If another timer is running for a different task, stop and save it first

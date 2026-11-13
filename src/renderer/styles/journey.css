@@ -1,0 +1,472 @@
+/* ========================================
+   JOURNEY — Daily quest map, progression & quotes
+   ======================================== */
+
+/* ---- Progress summary card ---- */
+.journey-progress-card {
+  padding: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  background: var(--bg-card);
+}
+
+.journey-progress-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+}
+
+.journey-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.journey-progress-value {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-sm);
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.journey-percent {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  background: var(--gradient-cool);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.journey-count {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.journey-rank {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--bg-glass-border);
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+
+.journey-progress-bar {
+  height: 14px;
+  width: 100%;
+  border-radius: var(--radius-full);
+  background: var(--bg-hover);
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.28);
+}
+
+.journey-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: var(--radius-full);
+  background: var(--gradient-cool);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+  transition: width 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.journey-progress-hint {
+  margin-top: var(--space-sm);
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* ---- Quest map ---- */
+.journey-map {
+  position: relative;
+  padding-bottom: var(--space-lg);
+}
+
+.journey-map.is-empty {
+  padding-bottom: 0;
+}
+
+.journey-track {
+  position: absolute;
+  left: 23px;
+  top: 26px;
+  bottom: 26px;
+  width: 3px;
+  border-radius: var(--radius-full);
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--bg-glass-border) 0 9px,
+    transparent 9px 15px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.journey-track-fill {
+  display: block;
+  width: 100%;
+  height: 0%;
+  border-radius: var(--radius-full);
+  background: var(--gradient-cool);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+  transition: height 600ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.journey-step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  z-index: 1;
+}
+
+.journey-step-marker {
+  width: 48px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding-top: 10px;
+  position: relative;
+}
+
+/* Consistent horizontal connector from node to card. */
+.journey-step-marker::after {
+  content: "";
+  position: absolute;
+  top: 28px;
+  left: calc(50% + 19px);
+  width: 21px;
+  height: 2px;
+  border-radius: var(--radius-full);
+  background: var(--bg-glass-border);
+  transition: background var(--transition-fast);
+}
+
+.journey-step.completed .journey-step-marker::after {
+  background: var(--accent-green);
+}
+
+.journey-step.current .journey-step-marker::after {
+  background: var(--accent-blue);
+}
+
+.journey-node {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  border: 2px solid var(--bg-glass-border);
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 5px var(--bg-primary);
+  transition:
+    transform var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.journey-step.completed .journey-node {
+  background: var(--gradient-cool);
+  border-color: transparent;
+  color: var(--btn-accent-text);
+  box-shadow:
+    0 0 0 5px var(--bg-primary),
+    0 0 14px rgba(52, 211, 153, 0.35);
+}
+
+.journey-step.current .journey-node {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  box-shadow:
+    0 0 0 5px var(--bg-primary),
+    0 0 0 8px rgba(56, 189, 248, 0.16);
+  animation: journey-node-pulse 2.4s ease-in-out infinite;
+}
+
+.journey-step.completed.current .journey-node {
+  animation: none;
+}
+
+@keyframes journey-node-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 5px var(--bg-primary),
+      0 0 0 8px rgba(56, 189, 248, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 0 5px var(--bg-primary),
+      0 0 0 12px rgba(56, 189, 248, 0.03);
+  }
+}
+
+.journey-card {
+  flex: 1;
+  min-width: 0;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  padding: 14px 16px;
+  margin-bottom: var(--space-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--bg-glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition:
+    border-color var(--transition-base),
+    transform var(--transition-fast),
+    box-shadow var(--transition-base),
+    opacity var(--transition-base);
+}
+
+.journey-card:hover {
+  border-color: var(--bg-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.journey-step.completed .journey-card {
+  opacity: 0.72;
+}
+
+.journey-step.current .journey-card {
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow:
+    var(--shadow-sm),
+    0 0 0 1px rgba(56, 189, 248, 0.18);
+}
+
+.journey-card-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.journey-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.journey-task-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.journey-step.completed .journey-task-title {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+}
+
+.journey-status {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border: 1px solid transparent;
+}
+
+.journey-status.cleared {
+  color: var(--accent-green);
+  background: rgba(52, 211, 153, 0.1);
+  border-color: rgba(52, 211, 153, 0.28);
+}
+
+.journey-status.current {
+  color: var(--accent-blue);
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.journey-status.queued {
+  color: var(--text-muted);
+  background: var(--bg-hover);
+  border-color: var(--bg-glass-border);
+}
+
+.journey-task-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.journey-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.journey-project {
+  padding: 1px 7px;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-full);
+  font-size: 10.5px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.journey-meta-dot {
+  opacity: 0.5;
+}
+
+.journey-card-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+}
+
+.journey-icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--bg-glass-border);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.journey-icon-btn:hover {
+  color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  background: rgba(56, 189, 248, 0.1);
+}
+
+.journey-complete-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--bg-glass-border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-family);
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.journey-complete-btn:hover {
+  color: var(--accent-green);
+  border-color: var(--accent-green);
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.journey-complete-btn.done {
+  color: var(--accent-green);
+  border-color: rgba(52, 211, 153, 0.35);
+  background: rgba(52, 211, 153, 0.1);
+}
+
+.journey-complete-btn.done:hover {
+  color: var(--accent-orange);
+  border-color: var(--accent-orange);
+  background: rgba(251, 146, 60, 0.1);
+}
+
+.journey-complete-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* ---- Quotes between nodes ---- */
+.journey-quote {
+  position: relative;
+  z-index: 1;
+  margin: 2px 0 14px 64px;
+  padding: 9px 14px 9px 16px;
+  border-left: 2px solid var(--accent-secondary);
+  background: rgba(45, 212, 191, 0.05);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.journey-quote p {
+  font-size: 12.5px;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.journey-quote cite {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+}
+
+.journey-empty {
+  gap: var(--space-sm);
+}
+
+.journey-empty-add {
+  margin-top: var(--space-sm);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 760px) {
+  .journey-progress-head {
+    flex-direction: column;
+  }
+
+  .journey-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+
+  .journey-card-actions {
+    align-self: flex-end;
+  }
+
+  .journey-task-title {
+    white-space: normal;
+  }
+}

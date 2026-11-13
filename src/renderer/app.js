@@ -16,6 +16,7 @@ import {
 // ---- Views ----
 import { renderDashboard, updateDashboardDate } from "./views/dashboard.js";
 import { renderSchedule } from "./views/schedule.js";
+import { renderJourney } from "./views/journey.js";
 import {
   initTimerControls,
   renderTimerView,
@@ -91,6 +92,7 @@ async function loadViewTemplates() {
   const views = [
     "dashboard",
     "schedule",
+    "journey",
     "calendar",
     "timer",
     "time-logs",
@@ -123,6 +125,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   registerViewRenderers({
     dashboard: renderDashboard,
     schedule: renderSchedule,
+    journey: renderJourney,
     calendar: renderCalendar,
     timer: renderTimerView,
     "time-logs": renderTimeLogs,

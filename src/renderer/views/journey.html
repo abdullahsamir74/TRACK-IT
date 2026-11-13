@@ -1,0 +1,60 @@
+<section id="view-journey" class="view">
+  <div class="view-header">
+    <div>
+      <h1>Daily Journey</h1>
+      <p class="view-subtitle" id="journey-subtitle">
+        Your day as a quest map — one node at a time.
+      </p>
+    </div>
+    <div class="view-actions">
+      <button class="btn btn-ghost btn-sm" id="btn-journey-refresh">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+        </svg>
+        Refresh
+      </button>
+      <button class="btn btn-accent btn-sm" id="btn-journey-add">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+        Add Task
+      </button>
+    </div>
+  </div>
+
+  <div class="journey-progress-card glass">
+    <div class="journey-progress-head">
+      <div>
+        <span class="journey-eyebrow">Quest Progress</span>
+        <div class="journey-progress-value">
+          <span class="journey-percent" id="journey-percent">0%</span>
+          <span class="journey-count" id="journey-count">0 of 0 tasks cleared</span>
+        </div>
+      </div>
+      <span class="journey-rank" id="journey-rank">Ready to begin</span>
+    </div>
+
+    <div
+      class="journey-progress-bar"
+      id="journey-progress"
+      role="progressbar"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuenow="0"
+      aria-label="Daily quest progress"
+    >
+      <div class="journey-progress-fill" id="journey-progress-fill"></div>
+    </div>
+
+    <p class="journey-progress-hint" id="journey-progress-hint">
+      Add a task to place the first node on your map.
+    </p>
+  </div>
+
+  <div class="journey-map" id="journey-map">
+    <div class="empty-state">
+      <p>Loading your journey...</p>
+    </div>
+  </div>
+</section>

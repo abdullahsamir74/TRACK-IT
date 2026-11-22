@@ -122,6 +122,13 @@
   opacity: 0.85;
 }
 
+.form-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
 /* --- Input Wrapper & Elements --- */
 .input-wrapper {
   position: relative;

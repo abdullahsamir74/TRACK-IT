@@ -2,7 +2,7 @@
    MODALS — Project (Create / Edit)
    ======================================== */
 
-import { setCustomProjects } from "../../state.js";
+import { getState, setCustomProjects, setWeeklyTargets } from "../../state.js";
 import { showToast } from "../toast.js";
 
 let projectModalInitialized = false;
@@ -23,6 +23,8 @@ export function initProjectModal() {
         "Create Project";
       document.getElementById("project-id").value = "";
       document.getElementById("project-name").value = "";
+      const targetInput = document.getElementById("project-target-hours");
+      if (targetInput) targetInput.value = "";
 
       const radios = document.getElementsByName("project-color");
       if (radios.length > 0) radios[0].checked = true;
@@ -55,16 +57,30 @@ export function initProjectModal() {
       e.preventDefault();
       const id = document.getElementById("project-id").value;
       const name = document.getElementById("project-name").value;
-      const color = document.querySelector(
-        'input[name="project-color"]:checked',
-      ).value;
+      const color =
+        document.querySelector('input[name="project-color"]:checked')?.value ||
+        "#38bdf8";
 
-      const project = { name, color };
+      const targetHours = parseFloat(
+        document.getElementById("project-target-hours")?.value || "0",
+      );
+
+      const project = { name, color, weeklyTargetHours: targetHours || 0 };
       if (id) project.id = id;
 
-      await window.tracker.saveProject(project);
+      const saved = await window.tracker.saveProject(project);
+      // Keep the settings-based target map (used by Analytics) in sync with
+      // the project record so both read the same weekly goal.
+      const targetKey = saved?.id || id;
+      if (targetKey) {
+        await window.tracker.saveWeeklyTarget(
+          targetKey,
+          targetHours > 0 ? targetHours : "",
+        );
+      }
 
       setCustomProjects(await window.tracker.getProjects());
+      setWeeklyTargets(await window.tracker.getWeeklyTargets());
       closeProjModal();
       showToast("Project saved! 📁", "success");
       const { renderProjects } = await import("../../views/projects.js");
@@ -82,11 +98,25 @@ export async function openEditProjectModal(project) {
   document.getElementById("project-id").value = project.id;
   document.getElementById("project-name").value = project.name;
 
+  const targetInput = document.getElementById("project-target-hours");
+  if (targetInput) {
+    const targets = getState().weeklyTargets || {};
+    const target =
+      targets[project.id] !== undefined
+        ? targets[project.id]
+        : project.weeklyTargetHours || 0;
+    targetInput.value = target > 0 ? target : "";
+  }
+
   const radio = document.querySelector(
     `input[name="project-color"][value="${project.color}"]`,
   );
   if (radio) {
     radio.checked = true;
+  } else {
+    // Fall back to the first preset when a project uses a custom color.
+    const radios = document.getElementsByName("project-color");
+    if (radios.length > 0) radios[0].checked = true;
   }
 
   projModalOverlay.style.display = "flex";

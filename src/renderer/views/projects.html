@@ -15,35 +15,107 @@
     </div>
   </div>
 
-  <!-- Compact Unassigned Tasks Drawer -->
-  <div class="kanban-unassigned-drawer glass" id="unassigned-pool-panel">
-    <div class="kanban-unassigned-header" id="unassigned-drawer-header">
-      <div class="kanban-unassigned-title-group">
-        <div class="kanban-unassigned-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-          </svg>
-        </div>
-        <span class="kanban-unassigned-label">Unassigned Tasks</span>
-        <span class="badge" id="unassigned-tasks-count">0</span>
-      </div>
-      <div class="kanban-unassigned-chevron" id="unassigned-chevron">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </div>
+  <!-- Projects toolbar: search, sort & view mode -->
+  <div class="projects-toolbar">
+    <div class="projects-search">
+      <svg class="projects-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <input
+        type="search"
+        id="projects-search"
+        placeholder="Search projects or tasks…"
+        aria-label="Search projects or tasks"
+        autocomplete="off"
+      />
     </div>
-    <div class="kanban-unassigned-body">
-      <div class="kanban-unassigned-scroll" id="unassigned-tasks-pool" data-project-id="unassigned">
-        <!-- Unassigned task cards -->
+
+    <div class="projects-toolbar-actions">
+      <select
+        id="projects-sort"
+        class="select-input projects-sort-select"
+        aria-label="Sort projects"
+        title="Sort projects"
+      >
+        <option value="manual">Manual order</option>
+        <option value="name">Name A–Z</option>
+        <option value="progress">Most complete</option>
+        <option value="hours">Most hours this week</option>
+      </select>
+
+      <div class="projects-view-toggle" role="group" aria-label="Projects view mode">
+        <button type="button" id="btn-projects-board" class="active" title="Board view" aria-label="Board view" aria-pressed="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="18" rx="1.5" />
+            <rect x="14" y="3" width="7" height="11" rx="1.5" />
+          </svg>
+        </button>
+        <button type="button" id="btn-projects-list" title="List view" aria-label="List view" aria-pressed="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="8" y1="6" x2="21" y2="6" />
+            <line x1="8" y1="12" x2="21" y2="12" />
+            <line x1="8" y1="18" x2="21" y2="18" />
+            <circle cx="3.5" cy="6" r="1" fill="currentColor" stroke="none" />
+            <circle cx="3.5" cy="12" r="1" fill="currentColor" stroke="none" />
+            <circle cx="3.5" cy="18" r="1" fill="currentColor" stroke="none" />
+          </svg>
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Kanban Board -->
-  <div class="kanban-board" id="kanban-board">
-    <div class="kanban-columns" id="projects-list-stack">
-      <!-- Dynamically rendered Kanban columns -->
+  <!-- Projects workspace: inbox rail + board -->
+  <div class="projects-workspace">
+    <!-- Unassigned Inbox Rail -->
+    <aside
+      class="unassigned-rail"
+      id="unassigned-pool-panel"
+      aria-label="Unassigned tasks"
+    >
+      <button
+        type="button"
+        class="unassigned-rail-header"
+        id="unassigned-drawer-header"
+        aria-expanded="true"
+        aria-controls="unassigned-tasks-pool"
+        title="Collapse unassigned tasks"
+      >
+        <span class="unassigned-rail-icon">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M22 12h-6l-2 3h-4l-2-3H2" />
+            <path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z" />
+          </svg>
+        </span>
+        <span class="unassigned-rail-title">Unassigned</span>
+        <span class="badge" id="unassigned-tasks-count">0</span>
+        <span class="unassigned-rail-chevron" aria-hidden="true">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </span>
+      </button>
+
+      <div class="unassigned-rail-subtitle">Drag a task onto a project</div>
+
+      <div class="unassigned-rail-body">
+        <div
+          class="unassigned-rail-list"
+          id="unassigned-tasks-pool"
+          data-project-id="unassigned"
+        >
+          <!-- Unassigned task cards -->
+        </div>
+      </div>
+
+      <div class="unassigned-rail-footer">Drop here to unassign</div>
+    </aside>
+
+    <!-- Kanban Board -->
+    <div class="kanban-board" id="kanban-board">
+      <div class="kanban-columns" id="projects-list-stack">
+        <!-- Dynamically rendered Kanban columns -->
+      </div>
     </div>
   </div>
 </section>

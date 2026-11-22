@@ -703,13 +703,61 @@
 /* ============================================================
    PROJECTS KANBAN — Light Mode Overrides
    ============================================================ */
-[data-theme="light"] .kanban-unassigned-drawer {
+[data-theme="light"] .unassigned-rail {
   background: #f4ebdc;
   border-color: #c8b092;
 }
 
-[data-theme="light"] .kanban-unassigned-drawer:hover {
+[data-theme="light"] .unassigned-rail:hover {
   border-color: #c3aa8a;
+}
+
+[data-theme="light"] .unassigned-rail-header {
+  border-bottom-color: #c8b092;
+}
+
+[data-theme="light"] .unassigned-rail-header:hover {
+  background: #efe3d0;
+}
+
+[data-theme="light"] .unassigned-rail-subtitle,
+[data-theme="light"] .unassigned-rail-footer,
+[data-theme="light"] .unassigned-rail-empty {
+  color: #7a6852;
+}
+
+[data-theme="light"] .unassigned-rail-footer {
+  border-top-color: #c8b092;
+}
+
+[data-theme="light"] .inbox-assign-btn {
+  border-color: #c8b092;
+  color: #5d4a35;
+}
+
+[data-theme="light"] .inbox-assign-btn:hover {
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+  background: rgba(138, 90, 43, 0.08);
+}
+
+[data-theme="light"] .assign-popover {
+  background: #f7efe3;
+  border-color: #c8b092;
+}
+
+[data-theme="light"] .assign-option:hover,
+[data-theme="light"] .assign-option:focus-visible {
+  background: #efe3d0;
+}
+
+[data-theme="light"] .assign-create {
+  border-color: #c8b092;
+  color: var(--accent-primary);
+}
+
+[data-theme="light"] .assign-create:hover {
+  background: #efe3d0;
 }
 
 [data-theme="light"] .kanban-column {
@@ -769,6 +817,57 @@
 }
 [data-theme="light"] .kanban-columns::-webkit-scrollbar-thumb:active {
   background: var(--accent-primary, #8a5a2b);
+}
+
+/* Projects toolbar & list view (Light Theme) */
+[data-theme="light"] .projects-search input,
+[data-theme="light"] .projects-view-toggle {
+  background: #f4ebdc;
+  border-color: #c8b092;
+}
+
+[data-theme="light"] .projects-search input:focus {
+  background: #f8f1e6;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(138, 90, 43, 0.12);
+}
+
+[data-theme="light"] .projects-search input::-webkit-search-cancel-button {
+  filter: invert(0.35);
+}
+
+[data-theme="light"] .projects-view-toggle button.active {
+  background: #d8c6ab;
+  color: #38291b;
+}
+
+[data-theme="light"] .kanban-target-bar {
+  background: #ccb697;
+}
+
+[data-theme="light"] .kanban-add-task:hover {
+  background: #d8c6ab;
+  border-color: #c3aa8a;
+}
+
+[data-theme="light"] .project-list-row {
+  background: #f4ebdc;
+  border-color: #c8b092;
+}
+
+[data-theme="light"] .project-list-row:hover {
+  background: #efe3d0;
+  border-color: #c3aa8a;
+}
+
+[data-theme="light"] .project-list-count {
+  background: #d8c6ab;
+  border-color: #c8b092;
+  color: #5d4a35;
+}
+
+[data-theme="light"] .project-list-bar {
+  background: #ccb697;
 }
 
 /* ============================================================

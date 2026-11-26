@@ -731,8 +731,9 @@
 }
 
 [data-theme="light"] .inbox-assign-btn {
-  border-color: #c8b092;
-  color: #5d4a35;
+  border-color: #a98a64;
+  background: #e9d7bb;
+  color: #3f2c1c;
 }
 
 [data-theme="light"] .inbox-assign-btn:hover {

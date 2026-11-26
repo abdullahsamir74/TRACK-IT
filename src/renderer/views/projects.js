@@ -41,6 +41,9 @@ function loadPrefs() {
     const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) || "{}");
     if (VIEW_MODES.includes(prefs.viewMode)) viewMode = prefs.viewMode;
     if (SORT_MODES.includes(prefs.sortMode)) sortMode = prefs.sortMode;
+    if (typeof prefs.railCollapsed === "boolean") {
+      getState().expandedProjects["unassigned"] = !prefs.railCollapsed;
+    }
   } catch {
     /* ignore malformed prefs */
   }
@@ -48,7 +51,15 @@ function loadPrefs() {
 
 function savePrefs() {
   try {
-    localStorage.setItem(PREFS_KEY, JSON.stringify({ viewMode, sortMode }));
+    localStorage.setItem(
+      PREFS_KEY,
+      JSON.stringify({
+        viewMode,
+        sortMode,
+        railCollapsed:
+          getState().expandedProjects["unassigned"] === false,
+      }),
+    );
   } catch {
     /* localStorage may be unavailable */
   }
@@ -255,6 +266,15 @@ export async function renderProjects() {
     state.expandedProjects["unassigned"] = true;
   }
 
+  // Match the board's search against inbox task names as well.
+  const visibleUnassigned = searchQuery
+    ? unassignedEvents.filter((event) =>
+        String(event.summary || "")
+          .toLowerCase()
+          .includes(searchQuery),
+      )
+    : unassignedEvents;
+
   closeAssignPopover();
   columnsContainer.innerHTML = "";
   columnsContainer.classList.toggle("list-view", viewMode === "list");
@@ -265,8 +285,8 @@ export async function renderProjects() {
   columnsContainer.dataset.draggable =
     sortMode === "manual" && !searchQuery ? "true" : "false";
 
-  // 1. Render compact unassigned tasks drawer
-  renderUnassignedDrawer(unassignedEvents, timerState);
+  // 1. Render compact unassigned inbox rail
+  renderUnassignedDrawer(visibleUnassigned, timerState);
 
   // 2. Filter + sort projects
   const visibleProjects = filterProjects(projects, projectTasks, searchQuery);
@@ -426,6 +446,7 @@ function renderUnassignedDrawer(unassignedEvents, timerState) {
       const collapsed = rail.classList.toggle("collapsed");
       // Read fresh state: updateState() replaces the state object.
       getState().expandedProjects["unassigned"] = !collapsed;
+      savePrefs();
       header.setAttribute("aria-expanded", String(!collapsed));
       header.setAttribute(
         "title",
@@ -973,13 +994,23 @@ function createColumnEmpty(projectId) {
 function createUnassignedEmpty() {
   const emptyEl = document.createElement("div");
   emptyEl.className = "unassigned-rail-empty";
-  emptyEl.innerHTML = `
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-      <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
-    <span>Inbox zero — every task has a project.</span>
-  `;
+  if (searchQuery) {
+    emptyEl.innerHTML = `
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+      </svg>
+      <span>No unassigned tasks match “${escapeHtml(searchQuery)}”.</span>
+    `;
+  } else {
+    emptyEl.innerHTML = `
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </svg>
+      <span>Inbox zero — every task has a project.</span>
+    `;
+  }
   return emptyEl;
 }
 
@@ -1113,7 +1144,7 @@ function refreshBoardSummaries() {
   if (pool) {
     const count = pool.querySelectorAll(".task-item").length;
     if (countBadge) countBadge.textContent = count;
-    const empty = pool.querySelector(".kanban-unassigned-empty");
+    const empty = pool.querySelector(".unassigned-rail-empty");
     if (count === 0 && !empty) {
       pool.appendChild(createUnassignedEmpty());
     } else if (count > 0 && empty) {

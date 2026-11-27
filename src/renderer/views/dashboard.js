@@ -322,14 +322,20 @@ export async function renderDashboard() {
     return eventDate === todayStr;
   });
 
+  // Breaks stay visible in the list but are excluded from analytics counts.
+  const countedTodayEvents = todayEvents.filter((e) => !e.isBreak);
+
   const sessions = await window.tracker.getAllSessions();
   const todaySessions = (sessions || []).filter((s) => {
-    return getLocalDateString(s.startTime) === todayStr;
+    return (
+      getLocalDateString(s.startTime) === todayStr &&
+      !state.trackedTasks[s.taskId]?.isBreak
+    );
   });
 
   // Stat cards
   const totalTasksEl = document.getElementById("stat-total-tasks");
-  if (totalTasksEl) totalTasksEl.textContent = todayEvents.length;
+  if (totalTasksEl) totalTasksEl.textContent = countedTodayEvents.length;
 
   const trackedToday = todaySessions.reduce(
     (sum, s) => sum + (s.durationMinutes || 0),
@@ -338,14 +344,14 @@ export async function renderDashboard() {
   const totalTimeEl = document.getElementById("stat-total-time");
   if (totalTimeEl) totalTimeEl.textContent = formatDuration(trackedToday);
 
-  const completedTodayCount = todayEvents.filter(
+  const completedTodayCount = countedTodayEvents.filter(
     (e) => state.trackedTasks[e.id]?.completed,
   ).length;
   const completedCountEl = document.getElementById("stat-completed-count");
   if (completedCountEl) completedCountEl.textContent = completedTodayCount;
 
   // Estimated total remaining for uncompleted tasks
-  const pendingTodayEvents = todayEvents.filter(
+  const pendingTodayEvents = countedTodayEvents.filter(
     (e) => !state.trackedTasks[e.id]?.completed,
   );
   const estimatedRemaining = pendingTodayEvents.reduce((sum, e) => {

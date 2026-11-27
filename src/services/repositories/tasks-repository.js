@@ -37,6 +37,7 @@ class TasksRepository extends BaseRepository {
             due: r.due_date || null,
             start: r.due_date || null,
             isAllDay: Boolean(r.is_all_day),
+            isBreak: Boolean(r.is_break),
             sortOrder: r.sort_order || 0,
             isManual,
             createdAt: r.created_at,
@@ -99,14 +100,19 @@ class TasksRepository extends BaseRepository {
           ? 1
           : 0
         : old?.is_all_day || 0,
+      task.isBreak !== undefined
+        ? task.isBreak
+          ? 1
+          : 0
+        : old?.is_break || 0,
       value("sortOrder", "sort_order", 0),
       old?.created_at || task.createdAt || now,
       now,
     ];
     await this.run(
-      `INSERT INTO tasks (id,name,description,notes,project_id,calendar_event_id,calendar_name,calendar_color,status,priority,estimate_minutes,manual_tracked_minutes,completed_at,due_date,is_all_day,sort_order,created_at,updated_at)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
-      ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,description=EXCLUDED.description,notes=EXCLUDED.notes,project_id=EXCLUDED.project_id,calendar_event_id=COALESCE(EXCLUDED.calendar_event_id,tasks.calendar_event_id),calendar_name=COALESCE(EXCLUDED.calendar_name,tasks.calendar_name),calendar_color=COALESCE(EXCLUDED.calendar_color,tasks.calendar_color),status=EXCLUDED.status,priority=EXCLUDED.priority,estimate_minutes=EXCLUDED.estimate_minutes,manual_tracked_minutes=EXCLUDED.manual_tracked_minutes,completed_at=EXCLUDED.completed_at,due_date=EXCLUDED.due_date,is_all_day=EXCLUDED.is_all_day,sort_order=EXCLUDED.sort_order,deleted_at=NULL,updated_at=EXCLUDED.updated_at`,
+      `INSERT INTO tasks (id,name,description,notes,project_id,calendar_event_id,calendar_name,calendar_color,status,priority,estimate_minutes,manual_tracked_minutes,completed_at,due_date,is_all_day,is_break,sort_order,created_at,updated_at)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
+      ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name,description=EXCLUDED.description,notes=EXCLUDED.notes,project_id=EXCLUDED.project_id,calendar_event_id=COALESCE(EXCLUDED.calendar_event_id,tasks.calendar_event_id),calendar_name=COALESCE(EXCLUDED.calendar_name,tasks.calendar_name),calendar_color=COALESCE(EXCLUDED.calendar_color,tasks.calendar_color),status=EXCLUDED.status,priority=EXCLUDED.priority,estimate_minutes=EXCLUDED.estimate_minutes,manual_tracked_minutes=EXCLUDED.manual_tracked_minutes,completed_at=EXCLUDED.completed_at,due_date=EXCLUDED.due_date,is_all_day=EXCLUDED.is_all_day,is_break=EXCLUDED.is_break,sort_order=EXCLUDED.sort_order,deleted_at=NULL,updated_at=EXCLUDED.updated_at`,
       values,
     );
     return (await this.getTasks())[id];

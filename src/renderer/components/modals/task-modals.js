@@ -7,12 +7,55 @@ import {
   setTrackedTasks,
   renderCurrentView,
 } from "../../state.js";
-import { getLocalDateString, getLocalTimeString } from "../../utils.js";
+import {
+  getLocalDateString,
+  getLocalTimeString,
+  formatTimeRange,
+} from "../../utils.js";
 import { attachPickersToInputs } from "../custom-pickers.js";
 import { showToast } from "../toast.js";
-import { closeModals, syncPriorityPills } from "./helpers.js";
+import {
+  closeModals,
+  syncPriorityPills,
+  syncTypePills,
+} from "./helpers.js";
 
 // ---- Add Task Modal ----
+
+// Keep the start–end range summary in sync while creating a calendar event.
+export function updateTaskRangeHint() {
+  const hint = document.getElementById("task-range-hint");
+  if (!hint) return;
+
+  if (hint.dataset.active !== "true") {
+    hint.style.display = "none";
+    return;
+  }
+
+  const isAllDay = Boolean(document.getElementById("task-all-day")?.checked);
+  const time = document.getElementById("task-time")?.value;
+  if (isAllDay || !time) {
+    hint.style.display = "none";
+    return;
+  }
+
+  const [h, m] = time.split(":").map(Number);
+  if (Number.isNaN(h) || Number.isNaN(m)) {
+    hint.style.display = "none";
+    return;
+  }
+
+  const parsed = parseInt(document.getElementById("task-estimate")?.value, 10);
+  const duration = !Number.isNaN(parsed) && parsed > 0 ? parsed : 60;
+  const startMins = h * 60 + m;
+
+  const textEl = document.getElementById("task-range-hint-text");
+  if (textEl) {
+    textEl.textContent = `${formatTimeRange(startMins, startMins + duration)} · ${duration} min`;
+  }
+  hint.style.display = "flex";
+}
+
 export function openAddTaskModal(
   prefilledDate,
   prefilledProjectId = null,
@@ -59,6 +102,11 @@ export function openAddTaskModal(
     taskTimeWrap.style.pointerEvents = isAllDayPrefill ? "none" : "auto";
   }
 
+  // Only surface the start–end summary for calendar drag-created tasks.
+  const rangeHint = document.getElementById("task-range-hint");
+  if (rangeHint) rangeHint.dataset.active = endTime ? "true" : "false";
+  updateTaskRangeHint();
+
   const notesEl = document.getElementById("task-notes");
   if (notesEl) notesEl.value = "";
 
@@ -81,6 +129,7 @@ export function openAddTaskModal(
   }
 
   syncPriorityPills("task", "medium");
+  syncTypePills("task", opts.isBreak ? "break" : "task");
   attachPickersToInputs();
   document.getElementById("modal-overlay").style.display = "flex";
 
@@ -107,6 +156,7 @@ export async function handleAddTask(e) {
   const priority = document.getElementById("task-priority").value;
   const projectId = document.getElementById("task-project")?.value || null;
   const notes = document.getElementById("task-notes")?.value.trim() || "";
+  const isBreak = document.getElementById("task-type")?.value === "break";
 
   if (!name || !date) return;
   if (!isAllDay && !time) return;
@@ -135,6 +185,7 @@ export async function handleAddTask(e) {
     description: notes,
     isManual: true,
     isAllDay,
+    isBreak,
     createdAt: new Date().toISOString(),
   };
 
@@ -206,6 +257,8 @@ export function openEditTaskModal(task) {
     priorityInput.value = task.priority || "medium";
     syncPriorityPills("edit-task", task.priority || "medium");
   }
+
+  syncTypePills("edit-task", task.isBreak ? "break" : "task");
 
   const state = getState();
   const projSelect = document.getElementById("edit-task-project");
@@ -302,6 +355,7 @@ export async function handleEditTask(e) {
   const priority = document.getElementById("edit-task-priority").value;
   const projectId = document.getElementById("edit-task-project")?.value || null;
   const notes = document.getElementById("edit-task-notes")?.value.trim() || "";
+  const isBreak = document.getElementById("edit-task-type")?.value === "break";
 
   if (isManual) {
     if (!name || !date) return;
@@ -327,6 +381,7 @@ export async function handleEditTask(e) {
       description: notes,
       isManual: true,
       isAllDay,
+      isBreak,
       updatedAt: new Date().toISOString(),
     };
 
@@ -339,6 +394,7 @@ export async function handleEditTask(e) {
       projectId,
       notes,
       description: notes,
+      isBreak,
       updatedAt: new Date().toISOString(),
     };
     await window.tracker.saveTask(task);

@@ -8,6 +8,7 @@ import {
   closeModals,
   setupPrioritySelector,
   syncPriorityPills,
+  setupTypeToggle,
   setupDurationPresets,
 } from "./modals/helpers.js";
 
@@ -18,6 +19,7 @@ import {
   handleSetEstimate,
   openEditTaskModal,
   handleEditTask,
+  updateTaskRangeHint,
 } from "./modals/task-modals.js";
 
 import {
@@ -85,6 +87,28 @@ export function initModals() {
   setupPrioritySelector("task");
   setupPrioritySelector("edit-task");
 
+  // Task / Break type toggles
+  setupTypeToggle("task");
+  setupTypeToggle("edit-task");
+
+  // Prefill (and clear) a sensible name when toggling a new event to Break.
+  document
+    .getElementById("task-type-selector")
+    ?.addEventListener("click", (e) => {
+      const pill = e.target.closest(".type-pill");
+      const nameInput = document.getElementById("task-name");
+      if (!pill || !nameInput) return;
+
+      if (pill.dataset.value === "break" && !nameInput.value.trim()) {
+        nameInput.value = "Break";
+      } else if (
+        pill.dataset.value === "task" &&
+        nameInput.value.trim() === "Break"
+      ) {
+        nameInput.value = "";
+      }
+    });
+
   // Duration presets setup
   setupDurationPresets("task");
   setupDurationPresets("edit-task");
@@ -108,6 +132,17 @@ export function initModals() {
       }
     });
   }
+
+  // Keep the calendar start–end summary live while editing the time/estimate.
+  ["task-time", "task-estimate", "task-all-day"].forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener("input", updateTaskRangeHint);
+    el.addEventListener("change", updateTaskRangeHint);
+  });
+  document
+    .getElementById("task-duration-presets")
+    ?.addEventListener("click", () => setTimeout(updateTaskRangeHint, 0));
 
   const editTaskAllDay = document.getElementById("edit-task-all-day");
   const editTaskTime = document.getElementById("edit-task-time");

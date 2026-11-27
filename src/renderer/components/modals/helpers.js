@@ -56,6 +56,37 @@ export function syncPriorityPills(prefix, value) {
   });
 }
 
+// ---- Task / Break Type Toggle ----
+export function setupTypeToggle(prefix) {
+  const container = document.getElementById(`${prefix}-type-selector`);
+  if (!container) return;
+  const input = document.getElementById(`${prefix}-type`);
+  const pills = container.querySelectorAll(".type-pill");
+
+  pills.forEach((pill) => {
+    pill.addEventListener("click", () => {
+      const value = pill.getAttribute("data-value");
+      if (input) input.value = value;
+      pills.forEach((p) => p.classList.remove("active"));
+      pill.classList.add("active");
+    });
+  });
+}
+
+export function syncTypePills(prefix, value) {
+  const container = document.getElementById(`${prefix}-type-selector`);
+  if (!container) return;
+  const input = document.getElementById(`${prefix}-type`);
+  const normalized = value === "break" ? "break" : "task";
+  if (input) input.value = normalized;
+  container.querySelectorAll(".type-pill").forEach((pill) => {
+    pill.classList.toggle(
+      "active",
+      pill.getAttribute("data-value") === normalized,
+    );
+  });
+}
+
 export function setupDurationPresets(prefix) {
   const container = document.getElementById(`${prefix}-duration-presets`);
   if (!container) return;

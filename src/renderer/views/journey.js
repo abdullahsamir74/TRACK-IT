@@ -438,7 +438,9 @@ export async function renderJourney() {
   const todayEvents = getCombinedEvents(
     state.calendarEvents,
     state.trackedTasks,
-  ).filter((event) => getLocalDateString(event.start) === todayStr);
+  ).filter(
+    (event) => getLocalDateString(event.start) === todayStr && !event.isBreak,
+  );
 
   // Match the Schedule view ordering (manual order by default).
   sortEvents(todayEvents, state);

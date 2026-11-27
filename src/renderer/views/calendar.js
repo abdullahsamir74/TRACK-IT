@@ -4,7 +4,11 @@
 
 import { getState, setTrackedTasks } from "../state.js";
 import { openAddTaskModal } from "../components/modals.js";
-import { getLocalDateString, getCombinedEvents } from "../utils.js";
+import {
+  getLocalDateString,
+  getCombinedEvents,
+  formatTimeRange,
+} from "../utils.js";
 
 let viewDate = new Date();
 let currentWeekDates = [];
@@ -51,6 +55,24 @@ function roundTo15(m) {
 
 function minutesToTime(m) {
   return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+}
+
+// Position the drag-creation overlay and keep its start–end label in sync.
+function positionSelection(sel, startMins, endMins) {
+  if (!sel) return;
+
+  const top = (startMins / 15) * 20;
+  sel.style.top = `${top}px`;
+  sel.style.height = `${((endMins - startMins) / 15) * 20}px`;
+  sel.style.display = "block";
+
+  const label = sel.querySelector(".week-selection-label");
+  if (label) {
+    label.textContent = formatTimeRange(startMins, endMins);
+    // Flip the floating label inside the selection when it would be clipped
+    // by the top edge of the scrollable grid.
+    sel.classList.toggle("label-inside", top < 28);
+  }
 }
 
 export async function renderCalendar() {
@@ -139,19 +161,26 @@ export async function renderCalendar() {
       const eMins = end.getHours() * 60 + end.getMinutes();
       const height = Math.max(8, eMins - sMins);
 
+      const tracked = state.trackedTasks[ev.id];
+      const isBreak = Boolean(ev.isBreak || tracked?.isBreak);
       const readOnly = !ev.isManual && ev.calendarEventId;
-      evEl.className = "week-event" + (readOnly ? " readonly" : " draggable");
+      evEl.className =
+        "week-event" +
+        (readOnly ? " readonly" : " draggable") +
+        (isBreak ? " is-break" : "");
       evEl.style.top = `${(sMins / 15) * 20}px`;
       evEl.style.height = `${(height / 15) * 20}px`;
 
-      const name = ev.summary || state.trackedTasks[ev.id]?.name || "Untitled";
+      const name = ev.summary || tracked?.name || "Untitled";
       const timeText = ev.isAllDay ? "All Day" : `${formatShort(start)} – ${formatShort(end)}`;
-      const isCompleted = state.trackedTasks[ev.id]?.completed || state.trackedTasks[ev.id]?.status === "completed";
+      const isCompleted = tracked?.completed || tracked?.status === "completed";
+      const showBreakBadge =
+        isBreak && name.trim().toLowerCase() !== "break";
 
       evEl.innerHTML = `
         <div class="event-checkbox" title="Toggle completed"></div>
         <div class="event-content">
-          <div class="event-name">${escapeHtml(name)}</div>
+          <div class="event-name">${showBreakBadge ? `<span class="event-break-badge">Break</span>` : ""}${escapeHtml(name)}</div>
           <div class="event-time">${escapeHtml(timeText)}</div>
         </div>
         <div class="event-resize-handle"></div>
@@ -167,6 +196,7 @@ export async function renderCalendar() {
     const sel = document.createElement("div");
     sel.className = "week-selection";
     sel.style.display = "none";
+    sel.innerHTML = `<span class="week-selection-label"></span>`;
     col.appendChild(sel);
 
     // Current time indicator (only on today's column)
@@ -295,11 +325,7 @@ function onPointerDown(e) {
 
     drag = { type: "create", startDayIdx: dayIdx, startMins: rounded, endMins: rounded + 15, sel };
 
-    if (sel) {
-      sel.style.top = `${(rounded / 15) * 20}px`;
-      sel.style.height = "20px";
-      sel.style.display = "block";
-    }
+    positionSelection(sel, rounded, rounded + 15);
   }
 }
 
@@ -330,8 +356,7 @@ function onPointerMove(e) {
     drag.endMins = mins;
     const s = Math.min(drag.startMins, mins);
     const en = Math.max(drag.startMins, mins);
-    drag.sel.style.top = `${(s / 15) * 20}px`;
-    drag.sel.style.height = `${((en - s) / 15) * 20}px`;
+    positionSelection(drag.sel, s, en);
   }
 }
 

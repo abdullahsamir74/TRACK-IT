@@ -18,6 +18,35 @@ export function formatDuration(minutes) {
 }
 
 /**
+ * Format a minute-of-day range as a readable start–end time range.
+ * @param {number} startMins minutes from midnight
+ * @param {number} endMins minutes from midnight
+ * @returns {string} e.g. "9:00 – 10:30 AM"
+ */
+export function formatTimeRange(startMins, endMins) {
+  const fmt = (mins) => {
+    const total = ((Math.round(mins) % 1440) + 1440) % 1440;
+    const h = Math.floor(total / 60);
+    const m = total % 60;
+    return {
+      h12: h % 12 || 12,
+      mm: String(m).padStart(2, "0"),
+      ampm: h >= 12 ? "PM" : "AM",
+    };
+  };
+
+  const s = fmt(startMins);
+  const e = fmt(endMins);
+  const startStr = `${s.h12}:${s.mm}`;
+  const endStr = `${e.h12}:${e.mm}`;
+
+  // Avoid repeating the meridiem when both ends fall in the same half of the day.
+  return s.ampm === e.ampm
+    ? `${startStr} – ${endStr} ${e.ampm}`
+    : `${startStr} ${s.ampm} – ${endStr} ${e.ampm}`;
+}
+
+/**
  * Escape HTML special characters to prevent XSS.
  * @param {any} text
  * @returns {string}
@@ -91,13 +120,19 @@ export function getLocalTimeString(date) {
  * @returns {Array} normalized events
  */
 export function getCombinedEvents(calendarEvents, trackedTasks) {
-  // Filter out any calendar events that have been deleted in trackedTasks
-  const filteredCalendarEvents = (calendarEvents || []).filter((item) => {
-    const task = trackedTasks[item.id];
-    return !task || (!task.deleted && !task.deletedAt);
-  });
+  const allEvents = [];
 
-  const allEvents = [...filteredCalendarEvents];
+  // Copy calendar events, merging app-side annotations (e.g. break labels)
+  // and filtering out any that have been deleted in trackedTasks.
+  (calendarEvents || []).forEach((item) => {
+    const task = trackedTasks?.[item.id];
+    if (task && (task.deleted || task.deletedAt)) return;
+
+    allEvents.push({
+      ...item,
+      isBreak: Boolean(task?.isBreak ?? item.isBreak),
+    });
+  });
 
   Object.values(trackedTasks || {}).forEach((task) => {
     const isManual = Boolean(
@@ -122,6 +157,7 @@ export function getCombinedEvents(calendarEvents, trackedTasks) {
           calendarName: task.calendarName || "Manual",
           isManual: true,
           isAllDay: Boolean(task.isAllDay),
+          isBreak: Boolean(task.isBreak),
         });
       }
     }

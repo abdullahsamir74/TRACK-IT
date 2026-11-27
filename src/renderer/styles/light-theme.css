@@ -125,7 +125,8 @@
 }
 
 /* --- Priority Selector --- */
-[data-theme="light"] .priority-selector {
+[data-theme="light"] .priority-selector,
+[data-theme="light"] .type-selector {
   background: #d8c6ab;
   border: 1px solid #c0a888;
 }
@@ -583,6 +584,12 @@
   background: rgba(138, 90, 43, 0.18);
 }
 
+[data-theme="light"] .week-selection-label {
+  background: #8a5a2b;
+  color: #fff8ef;
+  box-shadow: 0 2px 6px rgba(56, 41, 27, 0.28);
+}
+
 [data-theme="light"] .week-event {
   border-color: rgba(138, 90, 43, 0.3);
   background: linear-gradient(
@@ -601,6 +608,20 @@
     rgba(154, 118, 73, 0.14)
   );
   border-color: rgba(154, 118, 73, 0.45);
+}
+
+[data-theme="light"] .week-event.is-break {
+  background: linear-gradient(
+    135deg,
+    rgba(22, 163, 74, 0.28),
+    rgba(22, 163, 74, 0.14)
+  );
+  border-color: rgba(22, 163, 74, 0.5);
+}
+
+[data-theme="light"] .event-break-badge {
+  background: #16a34a;
+  color: #f0fdf4;
 }
 
 [data-theme="light"] .week-event .event-time {

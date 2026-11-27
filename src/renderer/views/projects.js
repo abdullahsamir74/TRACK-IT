@@ -250,12 +250,12 @@ export async function renderProjects() {
   allEvents.forEach((event) => {
     const task = state.trackedTasks[event.id] || {};
     if (task.projectId && state.customProjects[task.projectId]) {
-      projectAllTasks[task.projectId].total++;
-      if (task.completed) {
-        projectAllTasks[task.projectId].completed++;
-      } else {
-        projectTasks[task.projectId].push(event);
+      // Break cards stay visible, but don't count toward project completion.
+      if (!event.isBreak) {
+        projectAllTasks[task.projectId].total++;
+        if (task.completed) projectAllTasks[task.projectId].completed++;
       }
+      if (!task.completed) projectTasks[task.projectId].push(event);
     } else if (!task.completed) {
       unassignedEvents.push(event);
     }

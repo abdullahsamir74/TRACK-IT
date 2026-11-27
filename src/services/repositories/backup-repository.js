@@ -103,6 +103,7 @@ class BackupRepository extends BaseRepository {
           "completed_at",
           "due_date",
           "is_all_day",
+          "is_break",
           "sort_order",
           "deleted_at",
           "created_at",

@@ -201,6 +201,13 @@
   background: var(--bg-hover);
   color: var(--text-primary);
 }
+.task-badge.break-badge {
+  background: rgba(52, 211, 153, 0.14);
+  color: var(--accent-green, #34d399);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
 .task-badge.task-notes-badge {
   background: rgba(168, 85, 247, 0.12);
   color: #c084fc;

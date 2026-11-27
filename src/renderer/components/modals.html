@@ -51,6 +51,25 @@
           </div>
         </div>
       </div>
+      <div class="task-range-hint" id="task-range-hint" style="display: none">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+        <span id="task-range-hint-text"></span>
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <div class="type-selector" id="task-type-selector">
+          <button type="button" class="type-pill type-task active" data-value="task">
+            <span class="dot"></span>Task
+          </button>
+          <button type="button" class="type-pill type-break" data-value="break">
+            <span class="dot"></span>Break
+          </button>
+        </div>
+        <input type="hidden" id="task-type" value="task" />
+      </div>
       <div class="form-group">
         <label for="task-project">Project (Optional)</label>
         <select id="task-project" class="select-input">
@@ -170,6 +189,18 @@
             <input type="time" id="edit-task-time" required />
           </div>
         </div>
+      </div>
+      <div class="form-group">
+        <label>Type</label>
+        <div class="type-selector" id="edit-task-type-selector">
+          <button type="button" class="type-pill type-task active" data-value="task">
+            <span class="dot"></span>Task
+          </button>
+          <button type="button" class="type-pill type-break" data-value="break">
+            <span class="dot"></span>Break
+          </button>
+        </div>
+        <input type="hidden" id="edit-task-type" value="task" />
       </div>
       <div class="form-group">
         <label for="edit-task-project">Project (Optional)</label>

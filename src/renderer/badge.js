@@ -133,7 +133,7 @@ export function calculateTodayTaskCount(events, tasks, mode = null) {
 
   const todayEvents = allCombined.filter((e) => {
     const eventDate = getLocalDateString(e.start);
-    return eventDate === todayStr;
+    return eventDate === todayStr && !e.isBreak;
   });
 
   if (badgeMode === "all") {

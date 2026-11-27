@@ -134,7 +134,34 @@
   background: rgba(56, 189, 248, 0.18);
   border-radius: 4px;
   pointer-events: none;
-  z-index: 5;
+  z-index: 30;
+  overflow: visible;
+}
+
+.week-selection-label {
+  position: absolute;
+  bottom: 100%;
+  left: -1px;
+  margin-bottom: 3px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--accent-blue, #38bdf8);
+  color: #04121c;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+}
+
+/* Keep the label readable when the selection is near the top edge. */
+.week-selection.label-inside .week-selection-label {
+  bottom: auto;
+  top: 2px;
+  margin-bottom: 0;
+  left: 2px;
 }
 
 .week-event {
@@ -163,6 +190,26 @@
 .week-event.readonly {
   background: linear-gradient(135deg, rgba(148, 163, 184, 0.22), rgba(148, 163, 184, 0.12));
   border-color: rgba(148, 163, 184, 0.4);
+}
+
+/* Break events get a distinct green treatment and label. */
+.week-event.is-break {
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.3), rgba(52, 211, 153, 0.14));
+  border-color: rgba(52, 211, 153, 0.5);
+}
+
+.event-break-badge {
+  display: inline-block;
+  margin-right: 4px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: var(--accent-green, #34d399);
+  color: #04121c;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  vertical-align: middle;
 }
 
 .week-event .event-content {

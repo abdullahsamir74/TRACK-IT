@@ -66,6 +66,7 @@ class AnalyticsService {
       LEFT JOIN tasks t ON te.task_id = t.id
       LEFT JOIN projects p ON COALESCE(te.project_id, t.project_id) = p.id
       WHERE te.start_time >= $1 AND te.start_time <= $2
+        AND COALESCE(t.is_break, 0) = 0
       ORDER BY te.start_time ASC
     `;
     const filteredEntries = (
@@ -228,6 +229,7 @@ class AnalyticsService {
       SELECT id, status, completed_at, created_at, due_date
       FROM tasks
       WHERE deleted_at IS NULL
+        AND COALESCE(is_break, 0) = 0
         AND (
           (due_date >= $1 AND due_date <= $2)
           OR (created_at >= $3 AND created_at <= $4)
@@ -275,9 +277,11 @@ class AnalyticsService {
     const allYearEntries = (
       await this.db.query(
         `
-      SELECT start_time, duration_minutes 
-      FROM time_entries 
-      WHERE start_time >= $1
+      SELECT te.start_time, te.duration_minutes
+      FROM time_entries te
+      LEFT JOIN tasks t ON te.task_id = t.id
+      WHERE te.start_time >= $1
+        AND COALESCE(t.is_break, 0) = 0
     `,
         [yearAgo.toISOString()],
       )
@@ -307,6 +311,7 @@ class AnalyticsService {
       FROM time_entries te
       LEFT JOIN tasks t ON te.task_id = t.id
       WHERE te.start_time >= $1
+        AND COALESCE(t.is_break, 0) = 0
     `,
         [curWeekStart.toISOString()],
       )
@@ -351,7 +356,11 @@ class AnalyticsService {
   async _computeStreak() {
     const activeEntries = (
       await this.db.query(
-        "SELECT start_time FROM time_entries WHERE duration_minutes > 0",
+        `SELECT te.start_time
+         FROM time_entries te
+         LEFT JOIN tasks t ON te.task_id = t.id
+         WHERE te.duration_minutes > 0
+           AND COALESCE(t.is_break, 0) = 0`,
       )
     ).rows;
     const allDatesWithActivity = new Set(
@@ -410,7 +419,9 @@ class AnalyticsService {
         `
       SELECT te.duration_minutes, te.task_id
       FROM time_entries te
+      LEFT JOIN tasks t ON te.task_id = t.id
       WHERE te.start_time >= $1 AND te.start_time <= $2
+        AND COALESCE(t.is_break, 0) = 0
     `,
         [startIso, endIso],
       )
@@ -426,6 +437,7 @@ class AnalyticsService {
         `
       SELECT id FROM tasks
       WHERE deleted_at IS NULL
+        AND COALESCE(is_break, 0) = 0
         AND status = 'completed'
         AND completed_at >= $1 AND completed_at <= $2
     `,

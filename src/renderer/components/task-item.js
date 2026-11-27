@@ -34,6 +34,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
   item.dataset.taskId = event.id;
 
   const isAllDay = Boolean(task.isAllDay || event.isAllDay);
+  const isBreak = Boolean(task.isBreak || event.isBreak);
   const startTime = new Date(event.start);
   const timeStr = isAllDay
     ? "All Day"
@@ -81,6 +82,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
   );
 
   const taskTitle = (event.summary || task.name || "Untitled Task").trim();
+  const showBreakBadge = isBreak && taskTitle.toLowerCase() !== "break";
 
   item.innerHTML = `
     ${
@@ -104,6 +106,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
       </div>
     </div>
     <div class="task-badges">
+      ${showBreakBadge ? `<span class="task-badge break-badge">Break</span>` : ""}
       ${projectBadge}
       ${priorityBadge}
       ${notesBadge}
@@ -128,7 +131,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
       <button class="task-action-btn" title="Set estimate" data-action="estimate" data-task-id="${event.id}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       </button>
-      <button class="task-action-btn" title="Edit task" data-action="edit" data-task-id="${event.id}" data-task-name="${escapeHtml(taskTitle)}" data-task-start="${event.start || ""}" data-task-estimate="${estimate || ""}" data-task-priority="${task.priority || "medium"}" data-task-manual="${isManual}" data-task-all-day="${isAllDay ? "true" : "false"}">
+      <button class="task-action-btn" title="Edit task" data-action="edit" data-task-id="${event.id}" data-task-name="${escapeHtml(taskTitle)}" data-task-start="${event.start || ""}" data-task-estimate="${estimate || ""}" data-task-priority="${task.priority || "medium"}" data-task-manual="${isManual}" data-task-all-day="${isAllDay ? "true" : "false"}" data-task-break="${isBreak ? "true" : "false"}">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       </button>
       <button class="task-action-btn task-action-btn-danger" title="Delete task" data-action="delete" data-task-id="${event.id}" data-task-name="${escapeHtml(taskTitle)}">
@@ -212,6 +215,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
             : null,
           isManual: btn.dataset.taskManual === "true" || isManual,
           isAllDay: btn.dataset.taskAllDay === "true" || isAllDay,
+          isBreak: btn.dataset.taskBreak === "true" || isBreak,
           priority: btn.dataset.taskPriority || "medium",
           projectId: (getState().trackedTasks[btn.dataset.taskId] && getState().trackedTasks[btn.dataset.taskId].projectId) || task.projectId || null,
           notes: notes,
@@ -296,6 +300,7 @@ export function createTaskItem(event, draggable = false, timerState = null) {
       estimate: estimate,
       isManual: isManual,
       isAllDay: isAllDay,
+      isBreak: isBreak,
       priority: task.priority || "medium",
       projectId: (getState().trackedTasks[event.id] && getState().trackedTasks[event.id].projectId) || task.projectId || null,
       notes: notes,

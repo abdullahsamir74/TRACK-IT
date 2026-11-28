@@ -9,6 +9,7 @@ import {
   setupPrioritySelector,
   syncPriorityPills,
   setupTypeToggle,
+  applyTypeFieldState,
   setupDurationPresets,
 } from "./modals/helpers.js";
 
@@ -88,8 +89,12 @@ export function initModals() {
   setupPrioritySelector("edit-task");
 
   // Task / Break type toggles
-  setupTypeToggle("task");
-  setupTypeToggle("edit-task");
+  setupTypeToggle("task", (value) =>
+    applyTypeFieldState("task", value === "break"),
+  );
+  setupTypeToggle("edit-task", (value) =>
+    applyTypeFieldState("edit-task", value === "break"),
+  );
 
   // Prefill (and clear) a sensible name when toggling a new event to Break.
   document

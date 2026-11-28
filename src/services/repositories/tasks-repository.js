@@ -28,7 +28,7 @@ class TasksRepository extends BaseRepository {
             calendarColor: r.calendar_color || (isManual ? "#38bdf8" : null),
             completed: r.status === "completed",
             status: r.status || "todo",
-            priority: r.priority || "medium",
+            priority: r.is_break ? null : r.priority || "medium",
             estimateMinutes: r.estimate_minutes || null,
             totalTrackedMinutes:
               Math.round(Number(r.totalTrackedMinutes || 0) * 10) / 10,
@@ -76,6 +76,12 @@ class TasksRepository extends BaseRepository {
         : old?.completed_at || null;
     if (status === "completed" && !completedAt) completedAt = now;
     if (status !== "completed") completedAt = null;
+    const isBreak =
+      task.isBreak !== undefined ? Boolean(task.isBreak) : Boolean(old?.is_break);
+    // Breaks never carry a task priority.
+    const priority = isBreak
+      ? null
+      : value("priority", "priority", "medium");
     const values = [
       id,
       value("name", "name", "Untitled Task"),
@@ -86,7 +92,7 @@ class TasksRepository extends BaseRepository {
       value("calendarName", "calendar_name"),
       value("calendarColor", "calendar_color"),
       status,
-      value("priority", "priority", "medium"),
+      priority,
       value("estimateMinutes", "estimate_minutes"),
       value("manualTrackedMinutes", "manual_tracked_minutes", 0),
       completedAt,

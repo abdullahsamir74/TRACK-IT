@@ -54,14 +54,14 @@ export function createTaskItem(event, draggable = false, timerState = null) {
     timerState.taskId === event.id &&
     !timerState.paused;
 
-  const project = task.projectId ? getState().customProjects[task.projectId] : null;
+  const project = !isBreak && task.projectId ? getState().customProjects[task.projectId] : null;
   const safeProjectColor = project ? sanitizeColor(project.color, "#38bdf8") : null;
   const projectBadge = project
     ? `<span class="task-project-badge" style="color: ${safeProjectColor}; border-color: ${safeProjectColor};">${escapeHtml(project.name)}</span>`
     : "";
 
   let priorityBadge = "";
-  if (task.priority) {
+  if (task.priority && !isBreak) {
     const p = task.priority.toLowerCase();
     let label = "Medium";
     if (p === "high") label = "High";

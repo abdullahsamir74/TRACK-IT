@@ -160,6 +160,9 @@ export async function renderCalendar() {
       const sMins = start.getHours() * 60 + start.getMinutes();
       const eMins = end.getHours() * 60 + end.getMinutes();
       const height = Math.max(8, eMins - sMins);
+      // Compact variants keep short events (e.g. 15–30 min breaks) readable.
+      const isShort = height <= 30;
+      const isTiny = height <= 20;
 
       const tracked = state.trackedTasks[ev.id];
       const isBreak = Boolean(ev.isBreak || tracked?.isBreak);
@@ -167,7 +170,9 @@ export async function renderCalendar() {
       evEl.className =
         "week-event" +
         (readOnly ? " readonly" : " draggable") +
-        (isBreak ? " is-break" : "");
+        (isBreak ? " is-break" : "") +
+        (isShort ? " is-short" : "") +
+        (isTiny ? " is-tiny" : "");
       evEl.style.top = `${(sMins / 15) * 20}px`;
       evEl.style.height = `${(height / 15) * 20}px`;
 

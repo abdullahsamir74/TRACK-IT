@@ -168,6 +168,9 @@
   position: absolute;
   left: 2px;
   right: 2px;
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
   border-radius: 4px;
   padding: 3px 5px;
   overflow: hidden;
@@ -192,10 +195,10 @@
   border-color: rgba(148, 163, 184, 0.4);
 }
 
-/* Break events get a distinct green treatment and label. */
+/* Break events get a distinct cool violet treatment and label. */
 .week-event.is-break {
-  background: linear-gradient(135deg, rgba(52, 211, 153, 0.3), rgba(52, 211, 153, 0.14));
-  border-color: rgba(52, 211, 153, 0.5);
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.32), rgba(167, 139, 250, 0.14));
+  border-color: rgba(167, 139, 250, 0.55);
 }
 
 .event-break-badge {
@@ -203,13 +206,54 @@
   margin-right: 4px;
   padding: 0 4px;
   border-radius: 3px;
-  background: var(--accent-green, #34d399);
-  color: #04121c;
+  background: var(--accent-violet, #a78bfa);
+  color: #1b1033;
   font-size: 8px;
   font-weight: 800;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   vertical-align: middle;
+}
+
+/* Short events (<= 30 min) keep the checkbox and label on one tidy row. */
+.week-event.is-short {
+  align-items: center;
+  gap: 3px;
+  padding: 2px 5px;
+}
+
+.week-event.is-short .event-checkbox {
+  width: 12px;
+  height: 12px;
+  margin-top: 0;
+}
+
+/* Tiny events (<= 20 min) drop the time line to avoid clipping. */
+.week-event.is-tiny {
+  padding: 0 4px;
+  font-size: 10px;
+  line-height: 1.1;
+}
+
+.week-event.is-tiny .event-checkbox {
+  width: 9px;
+  height: 9px;
+  border-width: 1px;
+}
+
+.week-event.is-tiny .event-checkbox::after {
+  width: 3px;
+  height: 6px;
+}
+
+.week-event.is-tiny .event-time {
+  display: none;
+}
+
+.week-event.is-tiny .event-break-badge {
+  margin-right: 3px;
+  padding: 0 3px;
+  font-size: 7px;
 }
 
 .week-event .event-content {

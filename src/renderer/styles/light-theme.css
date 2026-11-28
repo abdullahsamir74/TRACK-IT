@@ -613,15 +613,15 @@
 [data-theme="light"] .week-event.is-break {
   background: linear-gradient(
     135deg,
-    rgba(22, 163, 74, 0.28),
-    rgba(22, 163, 74, 0.14)
+    rgba(109, 91, 208, 0.26),
+    rgba(109, 91, 208, 0.12)
   );
-  border-color: rgba(22, 163, 74, 0.5);
+  border-color: rgba(109, 91, 208, 0.5);
 }
 
 [data-theme="light"] .event-break-badge {
-  background: #16a34a;
-  color: #f0fdf4;
+  background: #6d5bd0;
+  color: #f5f3ff;
 }
 
 [data-theme="light"] .week-event .event-time {

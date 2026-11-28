@@ -202,9 +202,9 @@
   color: var(--text-primary);
 }
 .task-badge.break-badge {
-  background: rgba(52, 211, 153, 0.14);
-  color: var(--accent-green, #34d399);
-  border: 1px solid rgba(52, 211, 153, 0.3);
+  background: rgba(167, 139, 250, 0.14);
+  color: var(--accent-violet, #a78bfa);
+  border: 1px solid rgba(167, 139, 250, 0.32);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }

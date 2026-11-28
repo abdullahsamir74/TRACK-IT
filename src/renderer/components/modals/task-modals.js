@@ -18,6 +18,7 @@ import {
   closeModals,
   syncPriorityPills,
   syncTypePills,
+  applyTypeFieldState,
 } from "./helpers.js";
 
 // ---- Add Task Modal ----
@@ -71,7 +72,12 @@ export function openAddTaskModal(
   const taskTimeInput = document.getElementById("task-time");
   if (taskTimeInput) taskTimeInput.value = startTime;
   document.getElementById("task-name").value = "";
-  document.getElementById("task-priority").value = "medium";
+  const priorityEl = document.getElementById("task-priority");
+  if (priorityEl) {
+    priorityEl.value = "medium";
+    priorityEl.disabled = false;
+    delete priorityEl.dataset.preBreakValue;
+  }
 
   // Estimate from range if provided
   let estimateVal = "";
@@ -113,6 +119,7 @@ export function openAddTaskModal(
   const state = getState();
   const projSelect = document.getElementById("task-project");
   if (projSelect) {
+    projSelect.disabled = false;
     projSelect.innerHTML = `<option value="">No Project (Unassigned)</option>`;
     Object.values(state.customProjects).forEach((p) => {
       const opt = document.createElement("option");
@@ -126,10 +133,12 @@ export function openAddTaskModal(
     if (!prefilledProjectId) {
       projSelect.value = "";
     }
+    delete projSelect.dataset.preBreakValue;
   }
 
   syncPriorityPills("task", "medium");
   syncTypePills("task", opts.isBreak ? "break" : "task");
+  applyTypeFieldState("task", Boolean(opts.isBreak));
   attachPickersToInputs();
   document.getElementById("modal-overlay").style.display = "flex";
 
@@ -153,10 +162,14 @@ export async function handleAddTask(e) {
     10,
   );
   const estimate = isNaN(parsedEst) || parsedEst <= 0 ? (isAllDay ? null : 60) : parsedEst;
-  const priority = document.getElementById("task-priority").value;
-  const projectId = document.getElementById("task-project")?.value || null;
-  const notes = document.getElementById("task-notes")?.value.trim() || "";
   const isBreak = document.getElementById("task-type")?.value === "break";
+  const priority = isBreak
+    ? null
+    : document.getElementById("task-priority").value;
+  const projectId = isBreak
+    ? null
+    : document.getElementById("task-project")?.value || null;
+  const notes = document.getElementById("task-notes")?.value.trim() || "";
 
   if (!name || !date) return;
   if (!isAllDay && !time) return;
@@ -255,6 +268,8 @@ export function openEditTaskModal(task) {
   const priorityInput = document.getElementById("edit-task-priority");
   if (priorityInput) {
     priorityInput.value = task.priority || "medium";
+    priorityInput.disabled = false;
+    delete priorityInput.dataset.preBreakValue;
     syncPriorityPills("edit-task", task.priority || "medium");
   }
 
@@ -263,6 +278,7 @@ export function openEditTaskModal(task) {
   const state = getState();
   const projSelect = document.getElementById("edit-task-project");
   if (projSelect) {
+    projSelect.disabled = false;
     projSelect.innerHTML = `<option value="">No Project (Unassigned)</option>`;
     Object.values(state.customProjects).forEach((p) => {
       const opt = document.createElement("option");
@@ -274,7 +290,10 @@ export function openEditTaskModal(task) {
       projSelect.appendChild(opt);
     });
     projSelect.value = task.projectId || "";
+    delete projSelect.dataset.preBreakValue;
   }
+
+  applyTypeFieldState("edit-task", Boolean(task.isBreak));
 
   if (task.start) {
     const d = new Date(task.start);
@@ -352,10 +371,14 @@ export async function handleEditTask(e) {
     10,
   );
   const estimate = isNaN(parsedEst) || parsedEst <= 0 ? null : parsedEst;
-  const priority = document.getElementById("edit-task-priority").value;
-  const projectId = document.getElementById("edit-task-project")?.value || null;
-  const notes = document.getElementById("edit-task-notes")?.value.trim() || "";
   const isBreak = document.getElementById("edit-task-type")?.value === "break";
+  const priority = isBreak
+    ? null
+    : document.getElementById("edit-task-priority").value;
+  const projectId = isBreak
+    ? null
+    : document.getElementById("edit-task-project")?.value || null;
+  const notes = document.getElementById("edit-task-notes")?.value.trim() || "";
 
   if (isManual) {
     if (!name || !date) return;

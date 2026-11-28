@@ -57,7 +57,7 @@ export function syncPriorityPills(prefix, value) {
 }
 
 // ---- Task / Break Type Toggle ----
-export function setupTypeToggle(prefix) {
+export function setupTypeToggle(prefix, onChange) {
   const container = document.getElementById(`${prefix}-type-selector`);
   if (!container) return;
   const input = document.getElementById(`${prefix}-type`);
@@ -69,6 +69,7 @@ export function setupTypeToggle(prefix) {
       if (input) input.value = value;
       pills.forEach((p) => p.classList.remove("active"));
       pill.classList.add("active");
+      if (typeof onChange === "function") onChange(value);
     });
   });
 }
@@ -85,6 +86,59 @@ export function syncTypePills(prefix, value) {
       pill.getAttribute("data-value") === normalized,
     );
   });
+}
+
+// Breaks don't belong to projects and don't carry a task priority.
+export function applyTypeFieldState(prefix, isBreak) {
+  const project = document.getElementById(`${prefix}-project`);
+  if (project) {
+    if (isBreak) {
+      // Remember the selection so switching back to Task restores it.
+      if (!project.disabled) {
+        project.dataset.preBreakValue = project.value;
+      }
+      project.value = "";
+      project.disabled = true;
+    } else {
+      project.disabled = false;
+      if (project.dataset.preBreakValue !== undefined) {
+        project.value = project.dataset.preBreakValue;
+        delete project.dataset.preBreakValue;
+      }
+    }
+  }
+  project?.closest(".form-group")?.classList.toggle("field-disabled", isBreak);
+
+  const priority = document.getElementById(`${prefix}-priority`);
+  const prioritySelector = document.getElementById(
+    `${prefix}-priority-selector`,
+  );
+  if (priority) {
+    if (isBreak) {
+      // Remember the selection so switching back to Task restores it.
+      if (!priority.disabled) {
+        priority.dataset.preBreakValue = priority.value || "medium";
+      }
+      priority.value = "";
+      priority.disabled = true;
+    } else {
+      priority.disabled = false;
+      if (priority.dataset.preBreakValue !== undefined) {
+        priority.value = priority.dataset.preBreakValue;
+        delete priority.dataset.preBreakValue;
+      }
+    }
+  }
+  prioritySelector?.querySelectorAll(".priority-pill").forEach((pill) => {
+    pill.disabled = isBreak;
+    pill.classList.toggle(
+      "active",
+      !isBreak && pill.getAttribute("data-value") === (priority?.value || ""),
+    );
+  });
+  prioritySelector
+    ?.closest(".form-group")
+    ?.classList.toggle("field-disabled", isBreak);
 }
 
 export function setupDurationPresets(prefix) {
